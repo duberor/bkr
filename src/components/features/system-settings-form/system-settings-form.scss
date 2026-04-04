@@ -1,0 +1,9 @@
+:host { display:block; }
+.settings-form { display:grid; gap:14px; }
+.settings-form__head { display:grid; gap:6px; }
+.settings-form__eyebrow { color:$info30; text-transform:uppercase; letter-spacing:.12em; font-size:12px; }
+.settings-form__title-row { display:flex; align-items:center; gap:8px; }
+.settings-form__title-row h2 { margin:0; font-size:20px; }
+.settings-form__grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; }
+@media (max-width: 1100px) { .settings-form__grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 720px) { .settings-form__grid { grid-template-columns: 1fr; } }

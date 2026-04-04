@@ -1,0 +1,31 @@
+:host { display:block; }
+.consumers-page { display:grid; gap:18px; }
+.consumers-page__hero { display:grid; grid-template-columns: 1.4fr .9fr; gap:18px; }
+.page-eyebrow { color:$info30; text-transform:uppercase; letter-spacing:.12em; font-size:12px; }
+h1 { font-size: clamp(26px, 3.1vw, 38px); margin-top: 8px; }
+p { color: rgba($white,.72); margin-top: 10px; }
+.consumers-page__controls { display:grid; gap:14px; align-content:center; }
+.consumers-page__controls span { color: rgba($white,.64); font-size:13px; }
+.chips { display:flex; flex-wrap:wrap; gap:8px; }
+.chip { border:1px solid rgba($white,.12); background: rgba($white,.04); color:$white; padding:8px 12px; border-radius:999px; cursor:pointer; font-size: 13px; }
+.chip.is-active { background: rgba($info20,.2); border-color: rgba($info20,.45); }
+.consumers-page__layout { display:grid; grid-template-columns: 1.05fr .95fr; gap:18px; align-items:start; }
+.consumers-page__stack { display:grid; gap:18px; }
+.consumers-page__list-wrap { min-width:0; }
+.zones-card { display:grid; gap:12px; }
+.zones-card__head { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; }
+.zones-card__head h2 { margin-top:6px; font-size:22px; }
+.zones-card__list { display:flex; flex-wrap:wrap; gap:10px; }
+.zone-pill { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 12px; border-radius:999px; background: rgba($white,.05); border:1px solid rgba($white,.08); min-width: 200px; }
+.zone-pill__meta { display:grid; gap:2px; }
+.zone-pill__meta small { color: rgba($white,.62); font-size: 12px; }
+.zone-pill__actions { display:flex; align-items:center; gap:8px; }
+.zone-pill__edit { border:1px solid rgba($white,.12); background: rgba($white,.04); color:$white; cursor:pointer; border-radius:999px; padding:6px 10px; font-size:12px; }
+.zone-pill__remove { width:24px; height:24px; border:0; border-radius:50%; background: rgba($white,.08); color:$white; cursor:pointer; font-size:16px; line-height:1; }
+@media (max-width: 1180px) { .consumers-page__hero, .consumers-page__layout { grid-template-columns: 1fr; } }
+
+.consumers-page__feedback { padding: 12px 14px; border-radius: 14px; border: 1px solid rgba($white,.08); font-size: 14px; }
+.consumers-page__feedback--success { background: rgba($success20,.12); border-color: rgba($success20,.24); }
+.consumers-page__feedback--error { background: rgba($danger20,.12); border-color: rgba($danger20,.24); }
+.consumers-page__feedback--info { background: rgba($info20,.12); border-color: rgba($info20,.24); }
+.zones-card__empty { color: rgba($white,.64); }

@@ -1,0 +1,57 @@
+:host {
+  display: block;
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:host,
+:host * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb, rgba(154, 232, 206, 0.44)) var(--scrollbar-track, rgba(255, 255, 255, 0.06));
+}
+
+:host *::-webkit-scrollbar {
+  width: var(--scrollbar-size, 12px);
+  height: var(--scrollbar-size, 12px);
+}
+
+:host *::-webkit-scrollbar-track {
+  background: var(--scrollbar-track, rgba(255, 255, 255, 0.06));
+  border-radius: 999px;
+}
+
+:host *::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    var(--scrollbar-thumb-hover, rgba(154, 232, 206, 0.68)) 0%,
+    var(--scrollbar-thumb, rgba(154, 232, 206, 0.44)) 100%
+  );
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+:host *::-webkit-scrollbar-thumb:hover {
+  border-color: var(--scrollbar-border, rgba(255, 255, 255, 0.14));
+}

@@ -1,0 +1,115 @@
+@use './variables' as *;
+
+@mixin h1 {
+  line-height: 1.1;
+  font-size: 60px;
+}
+
+@mixin h2 {
+  line-height: 1.1;
+  font-size: 48px;
+}
+
+@mixin h3 {
+  line-height: 1.1;
+  font-size: 36px;
+}
+
+@mixin h4 {
+  line-height: 1.1;
+  font-size: 28px;
+}
+
+@mixin h5 {
+  font-family: $mainFont;
+  line-height: 1.1;
+  font-size: 20px;
+}
+
+@mixin h6 {
+  line-height: 1.1;
+  font-size: 16px;
+}
+
+@mixin regular($bold: 400) {
+  line-height: 1.5;
+  font-family: $mainFont;
+  font-size: 20px;
+
+  @if ($bold == 1) {
+    font-weight: 700;
+  } @else {
+    font-weight: 400;
+  }
+}
+
+
+@mixin layoutL {
+  max-width: 1872px;
+}
+
+@mixin layoutS {
+  max-width: 1640px;
+}
+
+@mixin p16 {
+  padding: 16px;
+}
+
+@mixin ph16 {
+  padding: 0 16px;
+}
+
+@mixin pv16 {
+  padding: 16px 0;
+}
+
+
+@mixin p24 {
+  padding: 24px;
+}
+
+@mixin ph24 {
+  padding: 0 24px;
+}
+
+@mixin pv24 {
+  padding: 24px 0;
+}
+
+@mixin anyHover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @content;
+    }
+  }
+}
+
+@mixin link ($width: 2px, $offset: 0) {
+  @include regular();
+  position: relative;
+
+  &:before {
+    content: '';
+    width: 0%;
+    height: $width;
+    background: currentColor;
+    position: absolute;
+    left: 0;
+    bottom: $offset;
+    width: 100%;
+    transform: scaleX(0);
+    opacity: 0;
+    transform-origin: left;
+    transition:
+      .15s transform ease-in-out,
+      .15s opacity ease-in-out;
+  }
+
+  @include anyHover {
+    &:before {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+  }
+}

@@ -1,0 +1,38 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="accent" x1="164" y1="152" x2="348" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5D8CFF" />
+      <stop offset="1" stop-color="#2ED3A8" />
+    </linearGradient>
+  </defs>
+
+  <!-- outer frame -->
+  <rect x="72" y="72" width="368" height="368" rx="96" stroke="#ffffff" stroke-width="20" />
+
+  <!-- energy contour -->
+  <path d="M160 184C160 166.327 174.327 152 192 152H320C337.673 152 352 166.327 352 184V208" stroke="url(#accent)"
+    stroke-width="16" stroke-linecap="round" />
+  <path d="M352 328C352 345.673 337.673 360 320 360H192C174.327 360 160 345.673 160 328V304" stroke="url(#accent)"
+    stroke-width="16" stroke-linecap="round" />
+
+  <!-- side nodes -->
+  <circle cx="160" cy="256" r="12" fill="#ffffff" />
+  <circle cx="352" cy="256" r="12" fill="#ffffff" />
+
+  <!-- house roof -->
+  <path d="M188 226L256 174L324 226" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- house body -->
+  <path d="M206 222V314C206 327.255 216.745 338 230 338H282C295.255 338 306 327.255 306 314V222" stroke="#fff"
+    stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- battery block -->
+  <rect x="218" y="236" width="76" height="42" rx="12" stroke="#fff" stroke-width="14" />
+  <rect x="294" y="248" width="10" height="18" rx="4" fill="#fff" />
+
+  <!-- energy bolt -->
+  <path d="M254 286L236 316H252L244 346L276 310H260L268 286H254Z" fill="url(#accent)" />
+
+  <!-- base stabilizer -->
+  <path d="M196 380H316" stroke="#fff" stroke-width="14" stroke-linecap="round" />
+</svg>

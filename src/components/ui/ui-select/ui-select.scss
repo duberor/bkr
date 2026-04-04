@@ -1,0 +1,158 @@
+:host {
+  display: block;
+  min-width: 0;
+  position: relative;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field--open {
+  position: relative;
+  z-index: 140;
+}
+
+.field__label {
+  font-size: 14px;
+  color: rgba($white, 0.72);
+}
+
+.field__select-wrap {
+  position: relative;
+}
+
+.field__control {
+  appearance: none;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 44px 0 16px;
+  border-radius: 16px;
+  border: 1px solid rgba($white, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: $white;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.2;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .18s ease;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.field__control:hover {
+  border-color: rgba($white, 0.2);
+}
+
+.field__control:focus-visible,
+.field__select-wrap.is-open .field__control {
+  outline: none;
+  border-color: rgba($info20, 0.58);
+  box-shadow: 0 0 0 3px rgba($info20, 0.14);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.field__control:disabled,
+.field.is-disabled .field__control {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field__value {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.field__value.is-placeholder {
+  color: rgba($white, .48);
+}
+
+.field__dropdown {
+  position: absolute;
+  z-index: 160;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  min-width: 100%;
+  max-height: 280px;
+  overflow: auto;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid rgba($white, 0.12);
+  background: #171d2a;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
+}
+
+.field__option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: $white;
+  font: inherit;
+  text-align: left;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.field__option:hover,
+.field__option.is-selected {
+  background: rgba($white, 0.08);
+}
+
+.field__check {
+  color: $info20;
+  font-weight: 700;
+}
+
+.field__empty {
+  padding: 12px;
+  color: rgba($white, .6);
+  font-size: 14px;
+}
+
+.field__arrow {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba($white, 0.72);
+  border-bottom: 2px solid rgba($white, 0.72);
+  transform: translateY(-65%) rotate(45deg);
+  pointer-events: none;
+  transition: transform .18s ease;
+}
+
+.field__select-wrap.is-open .field__arrow {
+  transform: translateY(-35%) rotate(-135deg);
+}
+
+.field__option.is-active {
+  background: rgba($info20, 0.14);
+}
+
+.field__message {
+  font-size: 12px;
+  color: rgba($white, 0.58);
+}
+
+.field__message--error {
+  color: #ff9a9a;
+}
+
+.field__control.is-error {
+  border-color: rgba(255, 122, 122, 0.72);
+  box-shadow: 0 0 0 3px rgba(255, 122, 122, 0.12);
+}

@@ -1,0 +1,22 @@
+@mixin font-face($family, $path, $weight: 400, $display: swap) {
+  @font-face {
+    font-family: $family;
+    src:
+      url("#{$path}.woff2") format("woff2"),
+      url("#{$path}.woff") format("woff");
+    font-weight: $weight;
+    font-style: normal;
+    font-display: $display;
+  }
+}
+
+@include font-face('FixelText', '/src/assets/fonts/FixelText/FixelText-Medium', 500);
+@include font-face('FixelText', '/src/assets/fonts/FixelText/FixelText-Bold', 700);
+@include font-face('FixelText', '/src/assets/fonts/FixelText/FixelText-Black', 900);
+@include font-face('FixelText', '/src/assets/fonts/FixelText/FixelText-Regular', 400);
+
+
+@include font-face('SourceSerif4', '/src/assets/fonts/SourceSerif4/SourceSerif4-Regular', 400);
+@include font-face('SourceSerif4', '/src/assets/fonts/SourceSerif4/SourceSerif4-Medium', 600);
+@include font-face('SourceSerif4', '/src/assets/fonts/SourceSerif4/SourceSerif4-Bold', 700);
+

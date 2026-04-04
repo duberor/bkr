@@ -1,0 +1,18 @@
+.menu {
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+nav {
+  display: flex;
+  height: 100%;
+  align-items: center;
+}

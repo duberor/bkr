@@ -1,0 +1,32 @@
+@use './variables' as *;
+@use './mixins' as *;
+@use './reset';
+@use './fonts';
+
+
+#app {
+  position: relative;
+  min-height: 100vh;
+}
+
+.light-overlay {
+  position: fixed;
+  inset: 0;
+  right: 0;
+  top: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .9;
+
+  --x: 82vw;
+  --y: 18vh;
+
+  background: radial-gradient(
+    420px circle at var(--x) var(--y),
+    rgba(255, 190, 120, 0.14),
+    rgba(255, 190, 120, 0.08) 24%,
+    transparent 70%
+  );
+  transition: opacity .25s ease;
+  will-change: background;
+}

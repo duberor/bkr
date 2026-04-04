@@ -1,0 +1,11 @@
+ui-icon {
+  display: flex;
+  height: fit-content;
+}
+
+ui-icon .icon {
+  width: 100%;
+  height: 100%;
+
+  stroke: $text-light;
+}

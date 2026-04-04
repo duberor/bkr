@@ -1,0 +1,16 @@
+a {
+  text-decoration: none;
+  color: $text-light;
+  @include link(2px, -2px);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+ui-icon {
+  display: flex;
+  height: fit-content;
+  width: fit-content;
+}

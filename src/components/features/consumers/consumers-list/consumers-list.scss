@@ -1,0 +1,99 @@
+:host { display: block; }
+.consumers-list { display: grid; gap: 16px; }
+.consumers-list__empty {
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px dashed rgba($white,.2);
+  color: rgba($white,.7);
+  text-align: center;
+}
+.consumers-list__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.consumers-list__toolbar-btn {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba($white,.12);
+  background: rgba($white,.04);
+  color: $white;
+  cursor: pointer;
+}
+.zone-group {
+  border: 1px solid rgba($white,.08);
+  border-radius: 18px;
+  background: rgba($white,.03);
+  overflow: hidden;
+}
+.zone-group.is-open {
+  background: rgba($white,.04);
+  box-shadow: 0 16px 40px rgba(0,0,0,.18);
+}
+.zone-group__summary {
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  background: transparent;
+  border: 0;
+  color: $white;
+  text-align: left;
+}
+.zone-group__main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.zone-group__summary strong { display: block; font-size: 16px; }
+.zone-group__summary span { color: rgba($white,.62); font-size: 13px; }
+.zone-group__stats { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+.zone-group__stats span {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba($info20,.08);
+  border: 1px solid rgba($info20,.18);
+  color: $white;
+  font-size: 13px;
+}
+.zone-group__chevron {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  border-right: 2px solid rgba($white,.6);
+  border-bottom: 2px solid rgba($white,.6);
+  transform: rotate(45deg);
+  transition: transform .18s ease;
+  margin-right: 6px;
+}
+.zone-group.is-open .zone-group__chevron {
+  transform: rotate(225deg);
+  margin-top: 8px;
+}
+.zone-group__content {
+  display: grid;
+  gap: 16px;
+  padding: 0 12px 12px;
+  animation: accordionIn .18s ease;
+}
+@keyframes accordionIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 720px) {
+  .zone-group__summary,
+  .zone-group__main {
+    display: grid;
+  }
+  .consumers-list__toolbar {
+    justify-content: stretch;
+    grid-template-columns: 1fr 1fr;
+    display: grid;
+  }
+}

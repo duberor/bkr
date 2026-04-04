@@ -1,0 +1,17 @@
+:host { display: block; }
+.consumer-form { display: grid; gap: 14px; }
+.consumer-form__head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.consumer-form__eyebrow { color: $info30; text-transform: uppercase; letter-spacing: .12em; font-size: 12px; }
+.consumer-form__title { font-size: 22px; margin-top: 6px; }
+.consumer-form__grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+.consumer-form__grid ui-input[name="notes"] { grid-column: span 3; }
+.consumer-form__actions { display: flex; justify-content: flex-end; }
+.consumer-form__zone-field { min-width: 0; }
+@media (max-width: 980px) {
+  .consumer-form__head { display: grid; }
+  .consumer-form__grid { grid-template-columns: 1fr; }
+  .consumer-form__grid ui-input[name="notes"] { grid-column: auto; }
+}
+.consumer-form__errors { padding: 14px 16px; border-radius: 16px; background: rgba($danger20,.12); border: 1px solid rgba($danger20,.24); color: $white; }
+.consumer-form__errors strong { display:block; margin-bottom: 8px; }
+.consumer-form__errors ul { margin: 0; padding-left: 18px; display:grid; gap: 4px; }

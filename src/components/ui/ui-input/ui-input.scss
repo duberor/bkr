@@ -1,0 +1,65 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field__label {
+  @include regular();
+  color: rgba($white, .72);
+  font-size: 14px;
+}
+
+.field__control {
+  @include regular();
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid rgba($white, .12);
+  border-radius: 16px;
+  background: rgba($white, .05);
+  color: $white;
+  outline: 0;
+  box-sizing: border-box;
+  font-size: 15px;
+  line-height: 1.2;
+
+  transition:
+    border-color .18s ease,
+    background-color .18s ease,
+    box-shadow .18s ease;
+}
+
+textarea.field__control {
+  min-height: 96px;
+  padding: 14px 16px;
+  resize: vertical;
+}
+
+.field__control::placeholder {
+  color: rgba($white, .35);
+}
+
+.field__control:focus {
+  border-color: rgba($info20, 0.58);
+  background: rgba($white, .07);
+  box-shadow: 0 0 0 3px rgba($info20, 0.14);
+}
+
+.field__message {
+  font-size: 12px;
+  color: rgba($white, 0.58);
+}
+
+.field__message--error {
+  color: #ff9a9a;
+}
+
+.field__control.is-error {
+  border-color: rgba(255, 122, 122, 0.72);
+  box-shadow: 0 0 0 3px rgba(255, 122, 122, 0.12);
+}

@@ -1,0 +1,56 @@
+:host { display:block; }
+.battery-configurator { display:grid; gap:18px; }
+.battery-configurator__head { display:grid; gap:6px; }
+.battery-configurator__eyebrow { color:$info30; text-transform:uppercase; letter-spacing:.12em; font-size:12px; }
+.battery-configurator__summary { display:grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap:12px; }
+.battery-configurator__summary--secondary { grid-template-columns: repeat(4,minmax(0,1fr)); }
+.battery-configurator__summary div,
+.battery-option { padding:16px; border-radius:20px; border:1px solid rgba($white,.08); background: rgba($white,.04); }
+.battery-configurator__summary div { display:grid; gap:10px; align-content:start; min-height:116px; }
+.battery-configurator__summary span,
+.battery-option span {
+  display:block;
+  font-size:12px;
+  line-height:1.35;
+  color: rgba($white,.58);
+}
+.battery-configurator__summary strong {
+  display:block;
+  font-size:clamp(18px, 2vw, 22px);
+  line-height:1.15;
+  word-break:break-word;
+}
+.battery-configurator__list { display:grid; gap:12px; }
+.battery-configurator__alternatives { display:grid; gap:12px; }
+.battery-option.is-primary { border-color: rgba($success20,.35); background: rgba($success20,.08); }
+.battery-option__head { display:flex; justify-content:space-between; gap:10px; margin-bottom:12px; }
+.battery-option__grid { display:grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap:10px; }
+.battery-option__head strong { font-size:18px; line-height:1.2; }
+.battery-option__head span { max-width:320px; text-align:right; }
+.battery-option__grid div {
+  display:grid;
+  gap:8px;
+  padding:12px;
+  border-radius:16px;
+  background: rgba($black,.18);
+  align-content:start;
+  min-height:96px;
+}
+.battery-option__grid strong {
+  display:block;
+  font-size:19px;
+  line-height:1.2;
+  word-break:break-word;
+}
+@media (max-width: 1200px) {
+  .battery-configurator__summary,
+  .battery-configurator__summary--secondary,
+  .battery-option__grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 960px) {
+  .battery-configurator__summary,
+  .battery-configurator__summary--secondary,
+  .battery-option__grid { grid-template-columns: 1fr; }
+  .battery-option__head { display:grid; }
+  .battery-option__head span { max-width:none; text-align:left; }
+}
