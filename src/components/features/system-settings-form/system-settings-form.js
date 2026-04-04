@@ -1,6 +1,7 @@
 import { BaseElement } from '../../base/base-element.js';
 import '../../ui/ui-input/ui-input.js';
 import '../../ui/ui-select/ui-select.js';
+import '../../ui/ui-disclosure/ui-disclosure.js';
 import '../../ui/ui-tooltip/ui-tooltip.js';
 import { parseLocaleNumber } from '../../../utils/number.js';
 import styles from './system-settings-form.scss?inline';
@@ -42,8 +43,8 @@ class SystemSettingsForm extends BaseElement {
   validateField(name, value) {
     if (name === 'autonomyDays') {
       const parsed = parseLocaleNumber(value);
-      if (!Number.isFinite(parsed)) return 'Вкажіть автономність числом.';
-      if (parsed < 1 || parsed > 30) return 'Автономність має бути від 1 до 30 діб.';
+      if (!Number.isFinite(parsed)) return 'Вкажіть бажаний час роботи числом.';
+      if (parsed < 1 || parsed > 30) return 'Бажаний час роботи має бути від 1 до 30 діб.';
     }
 
     if (name === 'inverterEfficiency') {
@@ -54,20 +55,20 @@ class SystemSettingsForm extends BaseElement {
 
     if (name === 'reserveRatio') {
       const parsed = parseLocaleNumber(value);
-      if (!Number.isFinite(parsed)) return 'Вкажіть запас числом.';
-      if (parsed < 1 || parsed > 2) return 'Запас має бути в межах від 1 до 2.';
+      if (!Number.isFinite(parsed)) return 'Вкажіть запас по інвертору числом.';
+      if (parsed < 1 || parsed > 2) return 'Запас по інвертору має бути в межах від 1 до 2.';
     }
 
     if (name === 'simultaneityFactor') {
       const parsed = parseLocaleNumber(value);
-      if (!Number.isFinite(parsed)) return 'Вкажіть коефіцієнт числом.';
-      if (parsed < 0.4 || parsed > 1) return 'Коефіцієнт одночасності має бути в межах від 0.4 до 1.';
+      if (!Number.isFinite(parsed)) return 'Вкажіть частку одночасної роботи числом.';
+      if (parsed < 0.4 || parsed > 1) return 'Одночасна робота приладів має бути в межах від 0.4 до 1.';
     }
 
     if (name === 'batteryReserveRatio') {
       const parsed = parseLocaleNumber(value);
-      if (!Number.isFinite(parsed)) return 'Вкажіть резерв числом.';
-      if (parsed < 1 || parsed > 1.8) return 'Запас АКБ має бути в межах від 1 до 1.8.';
+      if (!Number.isFinite(parsed)) return 'Вкажіть запас по АКБ числом.';
+      if (parsed < 1 || parsed > 1.8) return 'Запас по АКБ має бути в межах від 1 до 1.8.';
     }
 
     return '';
@@ -79,19 +80,27 @@ class SystemSettingsForm extends BaseElement {
         <div class="settings-form__head">
           <p class="settings-form__eyebrow">Налаштування</p>
           <div class="settings-form__title-row">
-            <h2>Параметри системи</h2>
-            <ui-tooltip label="Пояснення" text="Тут задаються напруга системи, тип АКБ, бажаний час роботи, запас інвертора та запас АКБ."></ui-tooltip>
+            <h2>Що потрібно від системи</h2>
+            <ui-tooltip label="Пояснення" text="Спочатку задайте базові параметри. Додаткові налаштування змінюйте лише тоді, коли точно розумієте їхній вплив."></ui-tooltip>
           </div>
+          <p class="settings-form__lead">Тут ми задаємо основу для підбору: тип акумуляторів, напругу системи та скільки часу вона має працювати без мережі.</p>
         </div>
-        <div class="settings-form__grid">
-          <ui-select name="batteryVoltage" label="Напруга системи"></ui-select>
-          <ui-select name="batteryType" label="Тип АКБ"></ui-select>
-          <ui-input type="text" name="autonomyDays" label="Бажаний час роботи, діб" placeholder="Наприклад, 1 або 2" value="${this.draft.autonomyDays}" error="${this.errors.autonomyDays || ''}"></ui-input>
-          <ui-input type="text" name="inverterEfficiency" label="ККД інвертора" placeholder="Наприклад, 0,92" value="${this.draft.inverterEfficiency}" error="${this.errors.inverterEfficiency || ''}"></ui-input>
-          <ui-input type="text" name="reserveRatio" label="Запас інвертора" placeholder="Наприклад, 1,2" value="${this.draft.reserveRatio}" error="${this.errors.reserveRatio || ''}"></ui-input>
-          <ui-input type="text" name="simultaneityFactor" label="Одночасність роботи" placeholder="Наприклад, 0,85" value="${this.draft.simultaneityFactor}" error="${this.errors.simultaneityFactor || ''}"></ui-input>
-          <ui-input type="text" name="batteryReserveRatio" label="Запас АКБ" placeholder="Наприклад, 1,15" value="${this.draft.batteryReserveRatio}" error="${this.errors.batteryReserveRatio || ''}"></ui-input>
+        <div class="settings-form__grid settings-form__grid--primary">
+          <ui-select name="batteryVoltage" label="Напруга системи" hint="Чим вища напруга, тим нижчі струми та простіше силова частина системи."></ui-select>
+          <ui-select name="batteryType" label="Тип акумуляторів" hint="Від типу АКБ залежать ресурс, доступна енергія та глибина розряду."></ui-select>
+          <ui-input type="text" name="autonomyDays" label="Бажаний час роботи, діб" placeholder="Наприклад, 1 або 2" hint="Скільки діб система має працювати у звичному режимі без мережі." value="${this.draft.autonomyDays}" error="${this.errors.autonomyDays || ''}"></ui-input>
         </div>
+        <ui-disclosure label="Додаткові налаштування для точнішого підбору">
+          <div class="settings-form__advanced">
+            <p class="settings-form__advanced-copy">Залишайте ці значення за замовчуванням, якщо не маєте точних технічних даних або окремої вимоги до проєкту.</p>
+            <div class="settings-form__grid settings-form__grid--advanced">
+              <ui-input type="text" name="inverterEfficiency" label="ККД інвертора" placeholder="Наприклад, 0,92" hint="Показує втрати на перетворенні. Якщо не впевнені, залишайте значення за замовчуванням." value="${this.draft.inverterEfficiency}" error="${this.errors.inverterEfficiency || ''}"></ui-input>
+              <ui-input type="text" name="reserveRatio" label="Запас по інвертору" placeholder="Наприклад, 1,2" hint="Потрібен, щоб інвертор не працював постійно на межі своїх можливостей." value="${this.draft.reserveRatio}" error="${this.errors.reserveRatio || ''}"></ui-input>
+              <ui-input type="text" name="simultaneityFactor" label="Одночасна робота приладів" placeholder="Наприклад, 0,85" hint="1 означає, що майже все працює разом. Менше значення зменшує навантаження, під яке підбираємо систему." value="${this.draft.simultaneityFactor}" error="${this.errors.simultaneityFactor || ''}"></ui-input>
+              <ui-input type="text" name="batteryReserveRatio" label="Запас по АКБ" placeholder="Наприклад, 1,15" hint="Додає резерв на старіння АКБ, холод і реальні втрати в системі." value="${this.draft.batteryReserveRatio}" error="${this.errors.batteryReserveRatio || ''}"></ui-input>
+            </div>
+          </div>
+        </ui-disclosure>
       </section>
     `;
   }

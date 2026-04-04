@@ -3,6 +3,12 @@
 .consumer-form__head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
 .consumer-form__eyebrow { color: $info30; text-transform: uppercase; letter-spacing: .12em; font-size: 12px; }
 .consumer-form__title { font-size: 22px; margin-top: 6px; }
+.consumer-form__lead {
+  margin: 10px 0 0;
+  color: rgba($white,.72);
+  line-height: 1.6;
+  max-width: 68ch;
+}
 .consumer-form__grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
 .consumer-form__grid ui-input[name="notes"] { grid-column: span 3; }
 .consumer-form__actions { display: flex; justify-content: flex-end; }

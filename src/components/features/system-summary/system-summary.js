@@ -15,7 +15,7 @@ class SystemSummary extends BaseElement {
 
   renderRecommendation(calc) {
     if (!this.items.length) {
-      return '<div class="system-summary__empty">Додайте хоча б один прилад, щоб отримати рекомендації щодо інвертора, акумулятора та автономності.</div>';
+      return '<div class="system-summary__empty">Додайте хоча б один прилад, щоб побачити, який інвертор і яка АКБ потрібні для вашого сценарію.</div>';
     }
 
     const autonomyHours = calc.estimatedAutonomyHours;
@@ -23,15 +23,15 @@ class SystemSummary extends BaseElement {
       <div class="system-summary__recommendation">
         <div class="system-summary__recommendation-grid">
           <div>
-            <span>Інвертор</span>
+            <span>Який інвертор потрібен</span>
             <strong>${formatPower(calc.recommendedInverterPower)}</strong>
           </div>
           <div>
-            <span>Комплект АКБ</span>
+            <span>Яка АКБ потрібна</span>
             <strong>${this.settings.batteryVoltage || 24} V · ${formatBattery(calc.recommendedBatteryCapacityAh)}</strong>
           </div>
           <div>
-            <span>Час роботи у звичному режимі</span>
+            <span>Скільки пропрацює у звичному режимі</span>
             <strong>${formatAutonomy(autonomyHours)}</strong>
           </div>
         </div>
@@ -42,15 +42,15 @@ class SystemSummary extends BaseElement {
   renderSecondaryMetrics(calc) {
     return `
       <div class="system-summary__mini-grid">
-          <div><span>Потрібна енергія без запасу</span><strong>${formatEnergyWh(calc.requiredEnergyWh)}</strong></div>
-          <div><span>Потрібна енергія з запасом</span><strong>${formatEnergyWh(calc.totalEnergyWh)}</strong></div>
-          <div><span>Доступна енергія АКБ</span><strong>${formatEnergyWh(calc.usableBatteryEnergyWh)}</strong></div>
-          <div><span>Зарядний струм</span><strong>${formatNumber(calc.recommendedChargeCurrentA)} A</strong></div>
-          <div><span>Допустима глибина розряду</span><strong>${formatNumber(calc.depthOfDischarge * 100)}%</strong></div>
-          <div><span>Відповідність бажаному часу роботи</span><strong>${formatNumber(calc.autonomyCoverageRatio * 100, 0)}%</strong></div>
-          <div><span>Одночасність роботи</span><strong>${formatNumber(calc.simultaneityFactor, 2)}</strong></div>
-          <div><span>Запас АКБ</span><strong>${formatNumber(calc.batteryReserveRatio, 2)}×</strong></div>
-          <div><span>Час роботи при розрахунковому навантаженні</span><strong>${formatAutonomy(calc.continuousAutonomyHours, { preferDays: false })}</strong></div>
+          <div><span>Скільки енергії потрібно</span><strong>${formatEnergyWh(calc.requiredEnergyWh)}</strong></div>
+          <div><span>Скільки енергії потрібно із запасом</span><strong>${formatEnergyWh(calc.totalEnergyWh)}</strong></div>
+          <div><span>Корисний запас енергії АКБ</span><strong>${formatEnergyWh(calc.usableBatteryEnergyWh)}</strong></div>
+          <div><span>Який зарядний струм потрібен</span><strong>${formatNumber(calc.recommendedChargeCurrentA)} A</strong></div>
+          <div><span>Глибина розряду АКБ</span><strong>${formatNumber(calc.depthOfDischarge * 100)}%</strong></div>
+          <div><span>Чи вистачає на бажаний час роботи</span><strong>${formatNumber(calc.autonomyCoverageRatio * 100, 0)}%</strong></div>
+          <div><span>Скільки приладів працює одночасно</span><strong>${formatNumber(calc.simultaneityFactor, 2)}</strong></div>
+          <div><span>Додатковий запас АКБ</span><strong>${formatNumber(calc.batteryReserveRatio, 2)}×</strong></div>
+          <div><span>Час роботи при максимальному навантаженні</span><strong>${formatAutonomy(calc.continuousAutonomyHours, { preferDays: false })}</strong></div>
           <div><span>Напруга системи</span><strong>${this.settings.batteryVoltage || 24} V</strong></div>
       </div>
     `;
@@ -60,11 +60,11 @@ class SystemSummary extends BaseElement {
     return `
       <div class="system-summary__grid">
         <div><span>Сумарна потужність приладів</span><strong>${formatPower(calc.totalPower)}</strong></div>
-        <div><span>Розрахункова потужність</span><strong>${formatPower(calc.designLoadPower)}</strong></div>
-        <div><span>Пускова потужність</span><strong>${formatPower(calc.totalSurgePower)}</strong></div>
-        <div><span>Добове споживання</span><strong>${formatEnergyWh(calc.dailyConsumptionWh)}</strong></div>
-        <div><span>Рекомендований інвертор</span><strong>${formatPower(calc.recommendedInverterPower)}</strong></div>
-        <div><span>Рекомендована ємність АКБ</span><strong>${formatBattery(calc.recommendedBatteryCapacityAh)}</strong></div>
+        <div><span>Навантаження, під яке підбираємо систему</span><strong>${formatPower(calc.designLoadPower)}</strong></div>
+        <div><span>Пусковий пік</span><strong>${formatPower(calc.totalSurgePower)}</strong></div>
+        <div><span>Споживання за добу</span><strong>${formatEnergyWh(calc.dailyConsumptionWh)}</strong></div>
+        <div><span>Який інвертор потрібен</span><strong>${formatPower(calc.recommendedInverterPower)}</strong></div>
+        <div><span>Яка ємність АКБ потрібна</span><strong>${formatBattery(calc.recommendedBatteryCapacityAh)}</strong></div>
       </div>
     `;
   }
@@ -75,12 +75,12 @@ class SystemSummary extends BaseElement {
       <ui-card padding="md">
         <section class="system-summary">
           <div class="system-summary__head">
-            <p class="system-summary__eyebrow">Підсумок розрахунку</p>
-            <h2>Що потрібно для системи</h2>
+            <p class="system-summary__eyebrow">Попередній результат</p>
+            <h2>Що система рекомендує</h2>
           </div>
           ${this.renderPrimaryMetrics(calc)}
           ${this.renderRecommendation(calc)}
-          <ui-disclosure label="Що враховано в розрахунку">
+          <ui-disclosure label="Як це пораховано">
             <div class="system-summary__explainer">
               ${this.renderSecondaryMetrics(calc)}
             </div>

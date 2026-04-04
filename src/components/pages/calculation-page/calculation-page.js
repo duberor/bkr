@@ -14,20 +14,21 @@ class CalculationPage extends BaseElement {
     return `
       <section class="calculation-page">
         <div>
-          <p class="page-eyebrow">Налаштування системи</p>
-          <h1>Налаштування та розрахунок</h1>
+          <p class="page-eyebrow">Параметри</p>
+          <h1>Скільки часу має працювати система</h1>
+          <p>Спочатку задайте базові вимоги до системи, а нижче одразу побачите, яке рішення підходить під ваші прилади.</p>
         </div>
         <ui-card padding="md"><system-settings-form></system-settings-form></ui-card>
         <ui-card padding="md">
           <section class="calculation-page__info">
-            <h2>Що враховує калькулятор</h2>
+            <h2>Що впливає на підбір</h2>
             <div class="calculation-page__chips">
-              <span>Робоча потужність</span>
-              <span>Одночасність роботи</span>
-              <span>Пусковий пік</span>
-              <span>Добове споживання</span>
-              <span>Автономність</span>
-              <span>Запас АКБ</span>
+              <span>Потужність приладів</span>
+              <span>Пускові піки</span>
+              <span>Споживання за добу</span>
+              <span>Бажаний час роботи</span>
+              <span>Запас по інвертору</span>
+              <span>Запас по АКБ</span>
             </div>
           </section>
         </ui-card>

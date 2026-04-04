@@ -109,7 +109,7 @@ class ConsumersList extends BaseElement {
           <div class="zone-group__main">
             <div>
               <strong>${group.zoneName}</strong>
-              <span>${group.items.length} прилад(ів)</span>
+              <span>${group.items.length} приладів</span>
             </div>
 
             <div class="zone-group__stats">

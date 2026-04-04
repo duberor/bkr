@@ -338,7 +338,7 @@ class ProductsPage extends BaseElement {
         ...this.live,
         loading: false,
         results: emptyLiveBuckets(),
-        error: error?.message ? String(error.message) : 'Не вдалося виконати live-підбір.',
+        error: error?.message ? String(error.message) : 'Не вдалося оновити добірку товарів.',
       };
       this.update();
     }
@@ -390,7 +390,7 @@ class ProductsPage extends BaseElement {
       <tr>
         <td>${this.renderProductIdentity(item, `Ресурс: ~${formatNumber(item.cycleLife)} циклів`)}</td>
         <td>${item.totalModules} шт (${item.seriesCount}S/${item.parallelCount}P)</td>
-        <td>${this.voltage}V · ${formatBattery(item.bankCapacityAh)}</td>
+        <td>${this.voltage} V · ${formatBattery(item.bankCapacityAh)}</td>
         <td>${formatEnergyWh(item.usableWh)} · ${formatAutonomy(item.autonomyHours)}</td>
         <td>${formatMoney(item.totalPrice)}</td>
       </tr>
@@ -413,12 +413,12 @@ class ProductsPage extends BaseElement {
 
   renderProtectionRows() {
     if (!this.recommendedProtection.length) {
-      return '<tr><td colspan="4">Додайте або уточніть навантаження для підбору DC-захисту.</td></tr>';
+      return '<tr><td colspan="4">Додайте або уточніть навантаження для підбору захисту по постійному струму.</td></tr>';
     }
     return this.recommendedProtection.map((item) => `
       <tr>
-        <td>${this.renderProductIdentity(item, item.type === 'breaker' ? 'DC автомат' : 'Запобіжник')}</td>
-        <td>${formatNumber(item.currentA)} A / ${formatNumber(item.maxVdc)} Vdc</td>
+        <td>${this.renderProductIdentity(item, item.type === 'breaker' ? 'Автомат по постійному струму' : 'Запобіжник')}</td>
+        <td>${formatNumber(item.currentA)} A / ${formatNumber(item.maxVdc)} V DC</td>
         <td>${item.marginA >= 0 ? '+' : ''}${formatNumber(item.marginA)} A</td>
         <td>${formatMoney(item.priceUah)}</td>
       </tr>
@@ -482,13 +482,13 @@ class ProductsPage extends BaseElement {
           <section class="products-page__section">
             <div class="products-page__section-head">
               <div class="products-page__title-row">
-                <h2>Товари з маркетплейсів</h2>
-                <ui-tooltip label="Пояснення" text="Щоб увімкнути live-пошук, додайте VITE_GOOGLE_CSE_API_KEY і VITE_GOOGLE_CSE_CX у .env."></ui-tooltip>
+                <h2>Варіанти з маркетплейсів</h2>
+                <ui-tooltip label="Пояснення" text="Щоб увімкнути пошук у маркетплейсах, додайте VITE_GOOGLE_CSE_API_KEY і VITE_GOOGLE_CSE_CX у .env."></ui-tooltip>
               </div>
             </div>
-            <ui-disclosure label="Показати товари з маркетплейсів">
+            <ui-disclosure label="Подивитися товари з маркетплейсів">
               <div class="products-page__live-state">
-                <span>Пошук товарів зараз недоступний.</span>
+                <span>Пошук товарів у маркетплейсах зараз недоступний.</span>
               </div>
             </ui-disclosure>
           </section>
@@ -503,24 +503,24 @@ class ProductsPage extends BaseElement {
           <section class="products-page__section">
             <div class="products-page__section-head">
               <div class="products-page__title-row">
-                <h2>Товари з маркетплейсів</h2>
-              <ui-tooltip label="Пояснення" text="Пошук формує результати за поточними параметрами системи й дає прямі посилання на товари."></ui-tooltip>
+                <h2>Варіанти з маркетплейсів</h2>
+              <ui-tooltip label="Пояснення" text="Пошук формує результати за поточними параметрами системи й дає прямі посилання на товари. Використовуйте його як додатковий шар, а не як основну рекомендацію."></ui-tooltip>
             </div>
           </div>
 
-            <ui-disclosure label="Показати товари з маркетплейсів">
+            <ui-disclosure label="Подивитися товари з маркетплейсів">
               <div class="products-page__live-topbar">
                 <div class="products-page__live-state">
                   ${this.live.loading ? '<span>Оновлюю добірку товарів...</span>' : '<span>Добірку товарів оновлено.</span>'}
                   ${this.live.error ? `<small>${escapeHtml(this.live.error)}</small>` : ''}
                 </div>
-                <button type="button" class="products-page__refresh" data-live-refresh ${this.live.loading ? 'disabled' : ''}>Оновити підбір</button>
+                <button type="button" class="products-page__refresh" data-live-refresh ${this.live.loading ? 'disabled' : ''}>Оновити результати</button>
               </div>
 
               ${this.renderLiveCategory('Інвертори', inverter)}
               ${this.renderLiveCategory('АКБ', battery)}
-              ${this.renderLiveCategory('Зарядні', charger)}
-              ${this.renderLiveCategory('DC захист', protection)}
+              ${this.renderLiveCategory('Зарядні пристрої', charger)}
+              ${this.renderLiveCategory('Захист по постійному струму', protection)}
             </ui-disclosure>
           </section>
         </ui-card>
@@ -534,15 +534,16 @@ class ProductsPage extends BaseElement {
       <section class="products-page">
         <div class="products-page__hero">
           <div>
-            <p class="page-eyebrow">Добірка обладнання</p>
-            <h1>Обладнання під ваші параметри</h1>
+            <p class="page-eyebrow">Обладнання</p>
+            <h1>Що потрібно купити для цієї системи</h1>
+            <p>Спочатку показуємо сумісне обладнання з локального каталогу, а нижче, за потреби, можна подивитися товари з маркетплейсів.</p>
           </div>
           <ui-card padding="md">
             <div class="products-page__snapshot">
-              <span>Коротко по проєкту</span>
+              <span>Коротко про рішення</span>
               <strong>${formatPower(calc.recommendedInverterPower)} · ${formatBattery(calc.recommendedBatteryCapacityAh)}</strong>
-              <ui-disclosure label="Ключові параметри">
-                <small>${this.voltage} V ${String(this.batteryType).toUpperCase()} · Рекомендований зарядний струм ${formatNumber(calc.recommendedChargeCurrentA)} A</small>
+              <ui-disclosure label="Ключові параметри системи">
+                <small>${this.voltage} V ${BATTERY_LABELS[this.batteryType] || String(this.batteryType).toUpperCase()} · рекомендований зарядний струм ${formatNumber(calc.recommendedChargeCurrentA)} A</small>
               </ui-disclosure>
             </div>
           </ui-card>
@@ -550,36 +551,34 @@ class ProductsPage extends BaseElement {
 
         <ui-disclosure label="Як підібрано обладнання">
           <div class="products-page__chips">
-            <span>Розрахункове навантаження: <strong>${formatPower(calc.designLoadPower)}</strong></span>
+            <span>Навантаження, під яке підібрано систему: <strong>${formatPower(calc.designLoadPower)}</strong></span>
             <span>Пусковий пік: <strong>${formatPower(calc.totalSurgePower)}</strong></span>
             <span>Енергія з запасом: <strong>${formatEnergyWh(calc.totalEnergyWh)}</strong></span>
-            <span>DC струм: <strong>${formatNumber(this.designDcCurrent, 0)} A</strong></span>
+            <span>Струм з боку АКБ: <strong>${formatNumber(this.designDcCurrent, 0)} A</strong></span>
           </div>
         </ui-disclosure>
 
         ${this.hasLoad ? '' : '<div class="products-page__empty">Щоб побачити конкретні товари, додайте хоча б один прилад у розділі «Прилади».</div>'}
-
-        ${this.renderLiveSection()}
 
         <ui-card padding="md">
           <section class="products-page__section">
             <div class="products-page__section-head">
               <div class="products-page__title-row">
                 <h2>Сумісне обладнання</h2>
-                <ui-tooltip label="Пояснення" text="Локальна база сумісності з перевіркою потужності, напруги, хімії АКБ і струмів."></ui-tooltip>
+                <ui-tooltip label="Пояснення" text="Це основна рекомендація по обладнанню: локальна база перевіряє потужність, напругу, тип АКБ і потрібні струми."></ui-tooltip>
               </div>
             </div>
 
             <div class="products-page__block">
-              <h3>1. Інвертор</h3>
+              <h3>1. Інвертор для системи</h3>
               <div class="products-page__table-wrap">
                 <table class="products-page__table">
                   <thead>
                     <tr>
                       <th>Модель</th>
                       <th>Параметри</th>
-                      <th>Запас до вимоги</th>
-                      <th>Орієнтир ціни</th>
+                      <th>Запас до потрібної потужності</th>
+                      <th>Орієнтовна ціна</th>
                     </tr>
                   </thead>
                   <tbody>${this.renderInverterRows()}</tbody>
@@ -588,16 +587,16 @@ class ProductsPage extends BaseElement {
             </div>
 
             <div class="products-page__block">
-              <h3>2. АКБ модулі</h3>
+              <h3>2. Модулі АКБ</h3>
               <div class="products-page__table-wrap">
                 <table class="products-page__table">
                   <thead>
                     <tr>
                       <th>Модуль</th>
-                      <th>Потрібно</th>
-                      <th>Банк</th>
+                      <th>Скільки потрібно</th>
+                      <th>Готовий комплект</th>
                       <th>Доступна енергія / час роботи</th>
-                      <th>Орієнтир бюджету</th>
+                      <th>Орієнтовний бюджет</th>
                     </tr>
                   </thead>
                   <tbody>${this.renderBatteryRows()}</tbody>
@@ -614,7 +613,7 @@ class ProductsPage extends BaseElement {
                       <th>Модель</th>
                       <th>Вихід</th>
                       <th>Запас по струму</th>
-                      <th>Орієнтир ціни</th>
+                      <th>Орієнтовна ціна</th>
                     </tr>
                   </thead>
                   <tbody>${this.renderChargerRows()}</tbody>
@@ -623,7 +622,7 @@ class ProductsPage extends BaseElement {
             </div>
 
             <div class="products-page__block">
-              <h3>4. DC захист</h3>
+              <h3>4. Захист по постійному струму</h3>
               <div class="products-page__table-wrap">
                 <table class="products-page__table">
                   <thead>
@@ -631,7 +630,7 @@ class ProductsPage extends BaseElement {
                       <th>Позиція</th>
                       <th>Номінал</th>
                       <th>Запас по струму</th>
-                      <th>Орієнтир ціни</th>
+                      <th>Орієнтовна ціна</th>
                     </tr>
                   </thead>
                   <tbody>${this.renderProtectionRows()}</tbody>
@@ -641,15 +640,17 @@ class ProductsPage extends BaseElement {
           </section>
         </ui-card>
 
+        ${this.renderLiveSection()}
+
         <ui-card padding="md">
           <section class="products-page__section">
             <div class="products-page__section-head">
               <div class="products-page__title-row">
-                <h2>Що ще варто додати</h2>
+                <h2>Що ще варто додати до комплекту</h2>
                 <ui-tooltip label="Пояснення" text="Додаткові позиції, які покращують надійність, контроль і зручність експлуатації."></ui-tooltip>
               </div>
             </div>
-            <ui-disclosure label="Показати додаткові позиції">
+            <ui-disclosure label="Подивитися додаткові позиції">
               <div class="products-page__optional-grid">${this.renderOptionalItems()}</div>
             </ui-disclosure>
           </section>

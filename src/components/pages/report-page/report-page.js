@@ -16,7 +16,7 @@ class ReportPage extends BaseElement {
         <div class="report-page__hero">
           <div>
             <p class="page-eyebrow">Звіт</p>
-            <h1>Підсумковий звіт по системі</h1>
+            <h1>Готовий звіт по системі</h1>
           </div>
           <ui-button class="print-btn">Друк / PDF</ui-button>
         </div>

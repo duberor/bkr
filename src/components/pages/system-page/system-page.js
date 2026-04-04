@@ -38,7 +38,7 @@ class SystemPage extends BaseElement {
   }
 
   renderZoneRows() {
-    if (!this.zoneRows.length) return '<tr><td colspan="5">Ще не додано жодної зони або пристрою.</td></tr>';
+    if (!this.zoneRows.length) return '<tr><td colspan="5">Ще не додано жодної зони або приладу.</td></tr>';
     return this.zoneRows.map((row) => `
       <tr>
         <td>${row.zoneName}</td>
@@ -81,15 +81,16 @@ class SystemPage extends BaseElement {
     return `
       <section class="system-page">
         <div>
-          <p class="page-eyebrow">Система</p>
-          <h1>Готова конфігурація системи</h1>
+          <p class="page-eyebrow">Рішення</p>
+          <h1>Що система рекомендує</h1>
+          <p>Тут зібрано готовий підсумок: яке обладнання потрібне, скільки часу воно працюватиме та які є варіанти комплекту АКБ.</p>
         </div>
 
         <section class="system-page__top-metrics">
-          <ui-card padding="md"><div class="metric"><span>Рекомендований інвертор</span><strong>${formatPower(calc.recommendedInverterPower)}</strong></div></ui-card>
-          <ui-card padding="md"><div class="metric"><span>Рекомендована ємність АКБ</span><strong>${formatBattery(calc.recommendedBatteryCapacityAh)}</strong></div></ui-card>
+          <ui-card padding="md"><div class="metric"><span>Який інвертор потрібен</span><strong>${formatPower(calc.recommendedInverterPower)}</strong></div></ui-card>
+          <ui-card padding="md"><div class="metric"><span>Яка АКБ потрібна</span><strong>${formatBattery(calc.recommendedBatteryCapacityAh)}</strong></div></ui-card>
           <ui-card padding="md"><div class="metric"><span>Час роботи у звичному режимі</span><strong>${formatAutonomy(runtimeBest)}</strong></div></ui-card>
-          <ui-card padding="md"><div class="metric"><span>Критичне навантаження</span><strong>${highPriorityPower ? formatPower(highPriorityPower) : '—'}</strong></div></ui-card>
+          <ui-card padding="md"><div class="metric"><span>Потужність критичних приладів</span><strong>${highPriorityPower ? formatPower(highPriorityPower) : '—'}</strong></div></ui-card>
         </section>
 
         <section class="system-page__detail-grid">
@@ -97,19 +98,19 @@ class SystemPage extends BaseElement {
             <section class="system-page__panel">
               <div class="system-page__panel-head">
                 <div class="system-page__title-row">
-                  <h2>Коротко про систему</h2>
-                  <ui-tooltip label="Пояснення" text="Стислий технічний підсумок для підбору обладнання й звіту."></ui-tooltip>
+                  <h2>Що варто знати про систему</h2>
+                  <ui-tooltip label="Пояснення" text="Короткий підсумок по системі для вибору обладнання і перевірки ключових параметрів."></ui-tooltip>
                 </div>
               </div>
-              <ui-disclosure label="Показати деталі системи">
+              <ui-disclosure label="Технічні деталі системи">
                 <div class="system-page__bullet-cards">
                   <div><span>Напруга системи</span><strong>${voltage} V</strong></div>
                   <div><span>Струм при повному навантаженні</span><strong>${formatNumber(fullDcCurrent, 0)} A</strong></div>
-                  <div><span>Струм при розрахунковому навантаженні</span><strong>${formatNumber(designDcCurrent, 0)} A</strong></div>
+                  <div><span>Струм при навантаженні, під яке підібрана система</span><strong>${formatNumber(designDcCurrent, 0)} A</strong></div>
                   <div><span>Струм при пусковому піку</span><strong>${formatNumber(surgeDcCurrent, 0)} A</strong></div>
-                  <div><span>Потрібна енергія без запасу</span><strong>${formatEnergyWh(calc.requiredEnergyWh)}</strong></div>
-                  <div><span>Потрібна енергія з запасом</span><strong>${formatEnergyWh(calc.totalEnergyWh)}</strong></div>
-                  <div><span>Час роботи при розрахунковому навантаженні</span><strong>${formatAutonomy(calc.continuousAutonomyHours, { preferDays: false })}</strong></div>
+                  <div><span>Скільки енергії потрібно без запасу</span><strong>${formatEnergyWh(calc.requiredEnergyWh)}</strong></div>
+                  <div><span>Скільки енергії потрібно із запасом</span><strong>${formatEnergyWh(calc.totalEnergyWh)}</strong></div>
+                  <div><span>Час роботи при максимальному навантаженні</span><strong>${formatAutonomy(calc.continuousAutonomyHours, { preferDays: false })}</strong></div>
                   <div><span>Час роботи для критичних приладів</span><strong>${formatAutonomy(highPriorityRuntime, { preferDays: false })}</strong></div>
                 </div>
               </ui-disclosure>
@@ -120,11 +121,11 @@ class SystemPage extends BaseElement {
             <section class="system-page__panel">
               <div class="system-page__panel-head">
                 <div class="system-page__title-row">
-                  <h2>Зони і внесок у навантаження</h2>
+                  <h2>Зони та їхній внесок</h2>
                   <ui-tooltip label="Пояснення" text="Порівняння зон за кількістю приладів, потужністю та добовим споживанням."></ui-tooltip>
                 </div>
               </div>
-              <ui-disclosure label="Показати таблицю по зонах">
+              <ui-disclosure label="Подивитися таблицю по зонах">
                 <div class="system-page__table-wrap">
                   <table class="system-page__table">
                     <thead>
@@ -148,11 +149,11 @@ class SystemPage extends BaseElement {
           <section class="system-page__panel">
             <div class="system-page__panel-head">
               <div class="system-page__title-row">
-                <h2>Порівняння варіантів АКБ</h2>
+                <h2>Інші варіанти АКБ</h2>
                 <ui-tooltip label="Пояснення" text="Готові конфігурації АКБ із кількістю модулів, схемою з’єднання та запасом енергії."></ui-tooltip>
               </div>
             </div>
-            <ui-disclosure label="Порівняти всі варіанти АКБ">
+            <ui-disclosure label="Подивитися всі варіанти АКБ">
               <div class="system-page__table-wrap">
                 <table class="system-page__table system-page__table--configs">
                   <thead>
@@ -162,8 +163,8 @@ class SystemPage extends BaseElement {
                       <th>Схема</th>
                       <th>Напруга</th>
                       <th>Ємність</th>
-                      <th>Енергія брутто</th>
-                      <th>Енергія корисна</th>
+                      <th>Повна енергія</th>
+                      <th>Корисна енергія</th>
                       <th>Час роботи у звичному режимі</th>
                       <th>Коментар</th>
                     </tr>

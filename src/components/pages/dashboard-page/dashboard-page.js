@@ -3,8 +3,9 @@ import '../../ui/ui-card/ui-card.js';
 import '../../ui/ui-disclosure/ui-disclosure.js';
 import { Chart, BarController, BarElement, DoughnutController, ArcElement, CategoryScale, LinearScale, Tooltip, Legend, LineController, PointElement, LineElement, Filler } from 'chart.js';
 import { appStore } from '../../../store/app-store.js';
+import { FEATURES } from '../../../config/features.js';
 import { getCategoryBreakdown, getConsumerPowerRows, getHourlyLoadProfile, getSystemCalculation } from '../../../utils/consumer-utils.js';
-import { formatEnergyWh, formatPower, formatBattery, formatNumber } from '../../../utils/format.js';
+import { formatAutonomy, formatEnergyWh, formatPower, formatBattery, formatNumber } from '../../../utils/format.js';
 import styles from './dashboard-page.scss?inline';
 
 Chart.register(BarController, BarElement, DoughnutController, ArcElement, CategoryScale, LinearScale, Tooltip, Legend, LineController, PointElement, LineElement, Filler);
@@ -41,12 +42,81 @@ class DashboardPage extends BaseElement {
   renderStatCards(calc) {
     return `
       <div class="dashboard__stats">
-        <ui-card padding="md"><div class="stat"><span>Усього приладів</span><strong>${formatNumber(this.state.consumers.length)}</strong></div></ui-card>
-        <ui-card padding="md"><div class="stat"><span>Сумарна потужність</span><strong>${formatPower(calc.totalPower)}</strong></div></ui-card>
-        <ui-card padding="md"><div class="stat"><span>Пікове навантаження</span><strong>${formatPower(calc.totalSurgePower)}</strong></div></ui-card>
-        <ui-card padding="md"><div class="stat"><span>Добове споживання</span><strong>${formatEnergyWh(calc.dailyConsumptionWh)}</strong></div></ui-card>
-        <ui-card padding="md"><div class="stat"><span>Рекомендований інвертор</span><strong>${formatPower(calc.recommendedInverterPower)}</strong></div></ui-card>
-        <ui-card padding="md"><div class="stat"><span>Рекомендована АКБ</span><strong>${formatBattery(calc.recommendedBatteryCapacityAh)}</strong></div></ui-card>
+        <ui-card padding="md"><div class="stat"><span>Скільки приладів у проєкті</span><strong>${formatNumber(this.state.consumers.length)}</strong></div></ui-card>
+        <ui-card padding="md"><div class="stat"><span>Сумарна потужність приладів</span><strong>${formatPower(calc.totalPower)}</strong></div></ui-card>
+        <ui-card padding="md"><div class="stat"><span>Пусковий пік</span><strong>${formatPower(calc.totalSurgePower)}</strong></div></ui-card>
+        <ui-card padding="md"><div class="stat"><span>Споживання за добу</span><strong>${formatEnergyWh(calc.dailyConsumptionWh)}</strong></div></ui-card>
+        <ui-card padding="md"><div class="stat"><span>Який інвертор потрібен</span><strong>${formatPower(calc.recommendedInverterPower)}</strong></div></ui-card>
+        <ui-card padding="md"><div class="stat"><span>Яка АКБ потрібна</span><strong>${formatBattery(calc.recommendedBatteryCapacityAh)}</strong></div></ui-card>
+      </div>
+    `;
+  }
+
+  getHeroState(calc) {
+    const hasConsumers = this.state.consumers.length > 0;
+    const baseSettings = this.state.systemSettings || {};
+    const primaryAction = hasConsumers
+      ? { href: '#/system', label: 'Перейти до рішення' }
+      : { href: '#/consumers', label: 'Додати прилади' };
+    const secondaryAction = hasConsumers
+      ? (FEATURES.productsPage ? { href: '#/products', label: 'Підібрати обладнання' } : { href: '#/calculation', label: 'Уточнити параметри' })
+      : { href: '#/calculation', label: 'Подивитися параметри' };
+
+    return {
+      title: hasConsumers
+        ? 'Проєкт уже готовий до підбору системи'
+        : 'Почнімо з того, що має працювати під час відключення',
+      description: hasConsumers
+        ? `Маємо ${formatNumber(this.state.consumers.length)} приладів, орієнтовний час роботи у звичному режимі ${formatAutonomy(calc.estimatedAutonomyHours)}. Можна одразу перейти до готового рішення або уточнити параметри.`
+        : 'Додавайте лише ті прилади, які справді мають працювати без мережі. Зони та графіки допоможуть зібрати зрозумілу картину навантаження.',
+      primaryAction,
+      secondaryAction,
+      steps: [
+        {
+          title: 'Прилади',
+          text: hasConsumers ? `${formatNumber(this.state.consumers.length)} додано` : 'Ще не додано',
+          done: hasConsumers,
+        },
+        {
+          title: 'Параметри',
+          text: `${formatNumber(baseSettings.autonomyDays || 1, 0)} доби · ${formatNumber(baseSettings.batteryVoltage || 24, 0)} V`,
+          done: true,
+        },
+        {
+          title: 'Рішення',
+          text: hasConsumers ? `${formatPower(calc.recommendedInverterPower)} · ${formatBattery(calc.recommendedBatteryCapacityAh)}` : 'З\'явиться після заповнення',
+          done: hasConsumers,
+        },
+      ],
+    };
+  }
+
+  renderHero(calc) {
+    const hero = this.getHeroState(calc);
+    return `
+      <div class="dashboard__hero">
+        <div class="dashboard__hero-copy">
+          <p class="dashboard__eyebrow">Огляд</p>
+          <h1 class="dashboard__title">${hero.title}</h1>
+          <p class="dashboard__lead">${hero.description}</p>
+          <div class="dashboard__actions">
+            <a class="dashboard__action dashboard__action--primary" href="${hero.primaryAction.href}">${hero.primaryAction.label}</a>
+            <a class="dashboard__action" href="${hero.secondaryAction.href}">${hero.secondaryAction.label}</a>
+          </div>
+        </div>
+        <ui-card padding="md">
+          <div class="dashboard__progress">
+            <span class="dashboard__progress-label">Що вже є в проєкті</span>
+            <div class="dashboard__progress-list">
+              ${hero.steps.map((step) => `
+                <div class="dashboard__progress-item ${step.done ? 'is-done' : ''}">
+                  <strong>${step.title}</strong>
+                  <span>${step.text}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </ui-card>
       </div>
     `;
   }
@@ -95,12 +165,7 @@ class DashboardPage extends BaseElement {
 
     return `
       <section class="dashboard">
-        <div class="dashboard__hero">
-          <div>
-            <p class="dashboard__eyebrow">Огляд проєкту</p>
-            <h1 class="dashboard__title">Огляд вашої системи</h1>
-          </div>
-        </div>
+        ${this.renderHero(calc)}
 
         ${this.renderStatCards(calc)}
 

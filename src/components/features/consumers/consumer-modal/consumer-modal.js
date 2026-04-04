@@ -106,9 +106,9 @@ class ConsumerModal extends BaseElement {
 
   validateField(name, data = this.formData) {
     const value = data[name];
-    switch (name) {
+      switch (name) {
       case 'name':
-        return String(value || '').trim() ? '' : 'Вкажіть назву пристрою.';
+        return String(value || '').trim() ? '' : 'Вкажіть назву приладу.';
       case 'category':
         return String(value || '').trim() ? '' : 'Оберіть категорію.';
       case 'zoneId':
@@ -156,7 +156,7 @@ class ConsumerModal extends BaseElement {
   render() {
     if (!this.open) return '';
     const noZones = !this.zones.length;
-    const heading = this.mode === 'edit' ? 'Редагувати прилад' : 'Новий прилад';
+    const heading = this.mode === 'edit' ? 'Редагувати прилад' : 'Додати прилад';
 
     return `
       <div class="consumer-modal__backdrop">
@@ -165,21 +165,22 @@ class ConsumerModal extends BaseElement {
             <div>
               <p class="consumer-modal__eyebrow">Прилад</p>
               <h2>${heading}</h2>
+              <p class="consumer-modal__lead">Оновіть параметри так, як вони працюють у реальному сценарії резервного живлення.</p>
             </div>
             <button class="consumer-modal__close" type="button" aria-label="Закрити">×</button>
           </div>
 
           <div class="consumer-modal__grid">
-            <ui-input name="name" label="Назва" placeholder="Наприклад, Газовий котел" value="${this.formData.name}" error="${this.errors.name || ''}"></ui-input>
-            <ui-select name="category" label="Категорія" value="${this.formData.category}" error="${this.errors.category || ''}"></ui-select>
-            <ui-select name="zoneId" label="Зона" value="${this.formData.zoneId}" error="${this.errors.zoneId || ''}" ${noZones ? 'disabled' : ''}></ui-select>
-            <ui-input type="text" name="power" label="Потужність, W" placeholder="Наприклад, 120" value="${this.formData.power}" error="${this.errors.power || ''}"></ui-input>
-            <ui-input type="text" name="quantity" label="Кількість" placeholder="1" value="${this.formData.quantity}" error="${this.errors.quantity || ''}"></ui-input>
-            <ui-input type="text" name="hoursPerDay" label="Годин на добу" placeholder="Наприклад, 10,5" value="${this.formData.hoursPerDay}" error="${this.errors.hoursPerDay || ''}"></ui-input>
-            <ui-input type="text" name="surgePower" label="Пускова потужність, W" placeholder="Наприклад, 600" value="${this.formData.surgePower}" error="${this.errors.surgePower || ''}"></ui-input>
-            <ui-select name="priority" label="Пріоритет" value="${this.formData.priority}" error="${this.errors.priority || ''}"></ui-select>
-            <ui-select name="usageProfile" label="Профіль використання" value="${this.formData.usageProfile}" error="${this.errors.usageProfile || ''}"></ui-select>
-            <ui-input type="textarea" rows="3" name="notes" label="Примітки" placeholder="Короткі примітки щодо запуску, режиму або монтажу" value="${this.formData.notes}"></ui-input>
+            <ui-input name="name" label="Назва приладу" placeholder="Наприклад, Газовий котел" hint="Пишіть так, як вам буде зручно читати у списку та звіті." value="${this.formData.name}" error="${this.errors.name || ''}"></ui-input>
+            <ui-select name="category" label="Категорія" hint="Категорія впливає на структуру списку та графіки." value="${this.formData.category}" error="${this.errors.category || ''}"></ui-select>
+            <ui-select name="zoneId" label="Зона" hint="Зона допомагає згрупувати прилади по кімнатах або контурах." value="${this.formData.zoneId}" error="${this.errors.zoneId || ''}" ${noZones ? 'disabled' : ''}></ui-select>
+            <ui-input type="text" name="power" label="Робоча потужність, W" placeholder="Наприклад, 120" hint="Вкажіть звичайну робочу потужність приладу." value="${this.formData.power}" error="${this.errors.power || ''}"></ui-input>
+            <ui-input type="text" name="quantity" label="Кількість" placeholder="1" hint="Скільки однакових приладів потрібно врахувати." value="${this.formData.quantity}" error="${this.errors.quantity || ''}"></ui-input>
+            <ui-input type="text" name="hoursPerDay" label="Скільки працює за добу" placeholder="Наприклад, 10,5" hint="Орієнтовний час роботи протягом звичайної доби." value="${this.formData.hoursPerDay}" error="${this.errors.hoursPerDay || ''}"></ui-input>
+            <ui-input type="text" name="surgePower" label="Пускова потужність, W" placeholder="Наприклад, 600" hint="Для моторних приладів вкажіть пусковий пік. Якщо його немає, використовуйте робочу потужність." value="${this.formData.surgePower}" error="${this.errors.surgePower || ''}"></ui-input>
+            <ui-select name="priority" label="Пріоритет" hint="Високий пріоритет для того, що має працювати в першу чергу." value="${this.formData.priority}" error="${this.errors.priority || ''}"></ui-select>
+            <ui-select name="usageProfile" label="Коли працює прилад" hint="Потрібно для побудови добового графіка навантаження." value="${this.formData.usageProfile}" error="${this.errors.usageProfile || ''}"></ui-select>
+            <ui-input type="textarea" rows="3" name="notes" label="Примітки" placeholder="Наприклад, працює циклічно або запускається нечасто" hint="Поле не обов'язкове, але допомагає з поясненнями по проєкту." value="${this.formData.notes}"></ui-input>
           </div>
 
           <div class="consumer-modal__actions">

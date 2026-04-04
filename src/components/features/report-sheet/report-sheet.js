@@ -20,6 +20,12 @@ const priorityLabels = {
   low: 'Низький',
 };
 
+const batteryTypeLabels = {
+  lifepo4: 'LiFePO4',
+  agm: 'AGM',
+  gel: 'GEL',
+};
+
 function statusByMin(value, goodThreshold, warnThreshold) {
   if (value >= goodThreshold) return 'ok';
   if (value >= warnThreshold) return 'warn';
@@ -140,13 +146,13 @@ class ReportSheet extends BaseElement {
         note: 'Використовується для підбору кабелю, автомата і запобіжника.',
       },
       {
-        check: 'Відповідність бажаному часу роботи',
+        check: 'Чи вистачає на бажаний час роботи',
         value: `${formatNumber(autonomyCoveragePercent, 0)}%`,
         status: statusByMin(autonomyCoveragePercent, 100, 90),
         note: 'Порівняння покриття добового профілю з установленою ціллю автономності.',
       },
       {
-        check: 'Покриття запасу енергії',
+        check: 'Чи вистачає запасу енергії',
         value: `${formatNumber(reserveCoveragePercent, 0)}%`,
         status: statusByMin(reserveCoveragePercent, 100, 95),
         note: 'Перевірка, що корисної енергії АКБ вистачає на розрахунковий резерв.',
@@ -183,17 +189,17 @@ class ReportSheet extends BaseElement {
 
     if (!this._state.consumers.length) return [];
 
-    parts.push(`Розрахункове навантаження становить ${formatPower(calc.designLoadPower)}, а пусковий пік сягає ${formatPower(calc.totalSurgePower)}.`);
-    parts.push(`Потрібна енергія без запасу: ${formatEnergyWh(calc.requiredEnergyWh)}, із запасом: ${formatEnergyWh(calc.totalEnergyWh)}.`);
-    if (best) {
-      parts.push(`Базовий комплект АКБ: ${best.totalBatteries} модулів (${best.seriesCount}S/${best.parallelCount}P), доступна енергія ${formatEnergyWh(best.usableStoredWh)}.`);
-    }
-    if (calc.estimatedAutonomyHours) {
-      parts.push(`Час роботи у звичному режимі: ${formatAutonomy(calc.estimatedAutonomyHours)}.`);
-    }
-    if (calc.continuousAutonomyHours) {
-      parts.push(`Час роботи при розрахунковому навантаженні: ${formatAutonomy(calc.continuousAutonomyHours, { preferDays: false })}.`);
-    }
+      parts.push(`Навантаження, під яке підібрана система, становить ${formatPower(calc.designLoadPower)}, а пусковий пік сягає ${formatPower(calc.totalSurgePower)}.`);
+      parts.push(`Потрібно енергії без запасу: ${formatEnergyWh(calc.requiredEnergyWh)}, із запасом: ${formatEnergyWh(calc.totalEnergyWh)}.`);
+      if (best) {
+        parts.push(`Базовий комплект АКБ: ${best.totalBatteries} модулів (${best.seriesCount}S/${best.parallelCount}P), доступна енергія ${formatEnergyWh(best.usableStoredWh)}.`);
+      }
+      if (calc.estimatedAutonomyHours) {
+        parts.push(`Час роботи у звичному режимі: ${formatAutonomy(calc.estimatedAutonomyHours)}.`);
+      }
+      if (calc.continuousAutonomyHours) {
+        parts.push(`Час роботи при максимальному навантаженні: ${formatAutonomy(calc.continuousAutonomyHours, { preferDays: false })}.`);
+      }
     if (this.criticalPower) {
       parts.push(`Критичне навантаження становить ${formatPower(this.criticalPower)}.`);
     }
@@ -202,9 +208,10 @@ class ReportSheet extends BaseElement {
   }
 
   getSettingsRows() {
+    const batteryTypeLabel = batteryTypeLabels[this.settings.batteryType] || String(this.settings.batteryType || 'lifepo4').toUpperCase();
     return [
       { key: 'Напруга системи', value: `${formatNumber(this.settings.batteryVoltage || 24)} V` },
-      { key: 'Тип АКБ', value: String(this.settings.batteryType || 'lifepo4').toUpperCase() },
+      { key: 'Тип акумуляторів', value: batteryTypeLabel },
       { key: 'Бажаний час роботи', value: `${formatNumber(this.settings.autonomyDays || 1, 1)} доби` },
       { key: 'ККД інвертора', value: `${formatNumber((this.settings.inverterEfficiency || 0.92) * 100, 0)}%` },
       { key: 'Запас інвертора', value: `${formatNumber(this.settings.reserveRatio || 1.2, 2)}×` },
@@ -220,7 +227,7 @@ class ReportSheet extends BaseElement {
   }
 
   renderRows() {
-    if (!this._state.consumers.length) return '<tr><td colspan="11">Ще не додано жодного пристрою.</td></tr>';
+    if (!this._state.consumers.length) return '<tr><td colspan="11">Ще не додано жодного приладу.</td></tr>';
     return this._state.consumers.map((consumer, index) => {
       const totalPower = Number(consumer.power || 0) * Number(consumer.quantity || 0);
       const dailyEnergy = totalPower * Number(consumer.hoursPerDay || 0);
@@ -304,6 +311,7 @@ class ReportSheet extends BaseElement {
     const voltage = Number(this.settings.batteryVoltage || 24);
     const criticalRuntime = calc.criticalAutonomyHours;
     const configs = this.isFocusView ? calc.recommendedBatteryConfigs.slice(0, 1) : calc.recommendedBatteryConfigs;
+    const batteryTypeLabel = batteryTypeLabels[this.settings.batteryType] || String(this.settings.batteryType || 'lifepo4').toUpperCase();
 
     return `
       <ui-card padding="lg">
@@ -311,11 +319,11 @@ class ReportSheet extends BaseElement {
           <header class="report-sheet__head">
             <div>
               <p class="report-sheet__eyebrow">Підсумковий звіт</p>
-              <h2>Підсумковий звіт по системі</h2>
+              <h2>Готовий звіт по системі</h2>
             </div>
             <div class="report-sheet__meta">
               <span>${voltage} V</span>
-              <span>${String(this.settings.batteryType || 'lifepo4').toUpperCase()}</span>
+              <span>${batteryTypeLabel}</span>
               <span>${formatNumber(this.settings.autonomyDays || 1, 1)} доби</span>
               <span>ККД ${formatNumber((this.settings.inverterEfficiency || 0.92) * 100, 0)}%</span>
             </div>
@@ -325,19 +333,19 @@ class ReportSheet extends BaseElement {
 
           <section class="report-sheet__hero-grid">
             <div class="report-sheet__hero-card report-sheet__hero-card--accent">
-              <span>Рекомендоване рішення</span>
+              <span>Готове рішення</span>
               <strong>${this._state.consumers.length ? `${formatPower(calc.recommendedInverterPower)} + ${best ? `${best.totalBatteries} АКБ (${best.seriesCount}S/${best.parallelCount}P)` : formatBattery(calc.recommendedBatteryCapacityAh)}` : 'Додайте прилади'}</strong>
             </div>
             <div class="report-sheet__hero-card">
-              <span>Розрахункове навантаження</span>
+              <span>Навантаження, під яке підібрана система</span>
               <strong>${formatPower(calc.designLoadPower)}</strong>
             </div>
             <div class="report-sheet__hero-card">
-              <span>Енергія без резерву</span>
+              <span>Потрібно енергії без запасу</span>
               <strong>${formatEnergyWh(calc.requiredEnergyWh)}</strong>
             </div>
             <div class="report-sheet__hero-card">
-              <span>Енергія з резервом</span>
+              <span>Потрібно енергії із запасом</span>
               <strong>${formatEnergyWh(calc.totalEnergyWh)}</strong>
             </div>
           </section>
@@ -346,13 +354,13 @@ class ReportSheet extends BaseElement {
             ${this.isFocusView ? `
             <section class="report-sheet__section">
               <div class="report-sheet__title-row">
-                <h3>Ключові параметри</h3>
+                <h3>Головне по системі</h3>
                 <span class="report-sheet__tag report-sheet__tag--key">Ключове</span>
               </div>
               <div class="report-sheet__metric-grid">
-                <div><span>Інвертор</span><strong>${formatPower(calc.recommendedInverterPower)}</strong></div>
-                <div><span>АКБ</span><strong>${formatBattery(calc.recommendedBatteryCapacityAh)}</strong></div>
-                <div><span>Запас інвертора</span><strong>${formatNumber(calc.inverterHeadroomPercent * 100, 0)}%</strong></div>
+                <div><span>Який інвертор потрібен</span><strong>${formatPower(calc.recommendedInverterPower)}</strong></div>
+                <div><span>Яка АКБ потрібна</span><strong>${formatBattery(calc.recommendedBatteryCapacityAh)}</strong></div>
+                <div><span>Запас по інвертору</span><strong>${formatNumber(calc.inverterHeadroomPercent * 100, 0)}%</strong></div>
                 <div><span>Час роботи у звичному режимі</span><strong>${formatAutonomy(calc.estimatedAutonomyHours)}</strong></div>
               </div>
             </section>
@@ -423,12 +431,12 @@ class ReportSheet extends BaseElement {
           <section class="report-sheet__compact-grid">
             <section class="report-sheet__section">
               <div class="report-sheet__title-row">
-              <h3>Сценарії роботи</h3>
+              <h3>Скільки працюватиме система</h3>
                 <span class="report-sheet__tag report-sheet__tag--key">Ключове</span>
               </div>
               <div class="report-sheet__metric-grid">
                 <div><span>Час роботи у звичному режимі</span><strong>${formatAutonomy(calc.estimatedAutonomyHours)}</strong></div>
-                <div><span>Час роботи при розрахунковому навантаженні</span><strong>${formatAutonomy(calc.continuousAutonomyHours, { preferDays: false })}</strong></div>
+                <div><span>Час роботи при максимальному навантаженні</span><strong>${formatAutonomy(calc.continuousAutonomyHours, { preferDays: false })}</strong></div>
                 <div><span>DC струм при розрахунковому навантаженні</span><strong>${formatNumber(this.fullDcCurrent, 0)} A</strong></div>
                 <div><span>Час роботи для критичних приладів</span><strong>${formatAutonomy(criticalRuntime, { preferDays: false })}</strong></div>
               </div>

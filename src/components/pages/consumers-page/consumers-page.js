@@ -55,7 +55,7 @@ class ConsumersPage extends BaseElement {
           <div class="zones-card__head">
           <div>
             <p class="page-eyebrow">Зони</p>
-            <h2>Ваші зони</h2>
+            <h2>Зони проєкту</h2>
           </div>
             <ui-button class="zone-add-btn" variant="secondary" size="sm">+ Додати зону</ui-button>
           </div>
@@ -66,7 +66,7 @@ class ConsumersPage extends BaseElement {
                 <div class="zone-pill">
                   <div class="zone-pill__meta">
                     <span>${escapeHtml(zone.name)}</span>
-                    <small>${linkedConsumers} прилад(ів)</small>
+                    <small>${linkedConsumers} приладів</small>
                   </div>
                   <div class="zone-pill__actions">
                     <button type="button" class="zone-pill__edit" data-zone-edit="${zone.id}">Редагувати</button>
@@ -87,11 +87,12 @@ class ConsumersPage extends BaseElement {
         <div class="consumers-page__hero">
           <div>
             <p class="page-eyebrow">Прилади</p>
-            <h1>Прилади, категорії та зони</h1>
+            <h1>Що має працювати під час відключення</h1>
+            <p>Додавайте тільки ті прилади, які справді мають залишатися в роботі без мережі. Зони допоможуть згрупувати їх по кімнатах, контурах або сценаріях у звіті.</p>
           </div>
           <ui-card padding="md">
             <div class="consumers-page__controls">
-              <span>Показати прилади за пріоритетом</span>
+              <span>Швидкий перегляд приладів за пріоритетом</span>
               <div class="chips">
                 <button data-filter="all" class="chip ${this.filter === 'all' ? 'is-active' : ''}">Усі</button>
                 <button data-filter="high" class="chip ${this.filter === 'high' ? 'is-active' : ''}">Високий</button>
@@ -283,7 +284,7 @@ class ConsumersPage extends BaseElement {
     const linkedConsumers = this.state.consumers.filter((item) => item.zoneId === zoneId).length;
 
     if (linkedConsumers) {
-      this.setFeedback(`Зону «${zone?.name || 'Без назви'}» не можна видалити, доки в ній є прилади. Спочатку перенесіть або видаліть ${linkedConsumers} прилад(ів).`, 'error');
+      this.setFeedback(`Зону «${zone?.name || 'Без назви'}» не можна видалити, доки в ній є прилади. Спочатку перенесіть або видаліть ${linkedConsumers} приладів.`, 'error');
       this.update();
       return;
     }

@@ -9,11 +9,11 @@ import '../../ui/ui-button/ui-button.js';
 import styles from './app-header.scss?inline';
 
 const navItems = [
-  { hash: '#/dashboard', label: 'Dashboard' },
+  { hash: '#/dashboard', label: 'Огляд' },
   { hash: '#/consumers', label: 'Прилади' },
-  { hash: '#/calculation', label: 'Розрахунок' },
-  { hash: '#/system', label: 'Система' },
-  ...(FEATURES.productsPage ? [{ hash: '#/products', label: 'Товари' }] : []),
+  { hash: '#/calculation', label: 'Параметри' },
+  { hash: '#/system', label: 'Рішення' },
+  ...(FEATURES.productsPage ? [{ hash: '#/products', label: 'Обладнання' }] : []),
   { hash: '#/report', label: 'Звіт' },
 ];
 
@@ -95,7 +95,7 @@ class AppHeader extends BaseElement {
           </a>
           <div class="header__brand-copy">
             <strong>UPS Planner Pro</strong>
-            <span>Вебінструмент проєктування автономного живлення</span>
+            <span>Підбір систем резервного живлення</span>
           </div>
         </div>
 
@@ -103,11 +103,11 @@ class AppHeader extends BaseElement {
 
         <div class="header__meta">
           <div class="header__stat">
-            <span>Навантаження</span>
+            <span>Потужність приладів</span>
             <strong>${formatPower(calc.totalPower)}</strong>
           </div>
           <div class="header__stat">
-            <span>За добу</span>
+            <span>Споживання за добу</span>
             <strong>${formatEnergyWh(calc.dailyConsumptionWh)}</strong>
           </div>
         </div>

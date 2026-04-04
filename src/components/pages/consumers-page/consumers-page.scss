@@ -3,7 +3,7 @@
 .consumers-page__hero { display:grid; grid-template-columns: 1.4fr .9fr; gap:18px; }
 .page-eyebrow { color:$info30; text-transform:uppercase; letter-spacing:.12em; font-size:12px; }
 h1 { font-size: clamp(26px, 3.1vw, 38px); margin-top: 8px; }
-p { color: rgba($white,.72); margin-top: 10px; }
+p { color: rgba($white,.72); margin-top: 10px; line-height: 1.6; max-width: 74ch; }
 .consumers-page__controls { display:grid; gap:14px; align-content:center; }
 .consumers-page__controls span { color: rgba($white,.64); font-size:13px; }
 .chips { display:flex; flex-wrap:wrap; gap:8px; }

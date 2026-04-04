@@ -40,9 +40,9 @@ class ConsumerForm extends BaseElement {
   }
 
   getDefaultFormData() {
-    return {
-      name: '',
-      category: 'other',
+      return {
+        name: '',
+        category: 'other',
       zoneId: this._zones[0]?.id || '',
       power: '',
       quantity: '1',
@@ -62,9 +62,9 @@ class ConsumerForm extends BaseElement {
   validateField(name, data = this.formData) {
     const value = data[name];
 
-    switch (name) {
+      switch (name) {
       case 'name':
-        return String(value || '').trim() ? '' : 'Вкажіть назву пристрою.';
+        return String(value || '').trim() ? '' : 'Вкажіть назву приладу.';
       case 'category':
         return String(value || '').trim() ? '' : 'Оберіть категорію.';
       case 'zoneId':
@@ -116,24 +116,25 @@ class ConsumerForm extends BaseElement {
       <section class="consumer-form">
         <div class="consumer-form__head">
           <div>
-            <p class="consumer-form__eyebrow">Новий прилад</p>
+            <p class="consumer-form__eyebrow">Прилад</p>
             <h2 class="consumer-form__title">Додати прилад</h2>
+            <p class="consumer-form__lead">Якщо не знаєте точних цифр, почніть з приблизних значень з шильдика або техпаспорта. Потім їх можна уточнити.</p>
           </div>
         </div>
 
         <div class="consumer-form__grid">
-          <ui-input name="name" label="Назва" placeholder="Наприклад, Газовий котел" value="${this.formData.name}" error="${this.errors.name || ''}"></ui-input>
-          <ui-select name="category" label="Категорія" value="${this.formData.category}" error="${this.errors.category || ''}"></ui-select>
+          <ui-input name="name" label="Назва приладу" placeholder="Наприклад, Газовий котел" hint="Пишіть так, як вам буде зрозуміло у списку й у звіті." value="${this.formData.name}" error="${this.errors.name || ''}"></ui-input>
+          <ui-select name="category" label="Категорія" hint="Категорія потрібна для структури списку та графіків." value="${this.formData.category}" error="${this.errors.category || ''}"></ui-select>
           <div class="consumer-form__zone-field">
-            <ui-select name="zoneId" label="Зона" value="${this.formData.zoneId}" error="${this.errors.zoneId || ''}" ${noZones ? 'disabled' : ''}></ui-select>
+            <ui-select name="zoneId" label="Зона" hint="Зона допоможе згрупувати прилади по кімнатах або контурах." value="${this.formData.zoneId}" error="${this.errors.zoneId || ''}" ${noZones ? 'disabled' : ''}></ui-select>
           </div>
-          <ui-input type="text" name="power" label="Потужність, W" placeholder="Наприклад, 120 або 1 000" value="${this.formData.power}" error="${this.errors.power || ''}"></ui-input>
-          <ui-input type="text" name="quantity" label="Кількість" placeholder="1" value="${this.formData.quantity}" error="${this.errors.quantity || ''}"></ui-input>
-          <ui-input type="text" name="hoursPerDay" label="Годин на добу" placeholder="Наприклад, 10,5" value="${this.formData.hoursPerDay}" error="${this.errors.hoursPerDay || ''}"></ui-input>
-          <ui-input type="text" name="surgePower" label="Пускова потужність, W" placeholder="Наприклад, 600" value="${this.formData.surgePower}" error="${this.errors.surgePower || ''}"></ui-input>
-          <ui-select name="priority" label="Пріоритет" value="${this.formData.priority}" error="${this.errors.priority || ''}"></ui-select>
-          <ui-select name="usageProfile" label="Профіль використання" value="${this.formData.usageProfile}" error="${this.errors.usageProfile || ''}"></ui-select>
-          <ui-input type="textarea" rows="3" name="notes" label="Примітки" placeholder="Додаткові технічні коментарі" value="${this.formData.notes}"></ui-input>
+          <ui-input type="text" name="power" label="Робоча потужність, W" placeholder="Наприклад, 120 або 1 000" hint="Вкажіть потужність, з якою прилад працює у звичайному режимі." value="${this.formData.power}" error="${this.errors.power || ''}"></ui-input>
+          <ui-input type="text" name="quantity" label="Кількість" placeholder="1" hint="Скільки однакових приладів треба врахувати в розрахунку." value="${this.formData.quantity}" error="${this.errors.quantity || ''}"></ui-input>
+          <ui-input type="text" name="hoursPerDay" label="Скільки працює за добу" placeholder="Наприклад, 10,5" hint="Орієнтовний час роботи приладу протягом звичайної доби." value="${this.formData.hoursPerDay}" error="${this.errors.hoursPerDay || ''}"></ui-input>
+          <ui-input type="text" name="surgePower" label="Пускова потужність, W" placeholder="Наприклад, 600" hint="Для моторів, насосів і компресорів вкажіть стартовий пік. Якщо його немає, залиште як робочу потужність." value="${this.formData.surgePower}" error="${this.errors.surgePower || ''}"></ui-input>
+          <ui-select name="priority" label="Пріоритет" hint="Високий пріоритет задавайте тому, що має працювати в першу чергу." value="${this.formData.priority}" error="${this.errors.priority || ''}"></ui-select>
+          <ui-select name="usageProfile" label="Коли працює прилад" hint="Потрібно для побудови добового графіка навантаження." value="${this.formData.usageProfile}" error="${this.errors.usageProfile || ''}"></ui-select>
+          <ui-input type="textarea" rows="3" name="notes" label="Примітки" placeholder="Наприклад, працює циклічно або запускається нечасто" hint="Поле не обов'язкове, але корисне для пояснень у проєкті." value="${this.formData.notes}"></ui-input>
         </div>
         <div class="consumer-form__actions">
           <ui-button class="consumer-form__submit" ${noZones ? 'disabled' : ''}>Додати у проєкт</ui-button>

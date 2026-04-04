@@ -15,7 +15,7 @@ class UiDisclosure extends BaseElement {
   }
 
   get label() {
-    return this.getAttribute('label') || 'Показати деталі';
+    return this.getAttribute('label') || 'Детальніше';
   }
 
   render() {

@@ -18,17 +18,17 @@ class ConsumersSummary extends BaseElement {
     return `
       <ui-card padding="md">
         <section class="summary">
-          <div class="summary__head"><p class="summary__eyebrow">Коротко</p><h2>Поточний стан проєкту</h2></div>
+          <div class="summary__head"><p class="summary__eyebrow">Коротко</p><h2>Що вже додано до проєкту</h2></div>
           <div class="summary__grid">
             <div><span>Кількість приладів</span><strong>${formatNumber(this.items.length)}</strong></div>
             <div><span>Робоче навантаження</span><strong>${formatPower(calc.totalPower)}</strong></div>
             <div><span>Пускове навантаження</span><strong>${formatPower(calc.totalSurgePower)}</strong></div>
             <div><span>Добове споживання</span><strong>${formatEnergyWh(calc.dailyConsumptionWh)}</strong></div>
           </div>
-          <ui-disclosure label="Ще кілька підсумків">
+          <ui-disclosure label="Ще кілька важливих підсумків">
             <div class="summary__grid summary__grid--secondary">
-              <div><span>Найбільше споживає</span><strong>${topCategory?.label || '—'}</strong></div>
-              <div><span>Рекомендована ємність АКБ</span><strong>${calc.recommendedBatteryCapacityAh} Ah</strong></div>
+              <div><span>Найбільше споживає енергії</span><strong>${topCategory?.label || '—'}</strong></div>
+              <div><span>Яка ємність АКБ потрібна</span><strong>${calc.recommendedBatteryCapacityAh} Ah</strong></div>
             </div>
           </ui-disclosure>
         </section>
