@@ -9,11 +9,41 @@ const portalStyles = `
     position: fixed;
     z-index: 5000;
     overflow: auto;
+    -webkit-appearance: none;
     padding: 6px;
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: #171d2a;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
+  }
+
+  .ui-select-portal::-webkit-scrollbar-button,
+  .ui-select-portal::-webkit-scrollbar-button:single-button,
+  .ui-select-portal::-webkit-scrollbar-button:single-button:vertical,
+  .ui-select-portal::-webkit-scrollbar-button:single-button:horizontal,
+  .ui-select-portal::-webkit-scrollbar-button:single-button:vertical:decrement,
+  .ui-select-portal::-webkit-scrollbar-button:single-button:vertical:increment,
+  .ui-select-portal::-webkit-scrollbar-button:single-button:horizontal:decrement,
+  .ui-select-portal::-webkit-scrollbar-button:single-button:horizontal:increment,
+  .ui-select-portal::-webkit-scrollbar-button:double-button,
+  .ui-select-portal::-webkit-scrollbar-button:double-button:vertical,
+  .ui-select-portal::-webkit-scrollbar-button:double-button:horizontal,
+  .ui-select-portal::-webkit-scrollbar-button:vertical:decrement,
+  .ui-select-portal::-webkit-scrollbar-button:vertical:increment,
+  .ui-select-portal::-webkit-scrollbar-button:horizontal:decrement,
+  .ui-select-portal::-webkit-scrollbar-button:horizontal:increment {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    -webkit-appearance: none;
   }
 
   .ui-select-portal__option {

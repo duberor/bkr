@@ -32,8 +32,8 @@ class CalculationPage extends BaseElement {
     return `
       <planner-shell
         step="3"
-        eyebrow="Час роботи"
-        title="Скільки часу має працювати система"
+        eyebrow="Параметри"
+        title="Параметри системи"
         prev-href="#/consumers"
         prev-label="Повернутися до приладів"
         next-href="#/system"

@@ -343,11 +343,14 @@ p {
 .products-page__empty {
   display: grid;
   gap: 10px;
+  min-height: 128px;
+  align-content: center;
   padding: 14px 16px;
   border-radius: 16px;
   border: 1px solid rgba($warn20, 0.24);
   background: rgba($warn20, 0.08);
   color: rgba($white, 0.86);
+  line-height: 1.55;
 }
 .products-page__empty-link {
   width: fit-content;

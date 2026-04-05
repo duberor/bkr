@@ -12,7 +12,7 @@
 .consumers-page__layout {
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
-  gap: 18px;
+  gap: 14px;
   align-items: start;
 }
 
@@ -21,7 +21,7 @@
 .zones-card,
 .consumers-page__project-actions {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .consumers-page__list-tools {
@@ -129,20 +129,22 @@
 .zones-card__head {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   align-items: flex-start;
 }
 
 .zones-card__head h2,
 .consumers-page__project-actions-head h2 {
   margin-top: 6px;
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .zones-card__list {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  min-height: 68px;
+  align-content: start;
 }
 
 .zone-pill {
@@ -238,7 +240,16 @@
 }
 
 .zones-card__empty {
-  color: rgba($white, 0.64);
+  min-height: 68px;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px dashed rgba($white, 0.14);
+  background: rgba($white, 0.03);
+  color: rgba($white, 0.68);
+  text-align: center;
 }
 
 .consumers-page__project-actions-body {

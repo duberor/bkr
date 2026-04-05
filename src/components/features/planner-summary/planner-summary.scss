@@ -10,6 +10,8 @@
 .planner-summary__card {
   display: grid;
   gap: 16px;
+  min-height: 260px;
+  align-content: start;
 }
 
 .planner-summary__head {
@@ -55,9 +57,13 @@
 }
 
 .planner-summary__empty {
+  min-height: 88px;
   padding: 12px 14px;
+  display: grid;
+  align-content: center;
   border-radius: 14px;
   border: 1px dashed rgba($white, 0.14);
+  background: rgba($white, 0.03);
   color: rgba($white, 0.74);
   line-height: 1.5;
 }

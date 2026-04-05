@@ -59,7 +59,9 @@
 .system-summary__empty {
   display: grid;
   gap: 10px;
-  padding: 18px;
+  min-height: 148px;
+  align-content: center;
+  padding: 18px 20px;
   border-radius: 18px;
   background: rgba($info20, 0.08);
   border: 1px solid rgba($info20, 0.18);

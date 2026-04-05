@@ -57,6 +57,18 @@
   display: grid;
   gap: 12px;
 }
+.battery-configurator__empty {
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px dashed rgba($white, 0.14);
+  background: rgba($white, 0.03);
+  color: rgba($white, 0.72);
+  text-align: center;
+  line-height: 1.5;
+}
 .battery-option.is-primary {
   border-color: rgba($success20, 0.35);
   background: rgba($success20, 0.08);

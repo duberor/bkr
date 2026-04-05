@@ -47,18 +47,21 @@
 
 .settings-form__field-head {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
-  min-height: 24px;
+  font-size: 14px;
+  line-height: 1.35;
+  min-height: 2.8em;
 }
 
 .settings-form__field-label-row {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 8px;
   flex-wrap: wrap;
   min-width: 0;
+  line-height: 1.35;
 }
 
 .settings-form__field-label {
@@ -100,7 +103,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 20px;
+  min-height: 18px;
 }
 
 .settings-form__mode-hint {

@@ -6,11 +6,16 @@
   gap: 16px;
 }
 .consumers-list__empty {
-  padding: 22px;
+  min-height: 160px;
+  padding: 20px 24px;
+  display: grid;
+  place-items: center;
   border-radius: 18px;
-  border: 1px dashed rgba($white, 0.2);
-  color: rgba($white, 0.7);
+  border: 1px dashed rgba($white, 0.16);
+  background: rgba($white, 0.03);
+  color: rgba($white, 0.72);
   text-align: center;
+  line-height: 1.6;
 }
 .zone-group {
   border: 1px solid rgba($white, 0.08);

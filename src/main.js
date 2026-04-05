@@ -5,25 +5,41 @@ import './components/layout/app-root/app-root.js';
 const appRoot = document.querySelector('#app');
 
 appRoot.innerHTML = `
-  <div class="light-overlay" aria-hidden="true"></div>
   <app-root></app-root>
 `;
 
-const lightOverlay = appRoot.querySelector('.light-overlay');
+const appShell = appRoot.querySelector('app-root');
 
-if (lightOverlay) {
-  let currentX = window.innerWidth * 0.82;
-  let currentY = window.innerHeight * 0.18;
+if (appShell) {
+  const getBasePosition = () => ({
+    x: window.innerWidth * 1.06,
+    y: window.innerHeight * 0.1,
+  });
+
+  const getPointerOffset = (pointerX, pointerY) => {
+    const normalizedX = pointerX / Math.max(window.innerWidth, 1) - 0.5;
+    const normalizedY = pointerY / Math.max(window.innerHeight, 1) - 0.5;
+
+    return {
+      x: normalizedX * 64,
+      y: normalizedY * 42,
+    };
+  };
+
+  const basePosition = getBasePosition();
+  let currentX = basePosition.x;
+  let currentY = basePosition.y;
   let targetX = currentX;
   let targetY = currentY;
   let animationFrameId = 0;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const applyPosition = () => {
-    currentX += (targetX - currentX) * 0.08;
-    currentY += (targetY - currentY) * 0.08;
+    currentX += (targetX - currentX) * 0.06;
+    currentY += (targetY - currentY) * 0.06;
 
-    lightOverlay.style.setProperty('--x', `${currentX}px`);
-    lightOverlay.style.setProperty('--y', `${currentY}px`);
+    appShell.style.setProperty('--ambient-x', `${currentX}px`);
+    appShell.style.setProperty('--ambient-y', `${currentY}px`);
 
     if (Math.abs(targetX - currentX) > 0.4 || Math.abs(targetY - currentY) > 0.4) {
       animationFrameId = window.requestAnimationFrame(applyPosition);
@@ -40,25 +56,31 @@ if (lightOverlay) {
   };
 
   const handlePointerMove = (event) => {
-    targetX = event.clientX;
-    targetY = event.clientY;
+    if (prefersReducedMotion) return;
+
+    const base = getBasePosition();
+    const offset = getPointerOffset(event.clientX, event.clientY);
+    targetX = base.x + offset.x;
+    targetY = base.y + offset.y;
     queueAnimation();
   };
 
   const handlePointerLeave = () => {
-    targetX = window.innerWidth * 0.82;
-    targetY = window.innerHeight * 0.18;
+    const base = getBasePosition();
+    targetX = base.x;
+    targetY = base.y;
     queueAnimation();
   };
 
   const handleResize = () => {
-    targetX = Math.min(targetX, window.innerWidth);
-    targetY = Math.min(targetY, window.innerHeight);
+    const base = getBasePosition();
+    targetX = base.x;
+    targetY = base.y;
     queueAnimation();
   };
 
-  lightOverlay.style.setProperty('--x', `${currentX}px`);
-  lightOverlay.style.setProperty('--y', `${currentY}px`);
+  appShell.style.setProperty('--ambient-x', `${currentX}px`);
+  appShell.style.setProperty('--ambient-y', `${currentY}px`);
 
   window.addEventListener('pointermove', handlePointerMove, { passive: true });
   window.addEventListener('blur', handlePointerLeave);

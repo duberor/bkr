@@ -108,6 +108,7 @@
   display: grid;
   gap: 14px;
   min-width: 0;
+  min-height: 100%;
 }
 
 .chart-card__head {
@@ -162,11 +163,15 @@
 }
 
 .dashboard__profile-empty {
+  min-height: 74px;
   padding: 12px 14px;
+  display: grid;
+  align-content: center;
   border-radius: 14px;
   border: 1px solid rgba($white, 0.08);
   background: rgba($white, 0.03);
   color: rgba($white, 0.72);
+  line-height: 1.5;
 }
 
 @media (max-width: 1100px) {

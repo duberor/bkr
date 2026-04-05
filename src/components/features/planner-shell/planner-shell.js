@@ -5,7 +5,7 @@ import styles from './planner-shell.scss?inline';
 const steps = [
   { hash: '#/dashboard', label: 'Огляд' },
   { hash: '#/consumers', label: 'Прилади' },
-  { hash: '#/calculation', label: 'Час роботи' },
+  { hash: '#/calculation', label: 'Параметри' },
   { hash: '#/system', label: 'Рішення' },
   { hash: '#/report', label: 'Звіт' },
 ];

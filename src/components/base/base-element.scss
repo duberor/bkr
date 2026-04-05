@@ -33,8 +33,61 @@ select {
 }
 
 :host *::-webkit-scrollbar {
+  -webkit-appearance: none;
   width: var(--scrollbar-size, 12px);
   height: var(--scrollbar-size, 12px);
+}
+
+:host::-webkit-scrollbar-button,
+:host::-webkit-scrollbar-button:single-button,
+:host::-webkit-scrollbar-button:single-button:vertical,
+:host::-webkit-scrollbar-button:single-button:horizontal,
+:host::-webkit-scrollbar-button:single-button:vertical:decrement,
+:host::-webkit-scrollbar-button:single-button:vertical:increment,
+:host::-webkit-scrollbar-button:single-button:horizontal:decrement,
+:host::-webkit-scrollbar-button:single-button:horizontal:increment,
+:host::-webkit-scrollbar-button:double-button,
+:host::-webkit-scrollbar-button:double-button:vertical,
+:host::-webkit-scrollbar-button:double-button:horizontal,
+:host::-webkit-scrollbar-button:vertical:decrement,
+:host::-webkit-scrollbar-button:vertical:increment,
+:host::-webkit-scrollbar-button:horizontal:decrement,
+:host::-webkit-scrollbar-button:horizontal:increment,
+:host::-webkit-scrollbar-button:start:decrement,
+:host::-webkit-scrollbar-button:end:increment,
+:host::-webkit-scrollbar-button:start:increment,
+:host::-webkit-scrollbar-button:end:decrement,
+:host *::-webkit-scrollbar-button,
+:host *::-webkit-scrollbar-button:single-button,
+:host *::-webkit-scrollbar-button:single-button:vertical,
+:host *::-webkit-scrollbar-button:single-button:horizontal,
+:host *::-webkit-scrollbar-button:single-button:vertical:decrement,
+:host *::-webkit-scrollbar-button:single-button:vertical:increment,
+:host *::-webkit-scrollbar-button:single-button:horizontal:decrement,
+:host *::-webkit-scrollbar-button:single-button:horizontal:increment,
+:host *::-webkit-scrollbar-button:double-button,
+:host *::-webkit-scrollbar-button:double-button:vertical,
+:host *::-webkit-scrollbar-button:double-button:horizontal,
+:host *::-webkit-scrollbar-button:vertical:decrement,
+:host *::-webkit-scrollbar-button:vertical:increment,
+:host *::-webkit-scrollbar-button:horizontal:decrement,
+:host *::-webkit-scrollbar-button:horizontal:increment,
+:host *::-webkit-scrollbar-button:start:decrement,
+:host *::-webkit-scrollbar-button:end:increment,
+:host *::-webkit-scrollbar-button:start:increment,
+:host *::-webkit-scrollbar-button:end:decrement {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  -webkit-appearance: none;
 }
 
 :host *::-webkit-scrollbar-track {
@@ -55,4 +108,8 @@ select {
 
 :host *::-webkit-scrollbar-thumb:hover {
   border-color: var(--scrollbar-border, rgba(255, 255, 255, 0.14));
+}
+
+:host *::-webkit-scrollbar-corner {
+  background: transparent;
 }
