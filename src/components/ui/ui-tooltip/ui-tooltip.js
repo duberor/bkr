@@ -39,9 +39,15 @@ class UiTooltip extends BaseElement {
     document.removeEventListener('keydown', this._onKeyDown);
   }
 
-  styles() { return styles; }
-  get label() { return this.getAttribute('label') || 'Підказка'; }
-  get text() { return this.getAttribute('text') || ''; }
+  styles() {
+    return styles;
+  }
+  get label() {
+    return this.getAttribute('label') || 'Підказка';
+  }
+  get text() {
+    return this.getAttribute('text') || '';
+  }
 
   render() {
     return `

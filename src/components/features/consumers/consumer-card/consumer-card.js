@@ -1,17 +1,35 @@
 import { BaseElement } from '../../../base/base-element.js';
-import '../../../ui/ui-button/ui-button.js';
 import '../../../ui/ui-card/ui-card.js';
 import { formatEnergyWh, formatPower } from '../../../../utils/format.js';
 import { CATEGORY_LABELS } from '../../../../data/consumer-categories.js';
+import { getCriticalityLabel } from '../../../../utils/consumer-utils.js';
 import { escapeHtml } from '../../../../utils/escape.js';
 import styles from './consumer-card.scss?inline';
 
-const priorityLabels = { high: 'Високий', medium: 'Середній', low: 'Низький' };
-const profileLabels = { always: 'Постійно 24/7', day: 'День', evening: 'Вечір', night: 'Ніч', office: 'Робочі години' };
+const profileLabels = {
+  always: 'Постійно 24/7',
+  day: 'День',
+  evening: 'Вечір',
+  night: 'Ніч',
+  office: 'Робочі години',
+};
 
 class ConsumerCard extends BaseElement {
   static get observedAttributes() {
-    return ['consumer-id', 'name', 'category', 'zone-name', 'zone-id', 'power', 'quantity', 'hours-per-day', 'surge-power', 'priority', 'usage-profile', 'notes'];
+    return [
+      'consumer-id',
+      'name',
+      'category',
+      'zone-name',
+      'zone-id',
+      'power',
+      'quantity',
+      'hours-per-day',
+      'surge-power',
+      'priority',
+      'usage-profile',
+      'notes',
+    ];
   }
 
   constructor() {
@@ -23,11 +41,21 @@ class ConsumerCard extends BaseElement {
     if (this.isConnected) this.update();
   }
 
-  styles() { return styles; }
-  getAttr(name, fallback = '') { return this.getAttribute(name) || fallback; }
-  getNumber(name, fallback = 0) { return Number(this.getAttribute(name) || fallback); }
-  get totalPower() { return this.getNumber('power') * this.getNumber('quantity'); }
-  get dailyConsumption() { return this.totalPower * this.getNumber('hours-per-day'); }
+  styles() {
+    return styles;
+  }
+  getAttr(name, fallback = '') {
+    return this.getAttribute(name) || fallback;
+  }
+  getNumber(name, fallback = 0) {
+    return Number(this.getAttribute(name) || fallback);
+  }
+  get totalPower() {
+    return this.getNumber('power') * this.getNumber('quantity');
+  }
+  get dailyConsumption() {
+    return this.totalPower * this.getNumber('hours-per-day');
+  }
 
   get consumer() {
     return {
@@ -47,7 +75,7 @@ class ConsumerCard extends BaseElement {
 
   render() {
     const category = CATEGORY_LABELS[this.getAttr('category')] || this.getAttr('category');
-    const priority = priorityLabels[this.getAttr('priority','medium')] || this.getAttr('priority','medium');
+    const priority = getCriticalityLabel(this.getAttr('priority', 'medium'));
     const profile = profileLabels[this.getAttr('usage-profile')] || this.getAttr('usage-profile');
 
     return `
@@ -59,7 +87,7 @@ class ConsumerCard extends BaseElement {
                 <div class="consumer-card__tags">
                   <span class="tag">${escapeHtml(category)}</span>
                   <span class="tag tag--muted">${escapeHtml(this.getAttr('zone-name') || 'Без зони')}</span>
-                  <span class="tag tag--priority tag--${escapeHtml(this.getAttr('priority','medium'))}">${escapeHtml(priority)}</span>
+                  <span class="tag tag--priority tag--${escapeHtml(this.getAttr('priority', 'medium'))}">${escapeHtml(priority)}</span>
                 </div>
                 <h3>${escapeHtml(this.getAttr('name'))}</h3>
                 <p>${escapeHtml(profile)}</p>
@@ -72,7 +100,9 @@ class ConsumerCard extends BaseElement {
             <span class="consumer-card__chevron" aria-hidden="true"></span>
           </button>
 
-          ${this._open ? `
+          ${
+            this._open
+              ? `
             <div class="consumer-card__body">
               <div class="consumer-card__note">
                 ${escapeHtml(this.getAttr('notes') || 'Без додаткових приміток.')}
@@ -88,11 +118,37 @@ class ConsumerCard extends BaseElement {
               </div>
 
               <div class="consumer-card__actions">
-                <ui-button class="consumer-card__edit" variant="secondary" size="sm">Редагувати</ui-button>
-                <ui-button class="consumer-card__delete" variant="secondary" size="sm">Видалити</ui-button>
+                <button
+                  type="button"
+                  class="consumer-card__icon-btn"
+                  aria-label="Редагувати прилад"
+                  title="Редагувати"
+                >
+                  <svg viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M10.9 2.1a1.5 1.5 0 0 1 2.1 0l.9.9a1.5 1.5 0 0 1 0 2.1l-7.3 7.3-2.9.8.8-2.9 7.4-7.2z"></path>
+                    <path d="M9.8 3.2l3 3"></path>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="consumer-card__icon-btn consumer-card__icon-btn--danger"
+                  aria-label="Видалити прилад"
+                  title="Видалити"
+                >
+                  <svg viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M2.5 4.5h11"></path>
+                    <path d="M6.5 1.5h3"></path>
+                    <path d="M5 4.5v8"></path>
+                    <path d="M8 4.5v8"></path>
+                    <path d="M11 4.5v8"></path>
+                    <path d="M3.5 4.5l.5 9a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l.5-9"></path>
+                  </svg>
+                </button>
               </div>
             </div>
-          ` : ''}
+          `
+              : ''
+          }
         </article>
       </ui-card>
     `;
@@ -104,23 +160,31 @@ class ConsumerCard extends BaseElement {
       this.update();
     });
 
-    this.shadowRoot.querySelector('.consumer-card__delete')?.addEventListener('ui-click', (event) => {
-      event.stopPropagation();
-      this.dispatchEvent(new CustomEvent('consumer-remove', {
-        detail: { id: this.getAttr('consumer-id') },
-        bubbles: true,
-        composed: true,
-      }));
-    });
+    this.shadowRoot
+      .querySelector('.consumer-card__icon-btn--danger')
+      ?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        this.dispatchEvent(
+          new CustomEvent('consumer-remove', {
+            detail: { id: this.getAttr('consumer-id') },
+            bubbles: true,
+            composed: true,
+          }),
+        );
+      });
 
-    this.shadowRoot.querySelector('.consumer-card__edit')?.addEventListener('ui-click', (event) => {
-      event.stopPropagation();
-      this.dispatchEvent(new CustomEvent('consumer-edit', {
-        detail: { consumer: this.consumer },
-        bubbles: true,
-        composed: true,
-      }));
-    });
+    this.shadowRoot
+      .querySelector('.consumer-card__icon-btn')
+      ?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        this.dispatchEvent(
+          new CustomEvent('consumer-edit', {
+            detail: { consumer: this.consumer },
+            bubbles: true,
+            composed: true,
+          }),
+        );
+      });
   }
 }
 

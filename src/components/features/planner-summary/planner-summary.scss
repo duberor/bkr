@@ -1,0 +1,73 @@
+:host {
+  display: block;
+}
+
+.planner-summary {
+  position: sticky;
+  top: 16px;
+}
+
+.planner-summary__card {
+  display: grid;
+  gap: 16px;
+}
+
+.planner-summary__head {
+  display: grid;
+  gap: 8px;
+}
+
+.planner-summary__eyebrow {
+  color: $info30;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+}
+
+.planner-summary__head h2 {
+  font-size: 22px;
+}
+
+.planner-summary__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.planner-summary__grid > div {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba($white, 0.08);
+  background: rgba($white, 0.04);
+}
+
+.planner-summary__grid span {
+  color: rgba($white, 0.58);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.planner-summary__grid strong {
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.planner-summary__empty {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px dashed rgba($white, 0.14);
+  color: rgba($white, 0.74);
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .planner-summary {
+    position: static;
+  }
+
+  .planner-summary__grid {
+    grid-template-columns: 1fr;
+  }
+}

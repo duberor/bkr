@@ -48,10 +48,12 @@ class UiButton extends BaseElement {
     button?.addEventListener('click', () => {
       if (this.disabled) return;
 
-      this.dispatchEvent(new CustomEvent('ui-click', {
-        bubbles: true,
-        composed: true,
-      }));
+      this.dispatchEvent(
+        new CustomEvent('ui-click', {
+          bubbles: true,
+          composed: true,
+        }),
+      );
     });
   }
 }

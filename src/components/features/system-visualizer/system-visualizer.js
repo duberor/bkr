@@ -1,7 +1,13 @@
 import { BaseElement } from '../../base/base-element.js';
 import '../../ui/ui-card/ui-card.js';
 import { getSystemCalculation } from '../../../utils/consumer-utils.js';
-import { formatAutonomy, formatBattery, formatEnergyWh, formatNumber, formatPower } from '../../../utils/format.js';
+import {
+  formatAutonomy,
+  formatBattery,
+  formatEnergyWh,
+  formatNumber,
+  formatPower,
+} from '../../../utils/format.js';
 import styles from './system-visualizer.scss?inline';
 
 class SystemVisualizer extends BaseElement {
@@ -11,7 +17,9 @@ class SystemVisualizer extends BaseElement {
     this._settings = {};
   }
 
-  styles() { return styles; }
+  styles() {
+    return styles;
+  }
 
   set items(value) {
     this._items = Array.isArray(value) ? value : [];

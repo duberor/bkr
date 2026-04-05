@@ -88,12 +88,12 @@ class ConsumersPage extends BaseElement {
 
       systemSettingsForm.removeEventListener(
         'system-settings-change',
-        this.handleSystemSettingsChange
+        this.handleSystemSettingsChange,
       );
 
       systemSettingsForm.addEventListener(
         'system-settings-change',
-        this.handleSystemSettingsChange
+        this.handleSystemSettingsChange,
       );
     }
 

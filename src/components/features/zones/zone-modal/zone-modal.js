@@ -14,19 +14,29 @@ class ZoneModal extends BaseElement {
     this.errors = {};
   }
 
-  styles() { return styles; }
+  styles() {
+    return styles;
+  }
 
-  get open() { return this._open; }
+  get open() {
+    return this._open;
+  }
   set open(value) {
     this._open = Boolean(value);
     if (!this._open) this.errors = {};
     if (this.isConnected) this.update();
   }
 
-  get zones() { return this._zones; }
-  set zones(value) { this._zones = Array.isArray(value) ? value : []; }
+  get zones() {
+    return this._zones;
+  }
+  set zones(value) {
+    this._zones = Array.isArray(value) ? value : [];
+  }
 
-  get zone() { return this._zone; }
+  get zone() {
+    return this._zone;
+  }
   set zone(value) {
     this._zone = value || null;
     this.formData = { name: value?.name || '' };
@@ -34,7 +44,9 @@ class ZoneModal extends BaseElement {
     if (this.isConnected) this.update();
   }
 
-  get mode() { return this._zone?.id ? 'edit' : 'create'; }
+  get mode() {
+    return this._zone?.id ? 'edit' : 'create';
+  }
 
   render() {
     if (!this.open) return '';
@@ -62,12 +74,16 @@ class ZoneModal extends BaseElement {
   }
 
   afterRender() {
-    this.shadowRoot.querySelector('.zone-modal__close')?.addEventListener('click', this.handleClose);
+    this.shadowRoot
+      .querySelector('.zone-modal__close')
+      ?.addEventListener('click', this.handleClose);
     this.shadowRoot.querySelector('.cancel-btn')?.addEventListener('ui-click', this.handleClose);
     this.shadowRoot.querySelector('.save-btn')?.addEventListener('ui-click', this.handleSave);
     this.shadowRoot.removeEventListener('ui-input', this.handleField);
     this.shadowRoot.addEventListener('ui-input', this.handleField);
-    this.shadowRoot.querySelector('.zone-modal__backdrop')?.addEventListener('click', this.handleBackdropClick);
+    this.shadowRoot
+      .querySelector('.zone-modal__backdrop')
+      ?.addEventListener('click', this.handleBackdropClick);
     document.addEventListener('keydown', this.handleEscape);
   }
 
@@ -115,26 +131,36 @@ class ZoneModal extends BaseElement {
 
     if (!name) errors.name = 'Вкажіть назву зони.';
     else if (name.length > 40) errors.name = 'Назва зони має бути коротшою за 40 символів.';
-    else if (this._zones.some((zone) => zone.id !== this._zone?.id && normalizeComparableString(zone.name) === comparable)) errors.name = 'Зона з такою назвою вже існує.';
+    else if (
+      this._zones.some(
+        (zone) => zone.id !== this._zone?.id && normalizeComparableString(zone.name) === comparable,
+      )
+    )
+      errors.name = 'Зона з такою назвою вже існує.';
 
     if (Object.keys(errors).length) {
       this.errors = errors;
-      this.dispatchEvent(new CustomEvent('zone-modal-invalid', {
-        detail: { errors: Object.values(errors) }, bubbles: true, composed: true,
-      }));
+      this.dispatchEvent(
+        new CustomEvent('zone-modal-invalid', {
+          detail: { errors: Object.values(errors) },
+          bubbles: true,
+          composed: true,
+        }),
+      );
       this.update();
       return;
     }
 
-    const zone = this.mode === 'edit'
-      ? { ...this._zone, name }
-      : { id: `zone-${crypto.randomUUID()}`, name };
+    const zone =
+      this.mode === 'edit' ? { ...this._zone, name } : { id: `zone-${crypto.randomUUID()}`, name };
 
-    this.dispatchEvent(new CustomEvent('zone-save', {
-      detail: { zone, mode: this.mode },
-      bubbles: true,
-      composed: true,
-    }));
+    this.dispatchEvent(
+      new CustomEvent('zone-save', {
+        detail: { zone, mode: this.mode },
+        bubbles: true,
+        composed: true,
+      }),
+    );
     this.formData = { name: '' };
     this.errors = {};
   };

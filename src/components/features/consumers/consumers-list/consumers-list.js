@@ -9,6 +9,8 @@ class ConsumersList extends BaseElement {
     this._items = [];
     this._zones = [];
     this._openZoneId = null;
+    this._emptyMessage =
+      'Додайте перший прилад, щоб побачити список, групування по зонах та підсумки.';
   }
 
   styles() {
@@ -32,6 +34,15 @@ class ConsumersList extends BaseElement {
   set zones(value) {
     this._zones = Array.isArray(value) ? value : [];
     this.ensureOpenZone();
+    if (this.isConnected) this.update();
+  }
+
+  get emptyMessage() {
+    return this._emptyMessage;
+  }
+
+  set emptyMessage(value) {
+    this._emptyMessage = String(value || '').trim() || this._emptyMessage;
     if (this.isConnected) this.update();
   }
 
@@ -98,7 +109,9 @@ class ConsumersList extends BaseElement {
     }, 0);
 
     const dailyEnergy = group.items.reduce((sum, item) => {
-      return sum + Number(item.power || 0) * Number(item.quantity || 0) * Number(item.hoursPerDay || 0);
+      return (
+        sum + Number(item.power || 0) * Number(item.quantity || 0) * Number(item.hoursPerDay || 0)
+      );
     }, 0);
 
     const isOpen = this._openZoneId === '__all__' || group.zoneId === this._openZoneId;
@@ -121,9 +134,13 @@ class ConsumersList extends BaseElement {
           <span class="zone-group__chevron" aria-hidden="true"></span>
         </button>
 
-        ${isOpen ? `
+        ${
+          isOpen
+            ? `
           <div class="zone-group__content">
-            ${group.items.map((item) => `
+            ${group.items
+              .map(
+                (item) => `
               <consumer-card
                 consumer-id="${item.id}"
                 name="${item.name}"
@@ -137,25 +154,24 @@ class ConsumersList extends BaseElement {
                 priority="${item.priority}"
                 usage-profile="${item.usageProfile}"
                 notes="${item.notes || ''}"
-              ></consumer-card>`).join('')}
+              ></consumer-card>`,
+              )
+              .join('')}
           </div>
-        ` : ''}
+        `
+            : ''
+        }
       </section>
     `;
   }
 
   render() {
     if (!this.items.length) {
-      return '<div class="consumers-list__empty">Додай перший прилад, щоб побачити список, групування по зонах та підсумки.</div>';
+      return `<div class="consumers-list__empty">${this.emptyMessage}</div>`;
     }
 
     return `
       <section class="consumers-list">
-        <div class="consumers-list__toolbar">
-          <button class="consumers-list__toolbar-btn" type="button" data-action="expand-all">Розгорнути все</button>
-          <button class="consumers-list__toolbar-btn" type="button" data-action="collapse-all">Згорнути все</button>
-        </div>
-
         ${this.groupedItems.map((group) => this.renderGroup(group)).join('')}
       </section>
     `;
@@ -164,10 +180,18 @@ class ConsumersList extends BaseElement {
   afterRender() {
     this.shadowRoot.querySelectorAll('consumer-card').forEach((card) => {
       card.addEventListener('consumer-remove', (event) => {
-        this.dispatchEvent(new CustomEvent('consumer-remove', { detail: event.detail, bubbles: true, composed: true }));
+        this.dispatchEvent(
+          new CustomEvent('consumer-remove', {
+            detail: event.detail,
+            bubbles: true,
+            composed: true,
+          }),
+        );
       });
       card.addEventListener('consumer-edit', (event) => {
-        this.dispatchEvent(new CustomEvent('consumer-edit', { detail: event.detail, bubbles: true, composed: true }));
+        this.dispatchEvent(
+          new CustomEvent('consumer-edit', { detail: event.detail, bubbles: true, composed: true }),
+        );
       });
     });
 
@@ -178,16 +202,17 @@ class ConsumersList extends BaseElement {
         this.update();
       });
     });
+  }
 
-    this.shadowRoot.querySelector('[data-action="expand-all"]')?.addEventListener('click', () => {
-      this._openZoneId = '__all__';
-      this.update();
-    });
+  expandAll() {
+    if (!this.groupedItems.length) return;
+    this._openZoneId = '__all__';
+    this.update();
+  }
 
-    this.shadowRoot.querySelector('[data-action="collapse-all"]')?.addEventListener('click', () => {
-      this._openZoneId = null;
-      this.update();
-    });
+  collapseAll() {
+    this._openZoneId = null;
+    this.update();
   }
 }
 

@@ -116,7 +116,11 @@ table {
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--scrollbar-thumb-hover) 0%, rgba(71, 213, 166, 0.6) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--scrollbar-thumb-hover) 0%,
+    rgba(71, 213, 166, 0.6) 100%
+  );
   border: 2px solid var(--scrollbar-border);
   background-clip: padding-box;
 }

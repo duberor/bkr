@@ -6,15 +6,31 @@ import { formatEnergyWh, formatPower, formatNumber } from '../../../../utils/for
 import styles from './consumers-summary.scss?inline';
 
 class ConsumersSummary extends BaseElement {
-  constructor() { super(); this._items = []; this._settings = {}; }
-  styles() { return styles; }
-  set items(value) { this._items = Array.isArray(value) ? value : []; if (this.isConnected) this.update(); }
-  get items() { return this._items; }
-  set settings(value) { this._settings = value || {}; if (this.isConnected) this.update(); }
-  get settings() { return this._settings; }
+  constructor() {
+    super();
+    this._items = [];
+    this._settings = {};
+  }
+  styles() {
+    return styles;
+  }
+  set items(value) {
+    this._items = Array.isArray(value) ? value : [];
+    if (this.isConnected) this.update();
+  }
+  get items() {
+    return this._items;
+  }
+  set settings(value) {
+    this._settings = value || {};
+    if (this.isConnected) this.update();
+  }
+  get settings() {
+    return this._settings;
+  }
   render() {
     const calc = getSystemCalculation(this.items, this.settings);
-    const topCategory = getCategoryBreakdown(this.items).sort((a,b) => b.value - a.value)[0];
+    const topCategory = getCategoryBreakdown(this.items).sort((a, b) => b.value - a.value)[0];
     return `
       <ui-card padding="md">
         <section class="summary">

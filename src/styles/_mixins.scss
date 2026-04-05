@@ -43,7 +43,6 @@
   }
 }
 
-
 @mixin layoutL {
   max-width: 1872px;
 }
@@ -63,7 +62,6 @@
 @mixin pv16 {
   padding: 16px 0;
 }
-
 
 @mixin p24 {
   padding: 24px;
@@ -85,7 +83,7 @@
   }
 }
 
-@mixin link ($width: 2px, $offset: 0) {
+@mixin link($width: 2px, $offset: 0) {
   @include regular();
   position: relative;
 
@@ -102,8 +100,8 @@
     opacity: 0;
     transform-origin: left;
     transition:
-      .15s transform ease-in-out,
-      .15s opacity ease-in-out;
+      0.15s transform ease-in-out,
+      0.15s opacity ease-in-out;
   }
 
   @include anyHover {

@@ -36,7 +36,7 @@
   border-right: 2px solid rgba($white, 0.66);
   border-bottom: 2px solid rgba($white, 0.66);
   transform: rotate(45deg);
-  transition: transform .18s ease;
+  transition: transform 0.18s ease;
 }
 
 .disclosure[open] .disclosure__summary::after {

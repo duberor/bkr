@@ -1,89 +1,175 @@
-:host { display: block; }
-.dashboard { display: grid; gap: 18px; }
-.dashboard__hero { display: grid; grid-template-columns: 1.35fr .95fr; gap: 14px; align-items: stretch; }
-.dashboard__hero-copy { display: grid; gap: 10px; align-content: center; }
-.dashboard__eyebrow { color: $info30; text-transform: uppercase; letter-spacing: .12em; font-size: 12px; }
-.dashboard__title { font-size: clamp(26px, 3.2vw, 40px); line-height: 1.08; margin-top: 8px; }
-.dashboard__lead { margin: 0; color: rgba($white,.74); line-height: 1.6; max-width: 72ch; }
-.dashboard__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
-.dashboard__action {
+:host {
+  display: block;
+}
+
+.dashboard__eyebrow {
+  color: $info30;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+}
+
+.dashboard__project-card {
+  display: grid;
+  gap: 14px;
+}
+
+.dashboard__project-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.dashboard__project-copy h2 {
+  font-size: 24px;
+}
+
+.dashboard__project-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dashboard__project-file {
+  display: none;
+}
+
+.dashboard__tool-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 999px;
-  border: 1px solid rgba($white,.12);
-  background: rgba($white,.04);
-  color: rgba($white,.92);
-  text-decoration: none;
-  transition: .2s ease;
+  border: 1px solid rgba($white, 0.12);
+  background: rgba($white, 0.03);
+  color: rgba($white, 0.88);
+  cursor: pointer;
+  transition: 0.2s ease;
 }
-.dashboard__action:hover {
-  background: rgba($white,.08);
-  border-color: rgba($white,.2);
+
+.dashboard__tool-btn:hover {
+  background: rgba($white, 0.08);
+  border-color: rgba($white, 0.2);
 }
-.dashboard__action--primary {
-  background: rgba($info20,.18);
-  border-color: rgba($info20,.42);
+
+.dashboard__project-message {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba($white, 0.08);
+  font-size: 14px;
 }
-.dashboard__action--primary:hover {
-  background: rgba($info20,.26);
-  border-color: rgba($info20,.58);
+
+.dashboard__project-message--success {
+  background: rgba($success20, 0.12);
+  border-color: rgba($success20, 0.24);
 }
-.dashboard__progress {
+
+.dashboard__project-message--error {
+  background: rgba($danger20, 0.12);
+  border-color: rgba($danger20, 0.24);
+}
+
+.dashboard__project-message--info {
+  background: rgba($info20, 0.12);
+  border-color: rgba($info20, 0.24);
+}
+
+.dashboard__stats {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  align-content: center;
-  min-height: 100%;
 }
-.dashboard__progress-label {
-  color: rgba($white,.6);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-}
-.dashboard__progress-list {
+
+.stat {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
-.dashboard__progress-item {
+
+.stat span {
+  color: rgba($white, 0.62);
+  font-size: 13px;
+}
+
+.stat strong {
+  font-size: 19px;
+}
+
+.dashboard__charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.chart-card--wide {
+  grid-column: 1 / -1;
+}
+
+.chart-card {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.chart-card__head {
   display: grid;
   gap: 4px;
-  padding: 12px;
+}
+
+.chart-card__head h2 {
+  font-size: 18px;
+}
+
+.chart-card__canvas-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 250px;
+  height: 250px;
+}
+
+.chart-card__canvas-wrap--wide {
+  min-height: 290px;
+  height: 290px;
+}
+
+.chart-card__canvas-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.dashboard__profile-info {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
   border-radius: 14px;
-  border: 1px solid rgba($white,.08);
-  background: rgba($white,.03);
+  border: 1px solid rgba($white, 0.08);
+  background: rgba($white, 0.03);
 }
-.dashboard__progress-item strong {
-  font-size: 15px;
+
+.dashboard__profile-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
-.dashboard__progress-item span {
-  color: rgba($white,.68);
+
+.dashboard__profile-metrics span {
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba($white, 0.08);
+  background: rgba($white, 0.04);
+  color: rgba($white, 0.82);
   font-size: 13px;
-  line-height: 1.4;
 }
-.dashboard__progress-item.is-done {
-  border-color: rgba($success20,.24);
-  background: rgba($success20,.08);
+
+.dashboard__profile-empty {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba($white, 0.08);
+  background: rgba($white, 0.03);
+  color: rgba($white, 0.72);
 }
-.dashboard__stats { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 12px; }
-.stat { display: grid; gap: 8px; }
-.stat span { color: rgba($white,.62); font-size: 13px; }
-.stat strong { font-size: 19px; }
-.dashboard__charts { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
-.chart-card--wide { grid-column: 1 / -1; }
-.chart-card { display: grid; gap: 14px; min-width: 0; }
-.chart-card__head { display: grid; gap: 4px; }
-.chart-card__head h2 { font-size: 18px; }
-.chart-card__canvas-wrap { position: relative; width: 100%; min-height: 250px; height: 250px; }
-.chart-card__canvas-wrap--wide { min-height: 290px; height: 290px; }
-.chart-card__canvas-wrap canvas { display: block; width: 100% !important; height: 100% !important; }
-.dashboard__profile-info { display: grid; gap: 10px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba($white, 0.08); background: rgba($white, 0.03); }
-.dashboard__profile-metrics { display: flex; flex-wrap: wrap; gap: 12px; }
-.dashboard__profile-metrics span { padding: 8px 10px; border-radius: 999px; border: 1px solid rgba($white, 0.08); background: rgba($white, 0.04); color: rgba($white, 0.82); font-size: 13px; }
-.dashboard__profile-empty { padding: 12px 14px; border-radius: 14px; border: 1px solid rgba($white, 0.08); background: rgba($white, 0.03); color: rgba($white, 0.72); }
+
 @media (max-width: 1100px) {
-  .dashboard__hero,
   .dashboard__charts,
   .dashboard__stats {
     grid-template-columns: 1fr;

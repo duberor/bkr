@@ -4,9 +4,9 @@
 
 .card {
   position: relative;
-  background: rgba($grey20, .4);
+  background: rgba($grey20, 0.4);
   backdrop-filter: blur(1px);
-  border: 1px solid rgba($white, .08);
+  border: 1px solid rgba($white, 0.08);
   border-radius: 18px;
   overflow: visible;
 }

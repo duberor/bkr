@@ -30,5 +30,5 @@ export class BaseElement extends HTMLElement {
     return '';
   }
 
-  afterRender() { }
+  afterRender() {}
 }

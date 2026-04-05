@@ -3,7 +3,6 @@
 @use './reset';
 @use './fonts';
 
-
 #app {
   position: relative;
   min-height: 100vh;
@@ -16,7 +15,7 @@
   top: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: .9;
+  opacity: 0.9;
 
   --x: 82vw;
   --y: 18vh;
@@ -27,6 +26,6 @@
     rgba(255, 190, 120, 0.08) 24%,
     transparent 70%
   );
-  transition: opacity .25s ease;
+  transition: opacity 0.25s ease;
   will-change: background;
 }

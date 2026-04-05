@@ -1,29 +1,69 @@
 import { BaseElement } from '../../base/base-element.js';
+import '../../features/planner-shell/planner-shell.js';
 import '../../ui/ui-button/ui-button.js';
+import '../../ui/ui-card/ui-card.js';
 import '../../features/report-sheet/report-sheet.js';
 import { appStore } from '../../../store/app-store.js';
 import styles from './report-page.scss?inline';
 import reportSheetStyles from '../../features/report-sheet/report-sheet.scss?inline';
 
 class ReportPage extends BaseElement {
-  constructor() { super(); this.state = appStore.getState(); }
-  connectedCallback() { this.unsubscribe = appStore.subscribe((state) => { this.state = state; this.update(); }); super.connectedCallback(); }
-  disconnectedCallback() { this.unsubscribe?.(); }
-  styles() { return styles; }
+  constructor() {
+    super();
+    this.state = appStore.getState();
+  }
+
+  connectedCallback() {
+    this.unsubscribe = appStore.subscribe((state) => {
+      this.state = state;
+      this.update();
+    });
+    super.connectedCallback();
+  }
+
+  disconnectedCallback() {
+    this.unsubscribe?.();
+  }
+
+  styles() {
+    return styles;
+  }
+
   render() {
+    const hasConsumers = this.state.consumers.length > 0;
     return `
-      <section class="report-page">
-        <div class="report-page__hero">
-          <div>
-            <p class="page-eyebrow">Звіт</p>
-            <h1>Готовий звіт по системі</h1>
+      <planner-shell
+        step="5"
+        eyebrow="Звіт"
+        title="Готовий звіт по системі"
+        prev-href="#/system"
+        prev-label="Повернутися до рішення"
+      >
+        <ui-card padding="md">
+          <section class="report-page__toolbar">
+            <div class="report-page__toolbar-copy">
+              <h2>Друк і PDF</h2>
+            </div>
+            <ui-button class="print-btn" ${hasConsumers ? '' : 'disabled'}>Друк / PDF</ui-button>
+          </section>
+        </ui-card>
+
+        ${
+          hasConsumers
+            ? ''
+            : `
+          <div class="report-page__notice">
+            <span>Щоб сформувати змістовний звіт, спочатку додайте прилади до проєкту.</span>
+            <a class="report-page__notice-link" href="#/consumers">Перейти до приладів</a>
           </div>
-          <ui-button class="print-btn">Друк / PDF</ui-button>
-        </div>
+        `
+        }
+
         <report-sheet></report-sheet>
-      </section>
+      </planner-shell>
     `;
   }
+
   afterRender() {
     const reportSheet = this.shadowRoot.querySelector('report-sheet');
     if (reportSheet) reportSheet.state = this.state;
@@ -31,21 +71,32 @@ class ReportPage extends BaseElement {
   }
 
   handlePrint = () => {
-    const reportSheet = this.shadowRoot.querySelector('report-sheet');
-    if (!reportSheet) {
+    if (!this.state.consumers.length) return;
+    const printableSheet = document.createElement('report-sheet');
+    printableSheet.style.position = 'fixed';
+    printableSheet.style.left = '-99999px';
+    printableSheet.style.top = '0';
+    printableSheet.style.width = '1200px';
+    printableSheet.style.pointerEvents = 'none';
+    printableSheet.style.opacity = '0';
+    document.body.appendChild(printableSheet);
+
+    printableSheet.state = this.state;
+    printableSheet.viewMode = 'focus';
+
+    const article = printableSheet.shadowRoot?.querySelector('article.report-sheet');
+    if (!article) {
+      printableSheet.remove();
       window.print();
       return;
     }
 
-    reportSheet.state = this.state;
-    const article = reportSheet.shadowRoot?.querySelector('article.report-sheet');
-    if (!article) {
-      window.print();
-      return;
-    }
+    const articleClone = article.cloneNode(true);
+    articleClone.classList.add('report-sheet--print-compact');
 
     const printWindow = window.open('', '_blank', 'width=1200,height=900');
     if (!printWindow) {
+      printableSheet.remove();
       window.print();
       return;
     }
@@ -62,23 +113,25 @@ class ReportPage extends BaseElement {
             * { box-sizing: border-box; }
             body {
               margin: 0;
-              padding: 24px;
+              padding: 16px;
               font-family: "FixelText", sans-serif;
               color: #111;
               background: #fff;
             }
             .print-shell {
-              max-width: 1200px;
+              max-width: 980px;
               margin: 0 auto;
             }
             ${reportSheetStyles}
           </style>
         </head>
-        <body>
-          <main class="print-shell">${article.outerHTML}</main>
+        <body class="print-body">
+          <main class="print-shell">${articleClone.outerHTML}</main>
         </body>
       </html>
     `;
+
+    printableSheet.remove();
 
     printWindow.document.open();
     printWindow.document.write(printableHtml);
@@ -100,4 +153,5 @@ class ReportPage extends BaseElement {
     printWindow.addEventListener('load', () => setTimeout(runPrint, 50), { once: true });
   };
 }
+
 customElements.define('report-page', ReportPage);

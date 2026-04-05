@@ -1,15 +1,58 @@
-:host { display:block; }
-.report-page { display:grid; gap:14px; }
-.report-page__hero { display:flex; justify-content:space-between; gap:16px; align-items:flex-end; }
-.page-eyebrow { color:$info30; text-transform:uppercase; letter-spacing:.12em; font-size:12px; }
-h1 { font-size: clamp(24px, 2.8vw, 34px); margin-top:6px; }
-p { color: rgba($white,.72); margin-top:10px; line-height: 1.6; max-width: 78ch; }
-@media (max-width: 720px) { .report-page__hero { display:grid; } }
+:host {
+  display: block;
+}
+
+.report-page__toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.report-page__toolbar-copy {
+  display: grid;
+  gap: 0;
+}
+
+.report-page__toolbar-copy h2 {
+  font-size: 24px;
+}
+
+.report-page__notice {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba($warn20, 0.24);
+  background: rgba($warn20, 0.08);
+  color: rgba($white, 0.86);
+}
+
+.report-page__notice-link {
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba($warn30, 0.35);
+  color: $white;
+  text-decoration: none;
+}
+
+.report-page__notice-link:hover {
+  background: rgba($warn20, 0.12);
+}
+
+@media (max-width: 720px) {
+  .report-page__toolbar {
+    display: grid;
+  }
+}
+
 @media print {
-  :host { display:block; }
-  .report-page { gap: 12px; }
-  .report-page__hero { display:block; }
-  .print-btn { display:none !important; }
-  h1 { font-size: 24px; color: #111; }
-  p, .page-eyebrow { color: #333; }
+  :host {
+    display: block;
+  }
+
+  .print-btn {
+    display: none !important;
+  }
 }

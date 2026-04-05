@@ -3,19 +3,9 @@ import logo from '../../../assets/images/logo.svg';
 import { appStore } from '../../../store/app-store.js';
 import { getSystemCalculation } from '../../../utils/consumer-utils.js';
 import { formatEnergyWh, formatPower } from '../../../utils/format.js';
-import { FEATURES } from '../../../config/features.js';
 
 import '../../ui/ui-button/ui-button.js';
 import styles from './app-header.scss?inline';
-
-const navItems = [
-  { hash: '#/dashboard', label: 'Огляд' },
-  { hash: '#/consumers', label: 'Прилади' },
-  { hash: '#/calculation', label: 'Параметри' },
-  { hash: '#/system', label: 'Рішення' },
-  ...(FEATURES.productsPage ? [{ hash: '#/products', label: 'Обладнання' }] : []),
-  { hash: '#/report', label: 'Звіт' },
-];
 
 class AppHeader extends BaseElement {
   constructor() {
@@ -30,28 +20,16 @@ class AppHeader extends BaseElement {
       this.update();
     });
     super.connectedCallback();
-    window.addEventListener('hashchange', this.handleHashChange);
     document.addEventListener('keydown', this.handleDocumentKeydown);
   }
 
   disconnectedCallback() {
     this.unsubscribe?.();
-    window.removeEventListener('hashchange', this.handleHashChange);
     document.removeEventListener('keydown', this.handleDocumentKeydown);
   }
 
   styles() {
     return styles;
-  }
-
-  get currentHash() {
-    return location.hash || '#/dashboard';
-  }
-
-  renderNav() {
-    return navItems.map((item) => `
-      <a class="header__nav-link ${this.currentHash === item.hash ? 'is-active' : ''}" href="${item.hash}">${item.label}</a>
-    `).join('');
   }
 
   renderAboutModal() {
@@ -99,8 +77,6 @@ class AppHeader extends BaseElement {
           </div>
         </div>
 
-        <nav class="header__nav">${this.renderNav()}</nav>
-
         <div class="header__meta">
           <div class="header__stat">
             <span>Потужність приладів</span>
@@ -122,13 +98,18 @@ class AppHeader extends BaseElement {
     this.shadowRoot.querySelectorAll('[data-close-about]').forEach((node) => {
       node.addEventListener('click', this.handleMaybeCloseAbout);
     });
-    this.shadowRoot.querySelector('.header__modal-ok')?.addEventListener('ui-click', this.closeAbout);
-    this.shadowRoot.querySelector('.header__modal')?.addEventListener('click', (event) => event.stopPropagation());
+    this.shadowRoot
+      .querySelector('.header__modal-ok')
+      ?.addEventListener('ui-click', this.closeAbout);
+    this.shadowRoot
+      .querySelector('.header__modal')
+      ?.addEventListener('click', (event) => event.stopPropagation());
   }
 
   handleMaybeCloseAbout = (event) => {
     const isBackdrop = event.target.hasAttribute('data-close-about');
-    const isCloseButton = event.target.closest('[data-close-about]') && event.target.closest('.header__modal-close');
+    const isCloseButton =
+      event.target.closest('[data-close-about]') && event.target.closest('.header__modal-close');
     if (isBackdrop || isCloseButton) {
       this.closeAbout();
     }
@@ -143,8 +124,6 @@ class AppHeader extends BaseElement {
     this.isAboutOpen = false;
     this.update();
   };
-
-  handleHashChange = () => this.update();
 
   handleDocumentKeydown = (event) => {
     if (event.key === 'Escape' && this.isAboutOpen) {

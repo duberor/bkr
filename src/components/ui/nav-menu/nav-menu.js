@@ -1,4 +1,4 @@
-import { BaseElement } from "../../base/base-element.js";
+import { BaseElement } from '../../base/base-element.js';
 import styles from './nav-menu.scss?inline';
 import '../ui-button/ui-button.js';
 

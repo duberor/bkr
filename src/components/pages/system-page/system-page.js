@@ -1,19 +1,44 @@
 import { BaseElement } from '../../base/base-element.js';
+import '../../features/planner-shell/planner-shell.js';
 import '../../ui/ui-card/ui-card.js';
 import '../../ui/ui-disclosure/ui-disclosure.js';
 import '../../ui/ui-tooltip/ui-tooltip.js';
+import '../../features/solution-variants/solution-variants.js';
 import '../../features/battery-configurator/battery-configurator.js';
 import '../../features/system-visualizer/system-visualizer.js';
 import { appStore } from '../../../store/app-store.js';
 import { getSystemCalculation } from '../../../utils/consumer-utils.js';
-import { formatAutonomy, formatBattery, formatEnergyWh, formatNumber, formatPower } from '../../../utils/format.js';
+import {
+  formatAutonomy,
+  formatBattery,
+  formatBatteryTopology,
+  formatEnergyWh,
+  formatNumber,
+  formatPower,
+} from '../../../utils/format.js';
 import styles from './system-page.scss?inline';
 
 class SystemPage extends BaseElement {
-  constructor() { super(); this.state = appStore.getState(); }
-  connectedCallback() { this.unsubscribe = appStore.subscribe((state) => { this.state = state; this.update(); }); super.connectedCallback(); }
-  disconnectedCallback() { this.unsubscribe?.(); }
-  styles() { return styles; }
+  constructor() {
+    super();
+    this.state = appStore.getState();
+  }
+
+  connectedCallback() {
+    this.unsubscribe = appStore.subscribe((state) => {
+      this.state = state;
+      this.update();
+    });
+    super.connectedCallback();
+  }
+
+  disconnectedCallback() {
+    this.unsubscribe?.();
+  }
+
+  styles() {
+    return styles;
+  }
 
   get zoneMap() {
     return new Map((this.state.zones || []).map((zone) => [zone.id, zone.name]));
@@ -33,13 +58,17 @@ class SystemPage extends BaseElement {
       row.dailyEnergy += power * Number(consumer.hoursPerDay || 0);
       if (consumer.priority === 'high') row.highPriority += power;
     });
-    return [...groups.entries()].map(([zoneName, row]) => ({ zoneName, ...row }))
+    return [...groups.entries()]
+      .map(([zoneName, row]) => ({ zoneName, ...row }))
       .sort((a, b) => b.dailyEnergy - a.dailyEnergy);
   }
 
   renderZoneRows() {
-    if (!this.zoneRows.length) return '<tr><td colspan="5">Ще не додано жодної зони або приладу.</td></tr>';
-    return this.zoneRows.map((row) => `
+    if (!this.zoneRows.length)
+      return '<tr><td colspan="5">Ще не додано жодної зони або приладу.</td></tr>';
+    return this.zoneRows
+      .map(
+        (row) => `
       <tr>
         <td>${row.zoneName}</td>
         <td>${row.count}</td>
@@ -47,16 +76,21 @@ class SystemPage extends BaseElement {
         <td>${formatEnergyWh(row.dailyEnergy)}</td>
         <td>${formatPower(row.highPriority)}</td>
       </tr>
-    `).join('');
+    `,
+      )
+      .join('');
   }
 
   renderConfigRows(configs = []) {
-    if (!configs.length) return '<tr><td colspan="9">Щоб побачити варіанти системи, додайте прилади та налаштуйте параметри.</td></tr>';
-    return configs.map((config, index) => `
+    if (!configs.length)
+      return '<tr><td colspan="9">Щоб побачити варіанти системи, додайте прилади та налаштуйте параметри.</td></tr>';
+    return configs
+      .map(
+        (config, index) => `
       <tr>
         <td>${index === 0 ? 'Основний' : `Альтернатива ${index}`}</td>
         <td>${config.totalBatteries}</td>
-        <td>${config.seriesCount}S / ${config.parallelCount}P</td>
+        <td>${formatBatteryTopology(config.seriesCount, config.parallelCount)}</td>
         <td>${config.bankVoltage} V</td>
         <td>${config.bankCapacityAh} Ah</td>
         <td>${formatEnergyWh(config.totalStoredWh)}</td>
@@ -64,14 +98,16 @@ class SystemPage extends BaseElement {
         <td>${formatAutonomy(config.autonomyHours)}</td>
         <td>${config.label}</td>
       </tr>
-    `).join('');
+    `,
+      )
+      .join('');
   }
 
   render() {
     const calc = getSystemCalculation(this.state.consumers, this.state.systemSettings);
+    const hasConsumers = this.state.consumers.length > 0;
     const voltage = Number(this.state.systemSettings?.batteryVoltage || 24);
     const efficiency = Number(this.state.systemSettings?.inverterEfficiency || 0.92);
-    const runtimeBest = calc.estimatedAutonomyHours;
     const fullDcCurrent = voltage ? calc.totalPower / Math.max(voltage * efficiency, 1) : 0;
     const designDcCurrent = voltage ? calc.designLoadPower / Math.max(voltage * efficiency, 1) : 0;
     const surgeDcCurrent = voltage ? calc.totalSurgePower / Math.max(voltage * efficiency, 1) : 0;
@@ -79,19 +115,27 @@ class SystemPage extends BaseElement {
     const highPriorityRuntime = calc.criticalAutonomyHours;
 
     return `
-      <section class="system-page">
-        <div>
-          <p class="page-eyebrow">Рішення</p>
-          <h1>Що система рекомендує</h1>
-          <p>Тут зібрано готовий підсумок: яке обладнання потрібне, скільки часу воно працюватиме та які є варіанти комплекту АКБ.</p>
-        </div>
+      <planner-shell
+        step="4"
+        eyebrow="Рішення"
+        title="Що система рекомендує"
+        prev-href="#/calculation"
+        prev-label="Повернутися до часу роботи"
+        next-href="#/report"
+        next-label="Перейти до звіту"
+      >
+        ${
+          hasConsumers
+            ? ''
+            : `
+          <div class="system-page__notice">
+            <span>Щоб побачити готове рішення, спочатку додайте хоча б один прилад.</span>
+            <a class="system-page__notice-link" href="#/consumers">Перейти до приладів</a>
+          </div>
+        `
+        }
 
-        <section class="system-page__top-metrics">
-          <ui-card padding="md"><div class="metric"><span>Який інвертор потрібен</span><strong>${formatPower(calc.recommendedInverterPower)}</strong></div></ui-card>
-          <ui-card padding="md"><div class="metric"><span>Яка АКБ потрібна</span><strong>${formatBattery(calc.recommendedBatteryCapacityAh)}</strong></div></ui-card>
-          <ui-card padding="md"><div class="metric"><span>Час роботи у звичному режимі</span><strong>${formatAutonomy(runtimeBest)}</strong></div></ui-card>
-          <ui-card padding="md"><div class="metric"><span>Потужність критичних приладів</span><strong>${highPriorityPower ? formatPower(highPriorityPower) : '—'}</strong></div></ui-card>
-        </section>
+        <solution-variants></solution-variants>
 
         <section class="system-page__detail-grid">
           <ui-card padding="md">
@@ -99,7 +143,7 @@ class SystemPage extends BaseElement {
               <div class="system-page__panel-head">
                 <div class="system-page__title-row">
                   <h2>Що варто знати про систему</h2>
-                  <ui-tooltip label="Пояснення" text="Короткий підсумок по системі для вибору обладнання і перевірки ключових параметрів."></ui-tooltip>
+                  <ui-tooltip label="Пояснення" text="Короткий технічний підсумок по системі для перевірки ключових параметрів."></ui-tooltip>
                 </div>
               </div>
               <ui-disclosure label="Технічні деталі системи">
@@ -112,6 +156,7 @@ class SystemPage extends BaseElement {
                   <div><span>Скільки енергії потрібно із запасом</span><strong>${formatEnergyWh(calc.totalEnergyWh)}</strong></div>
                   <div><span>Час роботи при максимальному навантаженні</span><strong>${formatAutonomy(calc.continuousAutonomyHours, { preferDays: false })}</strong></div>
                   <div><span>Час роботи для критичних приладів</span><strong>${formatAutonomy(highPriorityRuntime, { preferDays: false })}</strong></div>
+                  <div><span>Потужність критичних приладів</span><strong>${highPriorityPower ? formatPower(highPriorityPower) : '—'}</strong></div>
                 </div>
               </ui-disclosure>
             </section>
@@ -160,7 +205,7 @@ class SystemPage extends BaseElement {
                     <tr>
                       <th>Варіант</th>
                       <th>Модулів</th>
-                      <th>Схема</th>
+                      <th>З'єднання модулів</th>
                       <th>Напруга</th>
                       <th>Ємність</th>
                       <th>Повна енергія</th>
@@ -178,16 +223,22 @@ class SystemPage extends BaseElement {
 
         <battery-configurator></battery-configurator>
         <system-visualizer></system-visualizer>
-      </section>
+      </planner-shell>
     `;
   }
+
   afterRender() {
+    const variants = this.shadowRoot.querySelector('solution-variants');
     const battery = this.shadowRoot.querySelector('battery-configurator');
     const visualizer = this.shadowRoot.querySelector('system-visualizer');
+
+    variants.items = this.state.consumers;
+    variants.settings = this.state.systemSettings;
     battery.items = this.state.consumers;
     battery.settings = this.state.systemSettings;
     visualizer.items = this.state.consumers;
     visualizer.settings = this.state.systemSettings;
   }
 }
+
 customElements.define('system-page', SystemPage);

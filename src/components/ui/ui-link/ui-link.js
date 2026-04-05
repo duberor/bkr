@@ -1,4 +1,4 @@
-import { BaseElement } from "../../base/base-element.js";
+import { BaseElement } from '../../base/base-element.js';
 import styles from './ui-link.scss?inline';
 
 class UiLink extends BaseElement {

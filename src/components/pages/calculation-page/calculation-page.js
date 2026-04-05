@@ -1,4 +1,5 @@
 import { BaseElement } from '../../base/base-element.js';
+import '../../features/planner-shell/planner-shell.js';
 import '../../ui/ui-card/ui-card.js';
 import '../../features/system-settings-form/system-settings-form.js';
 import '../../features/system-summary/system-summary.js';
@@ -6,44 +7,57 @@ import { appStore } from '../../../store/app-store.js';
 import styles from './calculation-page.scss?inline';
 
 class CalculationPage extends BaseElement {
-  constructor() { super(); this.state = appStore.getState(); }
-  connectedCallback() { this.unsubscribe = appStore.subscribe((state) => { this.state = state; this.update(); }); super.connectedCallback(); }
-  disconnectedCallback() { this.unsubscribe?.(); }
-  styles() { return styles; }
+  constructor() {
+    super();
+    this.state = appStore.getState();
+  }
+
+  connectedCallback() {
+    this.unsubscribe = appStore.subscribe((state) => {
+      this.state = state;
+      this.update();
+    });
+    super.connectedCallback();
+  }
+
+  disconnectedCallback() {
+    this.unsubscribe?.();
+  }
+
+  styles() {
+    return styles;
+  }
+
   render() {
     return `
-      <section class="calculation-page">
-        <div>
-          <p class="page-eyebrow">Параметри</p>
-          <h1>Скільки часу має працювати система</h1>
-          <p>Спочатку задайте базові вимоги до системи, а нижче одразу побачите, яке рішення підходить під ваші прилади.</p>
-        </div>
+      <planner-shell
+        step="3"
+        eyebrow="Час роботи"
+        title="Скільки часу має працювати система"
+        prev-href="#/consumers"
+        prev-label="Повернутися до приладів"
+        next-href="#/system"
+        next-label="Перейти до рішення"
+      >
         <ui-card padding="md"><system-settings-form></system-settings-form></ui-card>
-        <ui-card padding="md">
-          <section class="calculation-page__info">
-            <h2>Що впливає на підбір</h2>
-            <div class="calculation-page__chips">
-              <span>Потужність приладів</span>
-              <span>Пускові піки</span>
-              <span>Споживання за добу</span>
-              <span>Бажаний час роботи</span>
-              <span>Запас по інвертору</span>
-              <span>Запас по АКБ</span>
-            </div>
-          </section>
-        </ui-card>
+
         <system-summary></system-summary>
-      </section>
+      </planner-shell>
     `;
   }
+
   afterRender() {
     const form = this.shadowRoot.querySelector('system-settings-form');
     const summary = this.shadowRoot.querySelector('system-summary');
+    form.addEventListener('system-settings-change', this.handleChange);
+    form.items = this.state.consumers;
     form.settings = this.state.systemSettings;
+    form.syncAutoSelections();
     summary.items = this.state.consumers;
     summary.settings = this.state.systemSettings;
-    form.addEventListener('system-settings-change', this.handleChange);
   }
+
   handleChange = (event) => appStore.setSystemSettings(event.detail.settings);
 }
+
 customElements.define('calculation-page', CalculationPage);

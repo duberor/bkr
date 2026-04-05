@@ -15,5 +15,8 @@ export function parseLocaleNumber(value, fallback = null) {
 }
 
 export function normalizeComparableString(value) {
-  return String(value ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
 }

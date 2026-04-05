@@ -1,12 +1,7 @@
 const API_KEY = import.meta.env.VITE_GOOGLE_CSE_API_KEY;
 const SEARCH_ENGINE_ID = import.meta.env.VITE_GOOGLE_CSE_CX;
 
-const DEFAULT_DOMAINS = [
-  'rozetka.com.ua',
-  'epicentrk.ua',
-  'prom.ua',
-  'allo.ua',
-];
+const DEFAULT_DOMAINS = ['rozetka.com.ua', 'epicentrk.ua', 'prom.ua', 'allo.ua'];
 
 function hasApiConfig() {
   return Boolean(API_KEY && SEARCH_ENGINE_ID);
@@ -46,11 +41,7 @@ export function canUseLiveProductSearch() {
 }
 
 export async function searchProductsLive(query, options = {}) {
-  const {
-    num = 5,
-    domains = DEFAULT_DOMAINS,
-    signal,
-  } = options;
+  const { num = 5, domains = DEFAULT_DOMAINS, signal } = options;
 
   if (!hasApiConfig()) return [];
 
@@ -67,17 +58,21 @@ export async function searchProductsLive(query, options = {}) {
     safe: 'off',
   });
 
-  const response = await fetch(`https://www.googleapis.com/customsearch/v1?${params.toString()}`, { signal });
+  const response = await fetch(`https://www.googleapis.com/customsearch/v1?${params.toString()}`, {
+    signal,
+  });
   if (!response.ok) return [];
 
   const payload = await response.json();
   const items = Array.isArray(payload?.items) ? payload.items : [];
 
-  return items.map((item) => ({
-    title: String(item?.title || ''),
-    url: String(item?.link || ''),
-    imageUrl: extractImage(item),
-    source: detectSource(item?.link || ''),
-    snippet: String(item?.snippet || ''),
-  })).filter((item) => item.url);
+  return items
+    .map((item) => ({
+      title: String(item?.title || ''),
+      url: String(item?.link || ''),
+      imageUrl: extractImage(item),
+      source: detectSource(item?.link || ''),
+      snippet: String(item?.snippet || ''),
+    }))
+    .filter((item) => item.url);
 }

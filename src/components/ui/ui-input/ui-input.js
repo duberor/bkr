@@ -41,8 +41,9 @@ class UiInput extends BaseElement {
 
     if (this.isConnected) {
       const control = this.shadowRoot?.querySelector('.field__control');
-      const isFocused = Boolean(control)
-        && (this.shadowRoot?.activeElement === control || document.activeElement === this);
+      const isFocused =
+        Boolean(control) &&
+        (this.shadowRoot?.activeElement === control || document.activeElement === this);
 
       if (isFocused) {
         this._focusControlAfterRender = true;
@@ -60,9 +61,15 @@ class UiInput extends BaseElement {
     return styles;
   }
 
-  get type() { return this.getAttribute('type') || 'text'; }
-  get name() { return this.getAttribute('name') || ''; }
-  get value() { return this._value; }
+  get type() {
+    return this.getAttribute('type') || 'text';
+  }
+  get name() {
+    return this.getAttribute('name') || '';
+  }
+  get value() {
+    return this._value;
+  }
   set value(newValue) {
     this._value = String(newValue ?? '');
     const control = this.shadowRoot?.querySelector('.field__control');
@@ -70,16 +77,36 @@ class UiInput extends BaseElement {
       control.value = this._value;
     }
   }
-  get label() { return this.getAttribute('label') || ''; }
-  get placeholder() { return this.getAttribute('placeholder') || ''; }
-  get min() { return this.getAttribute('min') || ''; }
-  get max() { return this.getAttribute('max') || ''; }
-  get step() { return this.getAttribute('step') || ''; }
-  get rows() { return Number(this.getAttribute('rows') || 4); }
-  get required() { return this.hasAttribute('required'); }
-  get disabled() { return this.hasAttribute('disabled'); }
-  get error() { return this.getAttribute('error') || ''; }
-  get hint() { return this.getAttribute('hint') || ''; }
+  get label() {
+    return this.getAttribute('label') || '';
+  }
+  get placeholder() {
+    return this.getAttribute('placeholder') || '';
+  }
+  get min() {
+    return this.getAttribute('min') || '';
+  }
+  get max() {
+    return this.getAttribute('max') || '';
+  }
+  get step() {
+    return this.getAttribute('step') || '';
+  }
+  get rows() {
+    return Number(this.getAttribute('rows') || 4);
+  }
+  get required() {
+    return this.hasAttribute('required');
+  }
+  get disabled() {
+    return this.hasAttribute('disabled');
+  }
+  get error() {
+    return this.getAttribute('error') || '';
+  }
+  get hint() {
+    return this.getAttribute('hint') || '';
+  }
 
   render() {
     const messageId = this.name ? `${this.name}-message` : '';
@@ -95,9 +122,10 @@ class UiInput extends BaseElement {
       ${this.error ? 'aria-invalid="true"' : 'aria-invalid="false"'}
     `;
 
-    const control = this.type === 'textarea'
-      ? `<textarea class="field__control field__control--textarea ${this.error ? 'is-error' : ''}" rows="${this.rows}" ${sharedAttrs}>${escapeHtml(this.value)}</textarea>`
-      : `<input class="field__control ${this.error ? 'is-error' : ''}" type="${escapeAttr(this.type)}" value="${escapeAttr(this.value)}" ${sharedAttrs} />`;
+    const control =
+      this.type === 'textarea'
+        ? `<textarea class="field__control field__control--textarea ${this.error ? 'is-error' : ''}" rows="${this.rows}" ${sharedAttrs}>${escapeHtml(this.value)}</textarea>`
+        : `<input class="field__control ${this.error ? 'is-error' : ''}" type="${escapeAttr(this.type)}" value="${escapeAttr(this.value)}" ${sharedAttrs} />`;
 
     const message = this.error || this.hint;
 
@@ -116,28 +144,32 @@ class UiInput extends BaseElement {
 
     input.addEventListener('input', (event) => {
       this.value = event.target.value;
-      this.dispatchEvent(new CustomEvent('ui-input', {
-        detail: { value: event.target.value, name: this.name },
-        bubbles: true,
-        composed: true,
-      }));
+      this.dispatchEvent(
+        new CustomEvent('ui-input', {
+          detail: { value: event.target.value, name: this.name },
+          bubbles: true,
+          composed: true,
+        }),
+      );
     });
 
     input.addEventListener('change', (event) => {
       this.value = event.target.value;
-      this.dispatchEvent(new CustomEvent('ui-change', {
-        detail: { value: event.target.value, name: this.name },
-        bubbles: true,
-        composed: true,
-      }));
+      this.dispatchEvent(
+        new CustomEvent('ui-change', {
+          detail: { value: event.target.value, name: this.name },
+          bubbles: true,
+          composed: true,
+        }),
+      );
     });
 
     if (this._focusControlAfterRender) {
       input.focus();
       if (
-        typeof input.setSelectionRange === 'function'
-        && typeof this._selectionStart === 'number'
-        && typeof this._selectionEnd === 'number'
+        typeof input.setSelectionRange === 'function' &&
+        typeof this._selectionStart === 'number' &&
+        typeof this._selectionEnd === 'number'
       ) {
         input.setSelectionRange(this._selectionStart, this._selectionEnd);
       }

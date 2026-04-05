@@ -1,4 +1,4 @@
-import { BaseElement } from "../../base/base-element.js";
+import { BaseElement } from '../../base/base-element.js';
 import styles from './nav-menu-item.scss?inline';
 
 class NavMenuItem extends BaseElement {

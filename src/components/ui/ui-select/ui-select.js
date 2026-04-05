@@ -93,24 +93,46 @@ class UiSelect extends HTMLElement {
     if (this.isConnected) this.render();
   }
 
-  get name() { return this.getAttribute('name') || ''; }
-  get label() { return this.getAttribute('label') || ''; }
-  get value() { return this.getAttribute('value') || ''; }
-  set value(newValue) { this.setAttribute('value', String(newValue ?? '')); }
-  get disabled() { return this.hasAttribute('disabled'); }
-  set disabled(value) { value ? this.setAttribute('disabled', '') : this.removeAttribute('disabled'); }
-  get placeholder() { return this.getAttribute('placeholder') || 'Оберіть значення'; }
-  get error() { return this.getAttribute('error') || ''; }
-  get hint() { return this.getAttribute('hint') || ''; }
+  get name() {
+    return this.getAttribute('name') || '';
+  }
+  get label() {
+    return this.getAttribute('label') || '';
+  }
+  get value() {
+    return this.getAttribute('value') || '';
+  }
+  set value(newValue) {
+    this.setAttribute('value', String(newValue ?? ''));
+  }
+  get disabled() {
+    return this.hasAttribute('disabled');
+  }
+  set disabled(value) {
+    value ? this.setAttribute('disabled', '') : this.removeAttribute('disabled');
+  }
+  get placeholder() {
+    return this.getAttribute('placeholder') || 'Оберіть значення';
+  }
+  get error() {
+    return this.getAttribute('error') || '';
+  }
+  get hint() {
+    return this.getAttribute('hint') || '';
+  }
 
-  get options() { return this._options; }
+  get options() {
+    return this._options;
+  }
   set options(value) {
     this._options = Array.isArray(value) ? value : [];
     if (this.isConnected) this.render();
   }
 
   get selectedOption() {
-    return this._options.find((option) => String(option?.value ?? '') === String(this.value)) || null;
+    return (
+      this._options.find((option) => String(option?.value ?? '') === String(this.value)) || null
+    );
   }
 
   get messageId() {
@@ -183,11 +205,13 @@ class UiSelect extends HTMLElement {
     this.destroyDropdownPortal();
     this.render();
 
-    this.dispatchEvent(new CustomEvent('ui-change', {
-      detail: { value: nextValue, name: this.name },
-      bubbles: true,
-      composed: true,
-    }));
+    this.dispatchEvent(
+      new CustomEvent('ui-change', {
+        detail: { value: nextValue, name: this.name },
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   handleKeydown(event) {
@@ -222,7 +246,10 @@ class UiSelect extends HTMLElement {
 
     if (event.key === 'ArrowUp') {
       event.preventDefault();
-      this._activeIndex = Math.max(0, (this._activeIndex < 0 ? this._options.length : this._activeIndex) - 1);
+      this._activeIndex = Math.max(
+        0,
+        (this._activeIndex < 0 ? this._options.length : this._activeIndex) - 1,
+      );
       this._focusControlAfterRender = true;
       this.render();
       return;
@@ -316,13 +343,14 @@ class UiSelect extends HTMLElement {
       return `<div class="${classPrefix}__empty">Немає доступних варіантів</div>`;
     }
 
-    return this._options.map((option, index) => {
-      const optionValue = String(option?.value ?? '');
-      const optionLabel = String(option?.label ?? optionValue);
-      const isSelected = optionValue === String(this.value);
-      const isActive = index === this._activeIndex;
+    return this._options
+      .map((option, index) => {
+        const optionValue = String(option?.value ?? '');
+        const optionLabel = String(option?.label ?? optionValue);
+        const isSelected = optionValue === String(this.value);
+        const isActive = index === this._activeIndex;
 
-      return `
+        return `
         <button
           type="button"
           class="${classPrefix}__option ${isSelected ? 'is-selected' : ''} ${isActive ? 'is-active' : ''}"
@@ -335,7 +363,8 @@ class UiSelect extends HTMLElement {
           ${isSelected ? `<span class="${classPrefix}__check">✓</span>` : ''}
         </button>
       `;
-    }).join('');
+      })
+      .join('');
   }
 
   render() {

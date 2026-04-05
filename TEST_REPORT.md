@@ -1,6 +1,7 @@
 # QA Stabilization Report
 
 ## Fixed in this version
+
 - Added inline validation for the consumer form.
 - Added inline validation for zone creation.
 - Added inline validation for system settings numeric fields.
@@ -12,6 +13,7 @@
 - Kept rendering of user text escaped.
 
 ## Manual scenarios covered
+
 - Add zone -> add device -> reload page.
 - Invalid consumer form submit.
 - Invalid zone create submit.

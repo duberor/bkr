@@ -4,7 +4,14 @@ import '../../ui/ui-disclosure/ui-disclosure.js';
 import '../../ui/ui-tooltip/ui-tooltip.js';
 import { appStore } from '../../../store/app-store.js';
 import { getSystemCalculation } from '../../../utils/consumer-utils.js';
-import { formatAutonomy, formatBattery, formatEnergyWh, formatNumber, formatPower } from '../../../utils/format.js';
+import {
+  formatAutonomy,
+  formatBattery,
+  formatBatteryTopology,
+  formatEnergyWh,
+  formatNumber,
+  formatPower,
+} from '../../../utils/format.js';
 import { escapeAttr, escapeHtml } from '../../../utils/escape.js';
 import {
   INVERTER_CATALOG,
@@ -57,9 +64,11 @@ function renderImageWithFallback({
 
   return `
     <div class="products-page__image-wrap ${hasSource ? '' : 'is-fallback'}" data-fallback-wrap>
-      ${hasSource
-    ? `<img class="${escapeAttr(imgClass)}" src="${escapeAttr(source)}" alt="${escapeAttr(alt)}" loading="lazy" data-image-fallback />`
-    : ''}
+      ${
+        hasSource
+          ? `<img class="${escapeAttr(imgClass)}" src="${escapeAttr(source)}" alt="${escapeAttr(alt)}" loading="lazy" data-image-fallback />`
+          : ''
+      }
       <div class="${escapeAttr(placeholderClass)}">${escapeHtml(placeholderText)}</div>
     </div>
   `;
@@ -94,7 +103,9 @@ class ProductsPage extends BaseElement {
     this.liveAbortController?.abort();
   }
 
-  styles() { return styles; }
+  styles() {
+    return styles;
+  }
 
   get calc() {
     return getSystemCalculation(this.state.consumers, this.state.systemSettings);
@@ -138,16 +149,16 @@ class ProductsPage extends BaseElement {
     const requiredSurge = this.calc.totalSurgePower;
     if (!requiredPower) return [];
 
-    const strict = INVERTER_CATALOG.filter((item) => (
-      item.dcVoltage.includes(voltage)
-      && item.powerW >= requiredPower
-      && item.surgeW >= requiredSurge
-    ));
+    const strict = INVERTER_CATALOG.filter(
+      (item) =>
+        item.dcVoltage.includes(voltage) &&
+        item.powerW >= requiredPower &&
+        item.surgeW >= requiredSurge,
+    );
 
-    const relaxed = INVERTER_CATALOG.filter((item) => (
-      item.dcVoltage.includes(voltage)
-      && item.powerW >= requiredPower * 0.9
-    ));
+    const relaxed = INVERTER_CATALOG.filter(
+      (item) => item.dcVoltage.includes(voltage) && item.powerW >= requiredPower * 0.9,
+    );
 
     const source = strict.length ? strict : relaxed;
     return source
@@ -157,8 +168,10 @@ class ProductsPage extends BaseElement {
         surgeHeadroomW: item.surgeW - requiredSurge,
       }))
       .sort((a, b) => {
-        const scoreA = Math.abs(a.headroomW) + Math.abs(a.surgeHeadroomW) * 0.4 + a.priceUah / 100000;
-        const scoreB = Math.abs(b.headroomW) + Math.abs(b.surgeHeadroomW) * 0.4 + b.priceUah / 100000;
+        const scoreA =
+          Math.abs(a.headroomW) + Math.abs(a.surgeHeadroomW) * 0.4 + a.priceUah / 100000;
+        const scoreB =
+          Math.abs(b.headroomW) + Math.abs(b.surgeHeadroomW) * 0.4 + b.priceUah / 100000;
         return scoreA - scoreB;
       })
       .slice(0, 3);
@@ -174,8 +187,9 @@ class ProductsPage extends BaseElement {
     const seriesCount = Math.max(1, Math.ceil(voltage / 12));
     const dailyConsumptionWh = Number(this.calc.dailyConsumptionWh || 0);
 
-    return BATTERY_MODULE_CATALOG
-      .filter((module) => module.moduleVoltage === 12 && module.chemistry.includes(this.batteryType))
+    return BATTERY_MODULE_CATALOG.filter(
+      (module) => module.moduleVoltage === 12 && module.chemistry.includes(this.batteryType),
+    )
       .map((module) => {
         const parallelCount = Math.max(1, Math.ceil(requiredAh / module.capacityAh));
         const totalModules = seriesCount * parallelCount;
@@ -183,7 +197,8 @@ class ProductsPage extends BaseElement {
         const storedWh = voltage * bankCapacityAh;
         const usableWh = storedWh * efficiency * dod;
         const autonomyHours = dailyConsumptionWh > 0 ? (usableWh * 24) / dailyConsumptionWh : 0;
-        const continuousAutonomyHours = this.calc.designLoadPower > 0 ? usableWh / this.calc.designLoadPower : 0;
+        const continuousAutonomyHours =
+          this.calc.designLoadPower > 0 ? usableWh / this.calc.designLoadPower : 0;
         const totalPrice = totalModules * module.priceUah;
         return {
           ...module,
@@ -208,17 +223,19 @@ class ProductsPage extends BaseElement {
     const requiredCurrent = this.calc.recommendedChargeCurrentA;
     if (!requiredCurrent) return [];
 
-    const strict = CHARGER_CATALOG.filter((item) => (
-      item.outputVoltage.includes(voltage)
-      && item.chemistry.includes(this.batteryType)
-      && item.currentA >= requiredCurrent
-    ));
+    const strict = CHARGER_CATALOG.filter(
+      (item) =>
+        item.outputVoltage.includes(voltage) &&
+        item.chemistry.includes(this.batteryType) &&
+        item.currentA >= requiredCurrent,
+    );
 
-    const relaxed = CHARGER_CATALOG.filter((item) => (
-      item.outputVoltage.includes(voltage)
-      && item.chemistry.includes(this.batteryType)
-      && item.currentA >= requiredCurrent * 0.7
-    ));
+    const relaxed = CHARGER_CATALOG.filter(
+      (item) =>
+        item.outputVoltage.includes(voltage) &&
+        item.chemistry.includes(this.batteryType) &&
+        item.currentA >= requiredCurrent * 0.7,
+    );
 
     const source = strict.length ? strict : relaxed;
     return source
@@ -231,10 +248,14 @@ class ProductsPage extends BaseElement {
   }
 
   get recommendedProtection() {
-    const strict = DC_PROTECTION_CATALOG.filter((item) => (
-      item.currentA >= this.requiredProtectionCurrent && item.maxVdc >= this.requiredProtectionVoltage
-    ));
-    const relaxed = DC_PROTECTION_CATALOG.filter((item) => item.currentA >= this.requiredProtectionCurrent);
+    const strict = DC_PROTECTION_CATALOG.filter(
+      (item) =>
+        item.currentA >= this.requiredProtectionCurrent &&
+        item.maxVdc >= this.requiredProtectionVoltage,
+    );
+    const relaxed = DC_PROTECTION_CATALOG.filter(
+      (item) => item.currentA >= this.requiredProtectionCurrent,
+    );
 
     const source = strict.length ? strict : relaxed;
     return source
@@ -249,7 +270,8 @@ class ProductsPage extends BaseElement {
   get liveQueries() {
     if (!this.hasLoad) return null;
 
-    const batteryLabel = BATTERY_LABELS[this.batteryType] || String(this.batteryType || '').toUpperCase();
+    const batteryLabel =
+      BATTERY_LABELS[this.batteryType] || String(this.batteryType || '').toUpperCase();
     const batteryModuleAh = this.recommendedBatteryModules[0]?.capacityAh || 100;
     const inverterW = Math.max(500, Math.round(this.calc.recommendedInverterPower || 0));
     const chargeA = Math.max(10, Math.round(this.calc.recommendedChargeCurrentA || 0));
@@ -314,7 +336,7 @@ class ProductsPage extends BaseElement {
             signal: controller.signal,
           });
           return [bucket, uniqueByUrl(rows).slice(0, 5)];
-        })
+        }),
       );
 
       if (controller.signal.aborted || this.liveAbortController !== controller) return;
@@ -372,66 +394,84 @@ class ProductsPage extends BaseElement {
     if (!this.recommendedInverters.length) {
       return '<tr><td colspan="4">Додайте прилади, щоб отримати рекомендації інвертора.</td></tr>';
     }
-    return this.recommendedInverters.map((item) => `
+    return this.recommendedInverters
+      .map(
+        (item) => `
       <tr>
         <td>${this.renderProductIdentity(item, `${item.wave} · ККД до ${formatNumber(item.efficiency * 100, 0)}%`)}</td>
         <td>${formatPower(item.powerW)} / ${formatPower(item.surgeW)}</td>
         <td>${item.headroomW >= 0 ? '+' : ''}${formatPower(item.headroomW)} робоча<br/>${item.surgeHeadroomW >= 0 ? '+' : ''}${formatPower(item.surgeHeadroomW)} пускова</td>
         <td>${formatMoney(item.priceUah)}</td>
       </tr>
-    `).join('');
+    `,
+      )
+      .join('');
   }
 
   renderBatteryRows() {
     if (!this.recommendedBatteryModules.length) {
       return '<tr><td colspan="5">Наразі немає даних для підбору батарейних модулів.</td></tr>';
     }
-    return this.recommendedBatteryModules.map((item) => `
+    return this.recommendedBatteryModules
+      .map(
+        (item) => `
       <tr>
         <td>${this.renderProductIdentity(item, `Ресурс: ~${formatNumber(item.cycleLife)} циклів`)}</td>
-        <td>${item.totalModules} шт (${item.seriesCount}S/${item.parallelCount}P)</td>
+        <td>${item.totalModules} шт (${formatBatteryTopology(item.seriesCount, item.parallelCount)})</td>
         <td>${this.voltage} V · ${formatBattery(item.bankCapacityAh)}</td>
         <td>${formatEnergyWh(item.usableWh)} · ${formatAutonomy(item.autonomyHours)}</td>
         <td>${formatMoney(item.totalPrice)}</td>
       </tr>
-    `).join('');
+    `,
+      )
+      .join('');
   }
 
   renderChargerRows() {
     if (!this.recommendedChargers.length) {
       return '<tr><td colspan="4">Для поточних параметрів не знайдено сумісний зарядний у каталозі.</td></tr>';
     }
-    return this.recommendedChargers.map((item) => `
+    return this.recommendedChargers
+      .map(
+        (item) => `
       <tr>
         <td>${this.renderProductIdentity(item)}</td>
         <td>${item.outputVoltage.join('/')} V · ${formatNumber(item.currentA)} A</td>
         <td>${item.marginA >= 0 ? '+' : ''}${formatNumber(item.marginA)} A</td>
         <td>${formatMoney(item.priceUah)}</td>
       </tr>
-    `).join('');
+    `,
+      )
+      .join('');
   }
 
   renderProtectionRows() {
     if (!this.recommendedProtection.length) {
       return '<tr><td colspan="4">Додайте або уточніть навантаження для підбору захисту по постійному струму.</td></tr>';
     }
-    return this.recommendedProtection.map((item) => `
+    return this.recommendedProtection
+      .map(
+        (item) => `
       <tr>
         <td>${this.renderProductIdentity(item, item.type === 'breaker' ? 'Автомат по постійному струму' : 'Запобіжник')}</td>
         <td>${formatNumber(item.currentA)} A / ${formatNumber(item.maxVdc)} V DC</td>
         <td>${item.marginA >= 0 ? '+' : ''}${formatNumber(item.marginA)} A</td>
         <td>${formatMoney(item.priceUah)}</td>
       </tr>
-    `).join('');
+    `,
+      )
+      .join('');
   }
 
   renderOptionalItems() {
-    return OPTIONAL_ACCESSORY_CATALOG.map((item) => `
+    return OPTIONAL_ACCESSORY_CATALOG.map(
+      (item) => `
       <div class="products-page__optional-item">
         <h4>${escapeHtml(item.name)}</h4>
         <p>${escapeHtml(item.why)}</p>
       </div>
-    `).join('');
+    `,
+    ).join('');
   }
 
   renderLiveCategory(title, items = []) {
@@ -444,15 +484,16 @@ class ProductsPage extends BaseElement {
       `;
     }
 
-    const cards = items.map((item) => {
-      const image = renderImageWithFallback({
-        imageUrl: item.imageUrl,
-        alt: item.title,
-        imgClass: 'products-page__live-image',
-        placeholderClass: 'products-page__live-image products-page__live-image--placeholder',
-      });
+    const cards = items
+      .map((item) => {
+        const image = renderImageWithFallback({
+          imageUrl: item.imageUrl,
+          alt: item.title,
+          imgClass: 'products-page__live-image',
+          placeholderClass: 'products-page__live-image products-page__live-image--placeholder',
+        });
 
-      return `
+        return `
         <article class="products-page__live-card">
           ${image}
           <div class="products-page__live-body">
@@ -463,7 +504,8 @@ class ProductsPage extends BaseElement {
           </div>
         </article>
       `;
-    }).join('');
+      })
+      .join('');
 
     return `
       <div class="products-page__live-group">
@@ -558,7 +600,16 @@ class ProductsPage extends BaseElement {
           </div>
         </ui-disclosure>
 
-        ${this.hasLoad ? '' : '<div class="products-page__empty">Щоб побачити конкретні товари, додайте хоча б один прилад у розділі «Прилади».</div>'}
+        ${
+          this.hasLoad
+            ? ''
+            : `
+          <div class="products-page__empty">
+            <span>Щоб побачити конкретні товари, додайте хоча б один прилад у розділі «Прилади».</span>
+            <a class="products-page__empty-link" href="#/consumers">Перейти до приладів</a>
+          </div>
+        `
+        }
 
         <ui-card padding="md">
           <section class="products-page__section">

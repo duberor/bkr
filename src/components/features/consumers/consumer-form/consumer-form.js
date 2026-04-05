@@ -2,7 +2,11 @@ import { BaseElement } from '../../../base/base-element.js';
 import '../../../ui/ui-input/ui-input.js';
 import '../../../ui/ui-select/ui-select.js';
 import '../../../ui/ui-button/ui-button.js';
-import { normalizeConsumer, parseLocaleNumber } from '../../../../utils/consumer-utils.js';
+import {
+  getCriticalityLabel,
+  normalizeConsumer,
+  parseLocaleNumber,
+} from '../../../../utils/consumer-utils.js';
 import { CONSUMER_CATEGORIES } from '../../../../data/consumer-categories.js';
 import styles from './consumer-form.scss?inline';
 
@@ -15,9 +19,9 @@ const usageProfileOptions = [
 ];
 
 const priorityOptions = [
-  { value: 'high', label: 'Високий' },
-  { value: 'medium', label: 'Середній' },
-  { value: 'low', label: 'Низький' },
+  { value: 'high', label: getCriticalityLabel('high') },
+  { value: 'medium', label: getCriticalityLabel('medium') },
+  { value: 'low', label: getCriticalityLabel('low') },
 ];
 
 class ConsumerForm extends BaseElement {
@@ -28,9 +32,13 @@ class ConsumerForm extends BaseElement {
     this.errors = {};
   }
 
-  styles() { return styles; }
+  styles() {
+    return styles;
+  }
 
-  get zones() { return this._zones; }
+  get zones() {
+    return this._zones;
+  }
   set zones(value) {
     this._zones = Array.isArray(value) ? value : [];
     if (!this._zones.some((zone) => zone.id === this.formData.zoneId)) {
@@ -40,9 +48,9 @@ class ConsumerForm extends BaseElement {
   }
 
   getDefaultFormData() {
-      return {
-        name: '',
-        category: 'other',
+    return {
+      name: '',
+      category: 'other',
       zoneId: this._zones[0]?.id || '',
       power: '',
       quantity: '1',
@@ -54,6 +62,24 @@ class ConsumerForm extends BaseElement {
     };
   }
 
+  applyTemplate(template = {}) {
+    this.formData = {
+      ...this.getDefaultFormData(),
+      name: template.name || '',
+      category: template.category || 'other',
+      zoneId: this.formData.zoneId || this._zones[0]?.id || '',
+      power: String(template.power ?? ''),
+      quantity: String(template.quantity ?? '1'),
+      hoursPerDay: String(template.hoursPerDay ?? ''),
+      surgePower: String(template.surgePower ?? ''),
+      priority: template.priority || 'medium',
+      usageProfile: template.usageProfile || 'day',
+      notes: template.notes || '',
+    };
+    this.errors = {};
+    if (this.isConnected) this.update();
+  }
+
   get zoneOptions() {
     if (!this.zones.length) return [{ value: '', label: 'Спочатку створіть зону' }];
     return this.zones.map((zone) => ({ value: zone.id, label: zone.name }));
@@ -62,7 +88,7 @@ class ConsumerForm extends BaseElement {
   validateField(name, data = this.formData) {
     const value = data[name];
 
-      switch (name) {
+    switch (name) {
       case 'name':
         return String(value || '').trim() ? '' : 'Вкажіть назву приладу.';
       case 'category':
@@ -77,7 +103,9 @@ class ConsumerForm extends BaseElement {
       case 'quantity': {
         const parsed = parseLocaleNumber(value);
         if (!Number.isFinite(parsed)) return 'Вкажіть кількість числом.';
-        return Number.isInteger(parsed) && parsed >= 1 ? '' : 'Кількість має бути цілим числом від 1.';
+        return Number.isInteger(parsed) && parsed >= 1
+          ? ''
+          : 'Кількість має бути цілим числом від 1.';
       }
       case 'hoursPerDay': {
         const parsed = parseLocaleNumber(value);
@@ -85,6 +113,7 @@ class ConsumerForm extends BaseElement {
         return parsed >= 0 && parsed <= 24 ? '' : 'Час роботи має бути в межах від 0 до 24 годин.';
       }
       case 'surgePower': {
+        if (String(value || '').trim() === '') return '';
         const surge = parseLocaleNumber(value);
         const power = parseLocaleNumber(data.power);
         if (!Number.isFinite(surge)) return 'Вкажіть пускову потужність числом.';
@@ -92,7 +121,7 @@ class ConsumerForm extends BaseElement {
         return surge >= power ? '' : 'Пускова потужність не може бути меншою за робочу.';
       }
       case 'priority':
-        return String(value || '').trim() ? '' : 'Оберіть пріоритет.';
+        return String(value || '').trim() ? '' : 'Оберіть важливість приладу.';
       case 'usageProfile':
         return String(value || '').trim() ? '' : 'Оберіть профіль використання.';
       default:
@@ -101,12 +130,28 @@ class ConsumerForm extends BaseElement {
   }
 
   validateAll() {
-    const fieldNames = ['name', 'category', 'zoneId', 'power', 'quantity', 'hoursPerDay', 'surgePower', 'priority', 'usageProfile'];
-    return fieldNames.reduce((acc, fieldName) => {
+    const fieldNames = [
+      'name',
+      'category',
+      'zoneId',
+      'power',
+      'quantity',
+      'hoursPerDay',
+      'priority',
+      'usageProfile',
+    ];
+    const errors = fieldNames.reduce((acc, fieldName) => {
       const error = this.validateField(fieldName);
       if (error) acc[fieldName] = error;
       return acc;
     }, {});
+
+    if (String(this.formData.surgePower || '').trim()) {
+      const surgeError = this.validateField('surgePower');
+      if (surgeError) errors.surgePower = surgeError;
+    }
+
+    return errors;
   }
 
   render() {
@@ -118,23 +163,22 @@ class ConsumerForm extends BaseElement {
           <div>
             <p class="consumer-form__eyebrow">Прилад</p>
             <h2 class="consumer-form__title">Додати прилад</h2>
-            <p class="consumer-form__lead">Якщо не знаєте точних цифр, почніть з приблизних значень з шильдика або техпаспорта. Потім їх можна уточнити.</p>
           </div>
         </div>
 
         <div class="consumer-form__grid">
-          <ui-input name="name" label="Назва приладу" placeholder="Наприклад, Газовий котел" hint="Пишіть так, як вам буде зрозуміло у списку й у звіті." value="${this.formData.name}" error="${this.errors.name || ''}"></ui-input>
-          <ui-select name="category" label="Категорія" hint="Категорія потрібна для структури списку та графіків." value="${this.formData.category}" error="${this.errors.category || ''}"></ui-select>
+          <ui-input name="name" label="Назва приладу" placeholder="Наприклад, Газовий котел" value="${this.formData.name}" error="${this.errors.name || ''}"></ui-input>
+          <ui-select name="category" label="Категорія" value="${this.formData.category}" error="${this.errors.category || ''}"></ui-select>
           <div class="consumer-form__zone-field">
-            <ui-select name="zoneId" label="Зона" hint="Зона допоможе згрупувати прилади по кімнатах або контурах." value="${this.formData.zoneId}" error="${this.errors.zoneId || ''}" ${noZones ? 'disabled' : ''}></ui-select>
+            <ui-select name="zoneId" label="Зона" value="${this.formData.zoneId}" error="${this.errors.zoneId || ''}" ${noZones ? 'disabled' : ''}></ui-select>
           </div>
-          <ui-input type="text" name="power" label="Робоча потужність, W" placeholder="Наприклад, 120 або 1 000" hint="Вкажіть потужність, з якою прилад працює у звичайному режимі." value="${this.formData.power}" error="${this.errors.power || ''}"></ui-input>
-          <ui-input type="text" name="quantity" label="Кількість" placeholder="1" hint="Скільки однакових приладів треба врахувати в розрахунку." value="${this.formData.quantity}" error="${this.errors.quantity || ''}"></ui-input>
-          <ui-input type="text" name="hoursPerDay" label="Скільки працює за добу" placeholder="Наприклад, 10,5" hint="Орієнтовний час роботи приладу протягом звичайної доби." value="${this.formData.hoursPerDay}" error="${this.errors.hoursPerDay || ''}"></ui-input>
-          <ui-input type="text" name="surgePower" label="Пускова потужність, W" placeholder="Наприклад, 600" hint="Для моторів, насосів і компресорів вкажіть стартовий пік. Якщо його немає, залиште як робочу потужність." value="${this.formData.surgePower}" error="${this.errors.surgePower || ''}"></ui-input>
-          <ui-select name="priority" label="Пріоритет" hint="Високий пріоритет задавайте тому, що має працювати в першу чергу." value="${this.formData.priority}" error="${this.errors.priority || ''}"></ui-select>
-          <ui-select name="usageProfile" label="Коли працює прилад" hint="Потрібно для побудови добового графіка навантаження." value="${this.formData.usageProfile}" error="${this.errors.usageProfile || ''}"></ui-select>
-          <ui-input type="textarea" rows="3" name="notes" label="Примітки" placeholder="Наприклад, працює циклічно або запускається нечасто" hint="Поле не обов'язкове, але корисне для пояснень у проєкті." value="${this.formData.notes}"></ui-input>
+          <ui-input type="text" name="power" label="Робоча потужність, W" placeholder="Наприклад, 120 або 1 000" value="${this.formData.power}" error="${this.errors.power || ''}"></ui-input>
+          <ui-input type="text" name="quantity" label="Кількість" placeholder="1" value="${this.formData.quantity}" error="${this.errors.quantity || ''}"></ui-input>
+          <ui-input type="text" name="hoursPerDay" label="Скільки працює за добу" placeholder="Наприклад, 10,5" value="${this.formData.hoursPerDay}" error="${this.errors.hoursPerDay || ''}"></ui-input>
+          <ui-input type="text" name="surgePower" label="Пускова потужність, W" placeholder="Наприклад, 600" value="${this.formData.surgePower}" error="${this.errors.surgePower || ''}"></ui-input>
+          <ui-select name="priority" label="Наскільки це важливо" value="${this.formData.priority}" error="${this.errors.priority || ''}"></ui-select>
+          <ui-select name="usageProfile" label="Коли працює прилад" value="${this.formData.usageProfile}" error="${this.errors.usageProfile || ''}"></ui-select>
+          <ui-input type="textarea" rows="3" name="notes" label="Примітки" placeholder="Наприклад, працює циклічно або запускається нечасто" value="${this.formData.notes}"></ui-input>
         </div>
         <div class="consumer-form__actions">
           <ui-button class="consumer-form__submit" ${noZones ? 'disabled' : ''}>Додати у проєкт</ui-button>
@@ -154,7 +198,9 @@ class ConsumerForm extends BaseElement {
     this.shadowRoot.addEventListener('ui-input', this.handleField);
     this.shadowRoot.addEventListener('ui-change', this.handleField);
 
-    this.shadowRoot.querySelector('.consumer-form__submit')?.addEventListener('ui-click', this.handleSubmit);
+    this.shadowRoot
+      .querySelector('.consumer-form__submit')
+      ?.addEventListener('ui-click', this.handleSubmit);
   }
 
   setFieldError(name, error = '') {
@@ -186,14 +232,22 @@ class ConsumerForm extends BaseElement {
 
     if (Object.keys(errors).length) {
       this.errors = errors;
-      this.dispatchEvent(new CustomEvent('consumer-invalid', { detail: { errors: Object.values(errors) }, bubbles: true, composed: true }));
+      this.dispatchEvent(
+        new CustomEvent('consumer-invalid', {
+          detail: { errors: Object.values(errors) },
+          bubbles: true,
+          composed: true,
+        }),
+      );
       this.update();
       return;
     }
 
     const consumer = normalizeConsumer(this.formData);
     this.errors = {};
-    this.dispatchEvent(new CustomEvent('consumer-add', { detail: { consumer }, bubbles: true, composed: true }));
+    this.dispatchEvent(
+      new CustomEvent('consumer-add', { detail: { consumer }, bubbles: true, composed: true }),
+    );
     this.formData = this.getDefaultFormData();
     this.update();
   };

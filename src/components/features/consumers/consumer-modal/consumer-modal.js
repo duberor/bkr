@@ -2,7 +2,11 @@ import { BaseElement } from '../../../base/base-element.js';
 import '../../../ui/ui-input/ui-input.js';
 import '../../../ui/ui-select/ui-select.js';
 import '../../../ui/ui-button/ui-button.js';
-import { normalizeConsumer, parseLocaleNumber } from '../../../../utils/consumer-utils.js';
+import {
+  getCriticalityLabel,
+  normalizeConsumer,
+  parseLocaleNumber,
+} from '../../../../utils/consumer-utils.js';
 import { CONSUMER_CATEGORIES } from '../../../../data/consumer-categories.js';
 import styles from './consumer-modal.scss?inline';
 
@@ -15,9 +19,9 @@ const usageProfileOptions = [
 ];
 
 const priorityOptions = [
-  { value: 'high', label: 'Високий' },
-  { value: 'medium', label: 'Середній' },
-  { value: 'low', label: 'Низький' },
+  { value: 'high', label: getCriticalityLabel('high') },
+  { value: 'medium', label: getCriticalityLabel('medium') },
+  { value: 'low', label: getCriticalityLabel('low') },
 ];
 
 class ConsumerModal extends BaseElement {
@@ -30,7 +34,9 @@ class ConsumerModal extends BaseElement {
     this.errors = {};
   }
 
-  styles() { return styles; }
+  styles() {
+    return styles;
+  }
 
   getDefaultFormData() {
     return {
@@ -69,7 +75,9 @@ class ConsumerModal extends BaseElement {
     };
   }
 
-  get open() { return this._open; }
+  get open() {
+    return this._open;
+  }
   set open(value) {
     this._open = Boolean(value);
     if (!this._open) {
@@ -78,7 +86,9 @@ class ConsumerModal extends BaseElement {
     if (this.isConnected) this.update();
   }
 
-  get zones() { return this._zones; }
+  get zones() {
+    return this._zones;
+  }
   set zones(value) {
     this._zones = Array.isArray(value) ? value : [];
     if (!this._zones.some((zone) => zone.id === this.formData.zoneId)) {
@@ -87,7 +97,9 @@ class ConsumerModal extends BaseElement {
     if (this.isConnected) this.update();
   }
 
-  get consumer() { return this._consumer; }
+  get consumer() {
+    return this._consumer;
+  }
   set consumer(value) {
     this._consumer = value || null;
     this.hydrateFormData(this._consumer);
@@ -106,7 +118,7 @@ class ConsumerModal extends BaseElement {
 
   validateField(name, data = this.formData) {
     const value = data[name];
-      switch (name) {
+    switch (name) {
       case 'name':
         return String(value || '').trim() ? '' : 'Вкажіть назву приладу.';
       case 'category':
@@ -121,7 +133,9 @@ class ConsumerModal extends BaseElement {
       case 'quantity': {
         const parsed = parseLocaleNumber(value);
         if (!Number.isFinite(parsed)) return 'Вкажіть кількість числом.';
-        return Number.isInteger(parsed) && parsed >= 1 ? '' : 'Кількість має бути цілим числом від 1.';
+        return Number.isInteger(parsed) && parsed >= 1
+          ? ''
+          : 'Кількість має бути цілим числом від 1.';
       }
       case 'hoursPerDay': {
         const parsed = parseLocaleNumber(value);
@@ -129,6 +143,7 @@ class ConsumerModal extends BaseElement {
         return parsed >= 0 && parsed <= 24 ? '' : 'Час роботи має бути в межах від 0 до 24 годин.';
       }
       case 'surgePower': {
+        if (String(value || '').trim() === '') return '';
         const surge = parseLocaleNumber(value);
         const power = parseLocaleNumber(data.power);
         if (!Number.isFinite(surge)) return 'Вкажіть пускову потужність числом.';
@@ -136,7 +151,7 @@ class ConsumerModal extends BaseElement {
         return surge >= power ? '' : 'Пускова потужність не може бути меншою за робочу.';
       }
       case 'priority':
-        return String(value || '').trim() ? '' : 'Оберіть пріоритет.';
+        return String(value || '').trim() ? '' : 'Оберіть важливість приладу.';
       case 'usageProfile':
         return String(value || '').trim() ? '' : 'Оберіть профіль використання.';
       default:
@@ -145,12 +160,28 @@ class ConsumerModal extends BaseElement {
   }
 
   validateAll() {
-    const fieldNames = ['name', 'category', 'zoneId', 'power', 'quantity', 'hoursPerDay', 'surgePower', 'priority', 'usageProfile'];
-    return fieldNames.reduce((acc, fieldName) => {
+    const fieldNames = [
+      'name',
+      'category',
+      'zoneId',
+      'power',
+      'quantity',
+      'hoursPerDay',
+      'priority',
+      'usageProfile',
+    ];
+    const errors = fieldNames.reduce((acc, fieldName) => {
       const error = this.validateField(fieldName);
       if (error) acc[fieldName] = error;
       return acc;
     }, {});
+
+    if (String(this.formData.surgePower || '').trim()) {
+      const surgeError = this.validateField('surgePower');
+      if (surgeError) errors.surgePower = surgeError;
+    }
+
+    return errors;
   }
 
   render() {
@@ -165,22 +196,21 @@ class ConsumerModal extends BaseElement {
             <div>
               <p class="consumer-modal__eyebrow">Прилад</p>
               <h2>${heading}</h2>
-              <p class="consumer-modal__lead">Оновіть параметри так, як вони працюють у реальному сценарії резервного живлення.</p>
             </div>
             <button class="consumer-modal__close" type="button" aria-label="Закрити">×</button>
           </div>
 
           <div class="consumer-modal__grid">
-            <ui-input name="name" label="Назва приладу" placeholder="Наприклад, Газовий котел" hint="Пишіть так, як вам буде зручно читати у списку та звіті." value="${this.formData.name}" error="${this.errors.name || ''}"></ui-input>
-            <ui-select name="category" label="Категорія" hint="Категорія впливає на структуру списку та графіки." value="${this.formData.category}" error="${this.errors.category || ''}"></ui-select>
-            <ui-select name="zoneId" label="Зона" hint="Зона допомагає згрупувати прилади по кімнатах або контурах." value="${this.formData.zoneId}" error="${this.errors.zoneId || ''}" ${noZones ? 'disabled' : ''}></ui-select>
-            <ui-input type="text" name="power" label="Робоча потужність, W" placeholder="Наприклад, 120" hint="Вкажіть звичайну робочу потужність приладу." value="${this.formData.power}" error="${this.errors.power || ''}"></ui-input>
-            <ui-input type="text" name="quantity" label="Кількість" placeholder="1" hint="Скільки однакових приладів потрібно врахувати." value="${this.formData.quantity}" error="${this.errors.quantity || ''}"></ui-input>
-            <ui-input type="text" name="hoursPerDay" label="Скільки працює за добу" placeholder="Наприклад, 10,5" hint="Орієнтовний час роботи протягом звичайної доби." value="${this.formData.hoursPerDay}" error="${this.errors.hoursPerDay || ''}"></ui-input>
-            <ui-input type="text" name="surgePower" label="Пускова потужність, W" placeholder="Наприклад, 600" hint="Для моторних приладів вкажіть пусковий пік. Якщо його немає, використовуйте робочу потужність." value="${this.formData.surgePower}" error="${this.errors.surgePower || ''}"></ui-input>
-            <ui-select name="priority" label="Пріоритет" hint="Високий пріоритет для того, що має працювати в першу чергу." value="${this.formData.priority}" error="${this.errors.priority || ''}"></ui-select>
-            <ui-select name="usageProfile" label="Коли працює прилад" hint="Потрібно для побудови добового графіка навантаження." value="${this.formData.usageProfile}" error="${this.errors.usageProfile || ''}"></ui-select>
-            <ui-input type="textarea" rows="3" name="notes" label="Примітки" placeholder="Наприклад, працює циклічно або запускається нечасто" hint="Поле не обов'язкове, але допомагає з поясненнями по проєкту." value="${this.formData.notes}"></ui-input>
+            <ui-input name="name" label="Назва приладу" placeholder="Наприклад, Газовий котел" value="${this.formData.name}" error="${this.errors.name || ''}"></ui-input>
+            <ui-select name="category" label="Категорія" value="${this.formData.category}" error="${this.errors.category || ''}"></ui-select>
+            <ui-select name="zoneId" label="Зона" value="${this.formData.zoneId}" error="${this.errors.zoneId || ''}" ${noZones ? 'disabled' : ''}></ui-select>
+            <ui-input type="text" name="power" label="Робоча потужність, W" placeholder="Наприклад, 120" value="${this.formData.power}" error="${this.errors.power || ''}"></ui-input>
+            <ui-input type="text" name="quantity" label="Кількість" placeholder="1" value="${this.formData.quantity}" error="${this.errors.quantity || ''}"></ui-input>
+            <ui-input type="text" name="hoursPerDay" label="Скільки працює за добу" placeholder="Наприклад, 10,5" value="${this.formData.hoursPerDay}" error="${this.errors.hoursPerDay || ''}"></ui-input>
+            <ui-input type="text" name="surgePower" label="Пускова потужність, W" placeholder="Наприклад, 600" value="${this.formData.surgePower}" error="${this.errors.surgePower || ''}"></ui-input>
+            <ui-select name="priority" label="Наскільки це важливо" value="${this.formData.priority}" error="${this.errors.priority || ''}"></ui-select>
+            <ui-select name="usageProfile" label="Коли працює прилад" value="${this.formData.usageProfile}" error="${this.errors.usageProfile || ''}"></ui-select>
+            <ui-input type="textarea" rows="3" name="notes" label="Примітки" placeholder="Наприклад, працює циклічно або запускається нечасто" value="${this.formData.notes}"></ui-input>
           </div>
 
           <div class="consumer-modal__actions">
@@ -208,10 +238,18 @@ class ConsumerModal extends BaseElement {
     this.shadowRoot.addEventListener('ui-input', this.handleField);
     this.shadowRoot.addEventListener('ui-change', this.handleField);
 
-    this.shadowRoot.querySelector('.consumer-modal__close')?.addEventListener('click', this.handleClose);
-    this.shadowRoot.querySelector('.consumer-cancel-btn')?.addEventListener('ui-click', this.handleClose);
-    this.shadowRoot.querySelector('.consumer-save-btn')?.addEventListener('ui-click', this.handleSave);
-    this.shadowRoot.querySelector('.consumer-modal__backdrop')?.addEventListener('click', this.handleBackdropClick);
+    this.shadowRoot
+      .querySelector('.consumer-modal__close')
+      ?.addEventListener('click', this.handleClose);
+    this.shadowRoot
+      .querySelector('.consumer-cancel-btn')
+      ?.addEventListener('ui-click', this.handleClose);
+    this.shadowRoot
+      .querySelector('.consumer-save-btn')
+      ?.addEventListener('ui-click', this.handleSave);
+    this.shadowRoot
+      .querySelector('.consumer-modal__backdrop')
+      ?.addEventListener('click', this.handleBackdropClick);
     document.addEventListener('keydown', this.handleEscape);
   }
 
@@ -260,17 +298,25 @@ class ConsumerModal extends BaseElement {
     const errors = this.validateAll();
     if (Object.keys(errors).length) {
       this.errors = errors;
-      this.dispatchEvent(new CustomEvent('consumer-modal-invalid', {
-        detail: { errors: Object.values(errors) }, bubbles: true, composed: true,
-      }));
+      this.dispatchEvent(
+        new CustomEvent('consumer-modal-invalid', {
+          detail: { errors: Object.values(errors) },
+          bubbles: true,
+          composed: true,
+        }),
+      );
       this.update();
       return;
     }
 
     const consumer = normalizeConsumer(this.formData);
-    this.dispatchEvent(new CustomEvent('consumer-save', {
-      detail: { consumer, mode: this.mode }, bubbles: true, composed: true,
-    }));
+    this.dispatchEvent(
+      new CustomEvent('consumer-save', {
+        detail: { consumer, mode: this.mode },
+        bubbles: true,
+        composed: true,
+      }),
+    );
     this.errors = {};
   };
 }

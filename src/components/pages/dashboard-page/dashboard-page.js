@@ -1,20 +1,53 @@
 import { BaseElement } from '../../base/base-element.js';
 import '../../ui/ui-card/ui-card.js';
 import '../../ui/ui-disclosure/ui-disclosure.js';
-import { Chart, BarController, BarElement, DoughnutController, ArcElement, CategoryScale, LinearScale, Tooltip, Legend, LineController, PointElement, LineElement, Filler } from 'chart.js';
+import '../../features/planner-shell/planner-shell.js';
+import {
+  Chart,
+  BarController,
+  BarElement,
+  DoughnutController,
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  LineController,
+  PointElement,
+  LineElement,
+  Filler,
+} from 'chart.js';
 import { appStore } from '../../../store/app-store.js';
-import { FEATURES } from '../../../config/features.js';
-import { getCategoryBreakdown, getConsumerPowerRows, getHourlyLoadProfile, getSystemCalculation } from '../../../utils/consumer-utils.js';
-import { formatAutonomy, formatEnergyWh, formatPower, formatBattery, formatNumber } from '../../../utils/format.js';
+import {
+  getCategoryBreakdown,
+  getConsumerPowerRows,
+  getHourlyLoadProfile,
+  getSystemCalculation,
+} from '../../../utils/consumer-utils.js';
+import { formatPower, formatNumber } from '../../../utils/format.js';
 import styles from './dashboard-page.scss?inline';
 
-Chart.register(BarController, BarElement, DoughnutController, ArcElement, CategoryScale, LinearScale, Tooltip, Legend, LineController, PointElement, LineElement, Filler);
+Chart.register(
+  BarController,
+  BarElement,
+  DoughnutController,
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  LineController,
+  PointElement,
+  LineElement,
+  Filler,
+);
 
 class DashboardPage extends BaseElement {
   constructor() {
     super();
     this.state = appStore.getState();
     this.charts = [];
+    this.projectMessage = null;
   }
 
   connectedCallback() {
@@ -42,81 +75,9 @@ class DashboardPage extends BaseElement {
   renderStatCards(calc) {
     return `
       <div class="dashboard__stats">
-        <ui-card padding="md"><div class="stat"><span>Скільки приладів у проєкті</span><strong>${formatNumber(this.state.consumers.length)}</strong></div></ui-card>
-        <ui-card padding="md"><div class="stat"><span>Сумарна потужність приладів</span><strong>${formatPower(calc.totalPower)}</strong></div></ui-card>
+        <ui-card padding="md"><div class="stat"><span>Приладів у проєкті</span><strong>${formatNumber(this.state.consumers.length)}</strong></div></ui-card>
+        <ui-card padding="md"><div class="stat"><span>Сумарна потужність</span><strong>${formatPower(calc.totalPower)}</strong></div></ui-card>
         <ui-card padding="md"><div class="stat"><span>Пусковий пік</span><strong>${formatPower(calc.totalSurgePower)}</strong></div></ui-card>
-        <ui-card padding="md"><div class="stat"><span>Споживання за добу</span><strong>${formatEnergyWh(calc.dailyConsumptionWh)}</strong></div></ui-card>
-        <ui-card padding="md"><div class="stat"><span>Який інвертор потрібен</span><strong>${formatPower(calc.recommendedInverterPower)}</strong></div></ui-card>
-        <ui-card padding="md"><div class="stat"><span>Яка АКБ потрібна</span><strong>${formatBattery(calc.recommendedBatteryCapacityAh)}</strong></div></ui-card>
-      </div>
-    `;
-  }
-
-  getHeroState(calc) {
-    const hasConsumers = this.state.consumers.length > 0;
-    const baseSettings = this.state.systemSettings || {};
-    const primaryAction = hasConsumers
-      ? { href: '#/system', label: 'Перейти до рішення' }
-      : { href: '#/consumers', label: 'Додати прилади' };
-    const secondaryAction = hasConsumers
-      ? (FEATURES.productsPage ? { href: '#/products', label: 'Підібрати обладнання' } : { href: '#/calculation', label: 'Уточнити параметри' })
-      : { href: '#/calculation', label: 'Подивитися параметри' };
-
-    return {
-      title: hasConsumers
-        ? 'Проєкт уже готовий до підбору системи'
-        : 'Почнімо з того, що має працювати під час відключення',
-      description: hasConsumers
-        ? `Маємо ${formatNumber(this.state.consumers.length)} приладів, орієнтовний час роботи у звичному режимі ${formatAutonomy(calc.estimatedAutonomyHours)}. Можна одразу перейти до готового рішення або уточнити параметри.`
-        : 'Додавайте лише ті прилади, які справді мають працювати без мережі. Зони та графіки допоможуть зібрати зрозумілу картину навантаження.',
-      primaryAction,
-      secondaryAction,
-      steps: [
-        {
-          title: 'Прилади',
-          text: hasConsumers ? `${formatNumber(this.state.consumers.length)} додано` : 'Ще не додано',
-          done: hasConsumers,
-        },
-        {
-          title: 'Параметри',
-          text: `${formatNumber(baseSettings.autonomyDays || 1, 0)} доби · ${formatNumber(baseSettings.batteryVoltage || 24, 0)} V`,
-          done: true,
-        },
-        {
-          title: 'Рішення',
-          text: hasConsumers ? `${formatPower(calc.recommendedInverterPower)} · ${formatBattery(calc.recommendedBatteryCapacityAh)}` : 'З\'явиться після заповнення',
-          done: hasConsumers,
-        },
-      ],
-    };
-  }
-
-  renderHero(calc) {
-    const hero = this.getHeroState(calc);
-    return `
-      <div class="dashboard__hero">
-        <div class="dashboard__hero-copy">
-          <p class="dashboard__eyebrow">Огляд</p>
-          <h1 class="dashboard__title">${hero.title}</h1>
-          <p class="dashboard__lead">${hero.description}</p>
-          <div class="dashboard__actions">
-            <a class="dashboard__action dashboard__action--primary" href="${hero.primaryAction.href}">${hero.primaryAction.label}</a>
-            <a class="dashboard__action" href="${hero.secondaryAction.href}">${hero.secondaryAction.label}</a>
-          </div>
-        </div>
-        <ui-card padding="md">
-          <div class="dashboard__progress">
-            <span class="dashboard__progress-label">Що вже є в проєкті</span>
-            <div class="dashboard__progress-list">
-              ${hero.steps.map((step) => `
-                <div class="dashboard__progress-item ${step.done ? 'is-done' : ''}">
-                  <strong>${step.title}</strong>
-                  <span>${step.text}</span>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        </ui-card>
       </div>
     `;
   }
@@ -141,7 +102,7 @@ class DashboardPage extends BaseElement {
     if (!summary) {
       return `
         <div class="dashboard__profile-empty">
-          Додайте хоча б один прилад.
+          Додайте хоча б один прилад, щоб побачити зміну навантаження протягом доби.
         </div>
       `;
     }
@@ -150,12 +111,41 @@ class DashboardPage extends BaseElement {
       <ui-disclosure label="Деталі навантаження за добу">
         <div class="dashboard__profile-info">
           <div class="dashboard__profile-metrics">
-            <span>Мінімальне навантаження: <strong>${formatPower(summary.min)}</strong></span>
-            <span>Середнє навантаження: <strong>${formatPower(summary.avg)}</strong></span>
-            <span>Пікове навантаження: <strong>${formatPower(summary.max)}</strong> о <strong>${summary.peakHour}</strong></span>
+            <span>Мінімум: <strong>${formatPower(summary.min)}</strong></span>
+            <span>Середнє: <strong>${formatPower(summary.avg)}</strong></span>
+            <span>Пік: <strong>${formatPower(summary.max)}</strong> о <strong>${summary.peakHour}</strong></span>
           </div>
         </div>
       </ui-disclosure>
+    `;
+  }
+
+  renderProjectTools() {
+    return `
+      <ui-card padding="md">
+        <section class="dashboard__project-card">
+          <div class="dashboard__project-copy">
+            <p class="dashboard__eyebrow">Керування проєктом</p>
+            <h2>Імпорт та експорт</h2>
+          </div>
+          <ui-disclosure label="Керування файлами проєкту">
+            <div class="dashboard__project-tools">
+              <button type="button" class="dashboard__tool-btn" data-project-export>Експорт JSON</button>
+              <button type="button" class="dashboard__tool-btn" data-project-import>Імпорт JSON</button>
+              <input class="dashboard__project-file" type="file" accept="application/json,.json" data-project-file />
+            </div>
+            ${
+              this.projectMessage?.text
+                ? `
+              <div class="dashboard__project-message dashboard__project-message--${this.projectMessage.type || 'info'}" role="status" aria-live="polite">
+                ${this.projectMessage.text}
+              </div>
+            `
+                : ''
+            }
+          </ui-disclosure>
+        </section>
+      </ui-card>
     `;
   }
 
@@ -164,17 +154,22 @@ class DashboardPage extends BaseElement {
     const profileData = getHourlyLoadProfile(this.state.consumers);
 
     return `
-      <section class="dashboard">
-        ${this.renderHero(calc)}
-
+      <planner-shell
+        step="1"
+        eyebrow="Огляд"
+        title="Поточний стан проєкту"
+        next-href="#/consumers"
+        next-label="${this.state.consumers.length ? 'Перейти до приладів' : 'Додати прилади'}"
+      >
+        ${this.renderProjectTools()}
         ${this.renderStatCards(calc)}
 
         <div class="dashboard__charts">
           <ui-card padding="md"><div class="chart-card"><div class="chart-card__head"><h2>На що йде енергія</h2></div><div class="chart-card__canvas-wrap"><canvas data-chart="category"></canvas></div></div></ui-card>
-          <ui-card padding="md"><div class="chart-card"><div class="chart-card__head"><h2>Потужність приладів</h2></div><div class="chart-card__canvas-wrap"><canvas data-chart="consumers"></canvas></div></div></ui-card>
+          <ui-card padding="md"><div class="chart-card"><div class="chart-card__head"><h2>Потужність окремих приладів</h2></div><div class="chart-card__canvas-wrap"><canvas data-chart="consumers"></canvas></div></div></ui-card>
           <ui-card padding="md" class="chart-card--wide"><div class="chart-card"><div class="chart-card__head"><h2>Навантаження протягом доби</h2></div>${this.renderProfileInfo(profileData)}<div class="chart-card__canvas-wrap chart-card__canvas-wrap--wide"><canvas data-chart="profile"></canvas></div></div></ui-card>
         </div>
-      </section>
+      </planner-shell>
     `;
   }
 
@@ -190,54 +185,156 @@ class DashboardPage extends BaseElement {
     const profileData = getHourlyLoadProfile(this.state.consumers);
 
     if (categoryCtx && categoryData.length) {
-      this.charts.push(new Chart(categoryCtx, {
-        type: 'doughnut',
-        data: {
-          labels: categoryData.map((item) => item.label),
-          datasets: [{ data: categoryData.map((item) => item.value), backgroundColor: ['#4077d1', '#47d5a6', '#d7ac61', '#d94a4a', '#9bb4c0', '#a18d6d'] }],
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#fff' } } } },
-      }));
+      this.charts.push(
+        new Chart(categoryCtx, {
+          type: 'doughnut',
+          data: {
+            labels: categoryData.map((item) => item.label),
+            datasets: [
+              {
+                data: categoryData.map((item) => item.value),
+                backgroundColor: ['#4077d1', '#47d5a6', '#d7ac61', '#d94a4a', '#9bb4c0', '#a18d6d'],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#fff' } } },
+          },
+        }),
+      );
     }
 
     if (consumersCtx && consumerData.length) {
-      this.charts.push(new Chart(consumersCtx, {
-        type: 'bar',
-        data: {
-          labels: consumerData.map((item) => item.label),
-          datasets: [{ label: 'W', data: consumerData.map((item) => item.value), backgroundColor: '#4077d1', borderRadius: 10 }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.08)' } },
-            y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+      this.charts.push(
+        new Chart(consumersCtx, {
+          type: 'bar',
+          data: {
+            labels: consumerData.map((item) => item.label),
+            datasets: [
+              {
+                label: 'W',
+                data: consumerData.map((item) => item.value),
+                backgroundColor: '#4077d1',
+                borderRadius: 10,
+              },
+            ],
           },
-          plugins: { legend: { display: false } },
-        },
-      }));
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+              y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+            },
+            plugins: { legend: { display: false } },
+          },
+        }),
+      );
     }
 
     if (profileCtx && profileData.length) {
-      this.charts.push(new Chart(profileCtx, {
-        type: 'line',
-        data: {
-          labels: profileData.map((item) => item.hour),
-          datasets: [{ label: 'W', data: profileData.map((item) => item.value), borderColor: '#47d5a6', backgroundColor: 'rgba(71,213,166,.16)', fill: true, tension: 0.35 }],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: { ticks: { color: '#fff', maxRotation: 0, autoSkip: true }, grid: { color: 'rgba(255,255,255,0.08)' } },
-            y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+      this.charts.push(
+        new Chart(profileCtx, {
+          type: 'line',
+          data: {
+            labels: profileData.map((item) => item.hour),
+            datasets: [
+              {
+                label: 'W',
+                data: profileData.map((item) => item.value),
+                borderColor: '#47d5a6',
+                backgroundColor: 'rgba(71,213,166,.16)',
+                fill: true,
+                tension: 0.35,
+              },
+            ],
           },
-          plugins: { legend: { labels: { color: '#fff' } } },
-        },
-      }));
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                ticks: { color: '#fff', maxRotation: 0, autoSkip: true },
+                grid: { color: 'rgba(255,255,255,0.08)' },
+              },
+              y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+            },
+            plugins: { legend: { labels: { color: '#fff' } } },
+          },
+        }),
+      );
     }
+
+    this.shadowRoot
+      .querySelector('[data-project-export]')
+      ?.addEventListener('click', this.handleProjectExport);
+    this.shadowRoot
+      .querySelector('[data-project-import]')
+      ?.addEventListener('click', this.handleProjectImportClick);
+    this.shadowRoot
+      .querySelector('[data-project-file]')
+      ?.addEventListener('change', this.handleProjectImportFile);
   }
+
+  handleProjectExport = () => {
+    const payload = {
+      meta: {
+        app: 'UPS Planner Pro',
+        version: 3,
+        exportedAt: new Date().toISOString(),
+      },
+      consumers: this.state.consumers || [],
+      zones: this.state.zones || [],
+      systemSettings: this.state.systemSettings || {},
+      scenario: this.state.scenario || {},
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: 'application/json;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `ups-planner-project-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    this.projectMessage = { text: 'Проєкт експортовано в JSON.', type: 'success' };
+    this.update();
+  };
+
+  handleProjectImportClick = () => {
+    this.shadowRoot.querySelector('[data-project-file]')?.click();
+  };
+
+  handleProjectImportFile = async (event) => {
+    const file = event.target?.files?.[0];
+    if (!file) return;
+
+    try {
+      const raw = await file.text();
+      const payload = JSON.parse(raw);
+      const project =
+        payload?.project && typeof payload.project === 'object' ? payload.project : payload;
+
+      if (!project || typeof project !== 'object') {
+        throw new Error('Файл не схожий на проєкт UPS Planner Pro.');
+      }
+
+      appStore.replaceProject(project);
+      this.projectMessage = { text: 'Проєкт успішно імпортовано.', type: 'success' };
+      this.update();
+    } catch (error) {
+      this.projectMessage = {
+        text: error?.message ? String(error.message) : 'Не вдалося імпортувати файл проєкту.',
+        type: 'error',
+      };
+      this.update();
+    } finally {
+      event.target.value = '';
+    }
+  };
 }
 
 customElements.define('dashboard-page', DashboardPage);

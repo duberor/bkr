@@ -1,10 +1,46 @@
-:host { display: block; }
-.summary { display: grid; gap: 14px; }
-.summary__head { display: grid; gap: 6px; }
-.summary__eyebrow { color: $info30; text-transform: uppercase; letter-spacing: .12em; font-size: 12px; }
-.summary__grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
-.summary__grid--secondary { grid-template-columns: repeat(2,minmax(0,1fr)); }
-.summary__grid div { display:grid; gap: 5px; padding: 12px; border-radius: 14px; background: rgba($white,.04); border: 1px solid rgba($white,.08); }
-.summary__grid span { color: rgba($white,.6); font-size: 12px; }
-.summary__grid strong { font-size: 17px; }
-@media (max-width: 860px) { .summary__grid, .summary__grid--secondary { grid-template-columns: 1fr; } }
+:host {
+  display: block;
+}
+.summary {
+  display: grid;
+  gap: 14px;
+}
+.summary__head {
+  display: grid;
+  gap: 6px;
+}
+.summary__eyebrow {
+  color: $info30;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+}
+.summary__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.summary__grid--secondary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.summary__grid div {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba($white, 0.04);
+  border: 1px solid rgba($white, 0.08);
+}
+.summary__grid span {
+  color: rgba($white, 0.6);
+  font-size: 12px;
+}
+.summary__grid strong {
+  font-size: 17px;
+}
+@media (max-width: 860px) {
+  .summary__grid,
+  .summary__grid--secondary {
+    grid-template-columns: 1fr;
+  }
+}
