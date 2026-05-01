@@ -8,6 +8,7 @@ import '../../features/system-summary/system-summary.js';
 import '../../features/solution-variants/solution-variants.js';
 import '../../features/battery-configurator/battery-configurator.js';
 import '../../features/system-visualizer/system-visualizer.js';
+import '../../features/system-checks/system-checks.js';
 import { appStore } from '../../../store/app-store.js';
 import { getSystemCalculation } from '../../../utils/consumer-utils.js';
 import {
@@ -225,6 +226,8 @@ class SystemPage extends BaseElement {
 
         <system-visualizer></system-visualizer>
 
+        <system-checks></system-checks>
+
         <battery-configurator></battery-configurator>
 
         <ui-card padding="md">
@@ -252,6 +255,12 @@ class SystemPage extends BaseElement {
     battery.settings = this.state.systemSettings;
     visualizer.items = this.state.consumers;
     visualizer.settings = this.state.systemSettings;
+
+    const checks = this.shadowRoot.querySelector('system-checks');
+    if (checks) {
+      checks.items = this.state.consumers;
+      checks.settings = this.state.systemSettings;
+    }
 
     if (form) {
       form.items = this.state.consumers;
