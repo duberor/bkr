@@ -1,7 +1,6 @@
 import { BaseElement } from '../../base/base-element.js';
 import '../../pages/dashboard-page/dashboard-page.js';
 import '../../pages/consumers-page/consumers-page.js';
-import '../../pages/calculation-page/calculation-page.js';
 import '../../pages/system-page/system-page.js';
 import '../../pages/products-page/products-page.js';
 import '../../pages/report-page/report-page.js';
@@ -12,7 +11,7 @@ import styles from './app-main.scss?inline';
 const routeMap = {
   '#/dashboard': 'dashboard-page',
   '#/consumers': 'consumers-page',
-  '#/calculation': 'calculation-page',
+  '#/calculation': 'system-page',
   '#/system': 'system-page',
   ...(FEATURES.productsPage ? { '#/products': 'products-page' } : {}),
   '#/report': 'report-page',

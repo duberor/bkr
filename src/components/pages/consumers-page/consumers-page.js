@@ -216,7 +216,7 @@ class ConsumersPage extends BaseElement {
         title="Що має працювати під час відключення"
         prev-href="#/dashboard"
         prev-label="Повернутися до огляду"
-        next-href="#/calculation"
+        next-href="#/system"
         next-label="Перейти до часу роботи"
       >
         ${this.renderFeedback()}

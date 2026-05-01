@@ -3,6 +3,8 @@ import '../../features/planner-shell/planner-shell.js';
 import '../../ui/ui-card/ui-card.js';
 import '../../ui/ui-disclosure/ui-disclosure.js';
 import '../../ui/ui-tooltip/ui-tooltip.js';
+import '../../features/system-settings-form/system-settings-form.js';
+import '../../features/system-summary/system-summary.js';
 import '../../features/solution-variants/solution-variants.js';
 import '../../features/battery-configurator/battery-configurator.js';
 import '../../features/system-visualizer/system-visualizer.js';
@@ -116,11 +118,11 @@ class SystemPage extends BaseElement {
 
     return `
       <planner-shell
-        step="4"
-        eyebrow="Рішення"
-        title="Що система рекомендує"
-        prev-href="#/calculation"
-        prev-label="Повернутися до часу роботи"
+        step="3"
+        eyebrow="Система"
+        title="Конфігурація системи"
+        prev-href="#/consumers"
+        prev-label="Повернутися до приладів"
         next-href="#/report"
         next-label="Перейти до звіту"
       >
@@ -170,7 +172,7 @@ class SystemPage extends BaseElement {
                   <ui-tooltip label="Пояснення" text="Порівняння зон за кількістю приладів, потужністю та добовим споживанням."></ui-tooltip>
                 </div>
               </div>
-              <ui-disclosure label="Подивитися таблицю по зонах">
+              <!-- zones table shown directly -->
                 <div class="system-page__table-wrap">
                   <table class="system-page__table">
                     <thead>
@@ -185,12 +187,12 @@ class SystemPage extends BaseElement {
                     <tbody>${this.renderZoneRows()}</tbody>
                   </table>
                 </div>
-              </ui-disclosure>
             </section>
           </ui-card>
         </section>
 
-        <ui-card padding="md">
+        <!-- Таблиця варіантів АКБ прибрана, конфігурації показуються через battery-configurator -->
+        <ui-card padding="md" style="display:none;">
           <section class="system-page__panel">
             <div class="system-page__panel-head">
               <div class="system-page__title-row">
@@ -221,8 +223,19 @@ class SystemPage extends BaseElement {
           </section>
         </ui-card>
 
-        <battery-configurator></battery-configurator>
         <system-visualizer></system-visualizer>
+
+        <battery-configurator></battery-configurator>
+
+        <ui-card padding="md">
+          <section class="system-page__panel">
+            <div class="system-page__panel-head">
+              <h2>Налаштування розрахунку</h2>
+            </div>
+            <system-settings-form></system-settings-form>
+          </section>
+        </ui-card>
+
       </planner-shell>
     `;
   }
@@ -231,6 +244,7 @@ class SystemPage extends BaseElement {
     const variants = this.shadowRoot.querySelector('solution-variants');
     const battery = this.shadowRoot.querySelector('battery-configurator');
     const visualizer = this.shadowRoot.querySelector('system-visualizer');
+    const form = this.shadowRoot.querySelector('system-settings-form');
 
     variants.items = this.state.consumers;
     variants.settings = this.state.systemSettings;
@@ -238,7 +252,16 @@ class SystemPage extends BaseElement {
     battery.settings = this.state.systemSettings;
     visualizer.items = this.state.consumers;
     visualizer.settings = this.state.systemSettings;
+
+    if (form) {
+      form.items = this.state.consumers;
+      form.settings = this.state.systemSettings;
+      form.syncAutoSelections?.();
+      form.addEventListener('system-settings-change', this.handleSettingsChange);
+    }
   }
+
+  handleSettingsChange = (event) => appStore.setSystemSettings(event.detail.settings);
 }
 
 customElements.define('system-page', SystemPage);
