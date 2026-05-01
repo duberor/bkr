@@ -159,3 +159,20 @@
     align-items: flex-start;
   }
 }
+
+.settings-form__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: rgba($white, 0.75);
+  padding: 10px 0;
+}
+.settings-form__checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: $info20;
+  cursor: pointer;
+}
+

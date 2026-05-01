@@ -15,6 +15,8 @@ const defaultSettings = {
   inverterEfficiency: 0.92,
   reserveRatio: 1.2,
   batteryReserveRatio: 1.15,
+  topology: 'line-interactive',
+  hasGenerator: false,
 };
 
 const defaultZones = [
@@ -180,6 +182,8 @@ export function loadSystemSettings() {
     inverterEfficiency: Number(parsed?.inverterEfficiency || defaultSettings.inverterEfficiency),
     reserveRatio: Number(parsed?.reserveRatio || defaultSettings.reserveRatio),
     batteryReserveRatio: Number(parsed?.batteryReserveRatio || defaultSettings.batteryReserveRatio),
+    topology: ['offline', 'line-interactive', 'online'].includes(parsed?.topology) ? parsed.topology : defaultSettings.topology,
+    hasGenerator: parsed?.hasGenerator === true,
   };
 }
 
@@ -219,6 +223,8 @@ export function saveSystemSettings(settings = {}) {
         batteryReserveRatio: Number(
           settings?.batteryReserveRatio || defaultSettings.batteryReserveRatio,
         ),
+        topology: ['offline', 'line-interactive', 'online'].includes(settings?.topology) ? settings.topology : defaultSettings.topology,
+        hasGenerator: settings?.hasGenerator === true,
       }),
     );
   } catch (error) {

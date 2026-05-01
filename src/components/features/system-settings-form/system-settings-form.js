@@ -22,6 +22,8 @@ class SystemSettingsForm extends BaseElement {
       targetAutonomyHours: 24,
       autonomyInputUnit: 'days',
       inverterEfficiency: 0.92,
+      topology: 'line-interactive',
+      hasGenerator: false,
       reserveRatio: 1.2,
       batteryReserveRatio: 1.15,
     };
@@ -81,6 +83,8 @@ class SystemSettingsForm extends BaseElement {
       ),
       autonomyInputUnit,
       inverterEfficiency: String(settings.inverterEfficiency ?? ''),
+      topology: settings.topology || 'line-interactive',
+      hasGenerator: !!settings.hasGenerator,
       reserveRatio: String(settings.reserveRatio ?? ''),
       batteryReserveRatio: String(settings.batteryReserveRatio ?? ''),
     };
@@ -264,6 +268,13 @@ class SystemSettingsForm extends BaseElement {
           <ui-input type="text" name="targetAutonomyValue" label="Бажаний час роботи" placeholder="Наприклад, 6 або 2" value="${this.draft.targetAutonomyValue}" error="${this.errors.targetAutonomyValue || ''}"></ui-input>
           <ui-select name="autonomyInputUnit" label="Одиниця часу"></ui-select>
         </div>
+        <div class="settings-form__grid">
+            <ui-select name="topology" label="Тип системи"></ui-select>
+            <label class="settings-form__checkbox">
+              <input type="checkbox" name="hasGenerator" ${this.settings.hasGenerator ? 'checked' : ''} />
+              <span>Є генератор як резервне джерело</span>
+            </label>
+          </div>
         <ui-disclosure label="Додаткові налаштування для точнішого підбору">
           <div class="settings-form__advanced">
             <div class="settings-form__grid settings-form__grid--advanced">
