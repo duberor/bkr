@@ -140,36 +140,16 @@ class SystemPage extends BaseElement {
 
         <solution-variants></solution-variants>
 
+        <system-visualizer></system-visualizer>
+
+        <system-checks></system-checks>
+
         <section class="system-page__detail-grid">
           <ui-card padding="md">
             <section class="system-page__panel">
               <div class="system-page__panel-head">
                 <div class="system-page__title-row">
-                  <h2>Що варто знати про систему</h2>
-                  <ui-tooltip label="Пояснення" text="Короткий технічний підсумок по системі для перевірки ключових параметрів."></ui-tooltip>
-                </div>
-              </div>
-              <ui-disclosure label="Технічні деталі системи">
-                <div class="system-page__bullet-cards">
-                  <div><span>Напруга системи</span><strong>${voltage} V</strong></div>
-                  <div><span>Струм при повному навантаженні</span><strong>${formatNumber(fullDcCurrent, 0)} A</strong></div>
-                  <div><span>Струм при навантаженні, під яке підібрана система</span><strong>${formatNumber(designDcCurrent, 0)} A</strong></div>
-                  <div><span>Струм при пусковому піку</span><strong>${formatNumber(surgeDcCurrent, 0)} A</strong></div>
-                  <div><span>Скільки енергії потрібно без запасу</span><strong>${formatEnergyWh(calc.requiredEnergyWh)}</strong></div>
-                  <div><span>Скільки енергії потрібно із запасом</span><strong>${formatEnergyWh(calc.totalEnergyWh)}</strong></div>
-                  <div><span>Час роботи при максимальному навантаженні</span><strong>${formatAutonomy(calc.continuousAutonomyHours, { preferDays: false })}</strong></div>
-                  <div><span>Час роботи для критичних приладів</span><strong>${formatAutonomy(highPriorityRuntime, { preferDays: false })}</strong></div>
-                  <div><span>Потужність критичних приладів</span><strong>${highPriorityPower ? formatPower(highPriorityPower) : '—'}</strong></div>
-                </div>
-              </ui-disclosure>
-            </section>
-          </ui-card>
-
-          <ui-card padding="md">
-            <section class="system-page__panel">
-              <div class="system-page__panel-head">
-                <div class="system-page__title-row">
-                  <h2>Зони та їхній внесок</h2>
+                  <h2>Що споживає найбільше</h2>
                   <ui-tooltip label="Пояснення" text="Порівняння зон за кількістю приладів, потужністю та добовим споживанням."></ui-tooltip>
                 </div>
               </div>

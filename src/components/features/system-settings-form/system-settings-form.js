@@ -408,6 +408,14 @@ class SystemSettingsForm extends BaseElement {
       return;
     }
 
+
+    if (name === 'topology') {
+      if (!isCommit) return;
+      this._settings = { ...this._settings, topology: String(value || 'line-interactive') };
+      this.emitSettingsChange();
+      return;
+    }
+
     if (
       ![
         'targetAutonomyValue',

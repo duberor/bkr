@@ -13,3 +13,9 @@ export const CONSUMER_CATEGORIES = [
 export const CATEGORY_LABELS = Object.fromEntries(
   CONSUMER_CATEGORIES.map((item) => [item.value, item.label]),
 );
+
+// Legacy key fallbacks for older projects
+CATEGORY_LABELS['kitchen'] = 'Кухня';
+CATEGORY_LABELS['network'] = 'Мережа';
+CATEGORY_LABELS['heating'] = CATEGORY_LABELS['heating'] || 'Опалення';
+
