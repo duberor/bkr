@@ -153,15 +153,31 @@ class DashboardPage extends BaseElement {
     const calc = getSystemCalculation(this.state.consumers, this.state.systemSettings);
     const profileData = getHourlyLoadProfile(this.state.consumers);
 
+    const hasConsumers = this.state.consumers.length > 0;
+
     return `
       <planner-shell
         step="1"
         eyebrow="Огляд"
         title="Поточний стан проєкту"
         next-href="#/consumers"
-        next-label="${this.state.consumers.length ? 'Перейти до приладів' : 'Додати прилади'}"
+        next-label="${hasConsumers ? 'Перейти до приладів' : 'Додати прилади'}"
       >
-        ${this.renderProjectTools()}
+        ${hasConsumers ? '' : `
+          <ui-card padding="md">
+            <div class="dashboard__empty">
+              <h2>Почніть з приладів</h2>
+              <p>Додайте прилади, які мають працювати при відключенні світла. Система автоматично підбере інвертор та акумулятори.</p>
+              <div class="dashboard__empty-steps">
+                <div class="dashboard__empty-step"><strong>1</strong><span>Додайте прилади</span></div>
+                <div class="dashboard__empty-step"><strong>2</strong><span>Налаштуйте систему</span></div>
+                <div class="dashboard__empty-step"><strong>3</strong><span>Отримайте звіт</span></div>
+              </div>
+              <a href="#/consumers" class="dashboard__empty-btn">Додати перший прилад</a>
+            </div>
+          </ui-card>
+        `}
+
         ${this.renderStatCards(calc)}
 
         <div class="dashboard__charts">
@@ -169,6 +185,8 @@ class DashboardPage extends BaseElement {
           <ui-card padding="md"><div class="chart-card"><div class="chart-card__head"><h2>Потужність окремих приладів</h2></div><div class="chart-card__canvas-wrap"><canvas data-chart="consumers"></canvas></div></div></ui-card>
           <ui-card padding="md" class="chart-card--wide"><div class="chart-card"><div class="chart-card__head"><h2>Навантаження протягом доби</h2></div>${this.renderProfileInfo(profileData)}<div class="chart-card__canvas-wrap chart-card__canvas-wrap--wide"><canvas data-chart="profile"></canvas></div></div></ui-card>
         </div>
+
+        ${this.renderProjectTools()}
       </planner-shell>
     `;
   }

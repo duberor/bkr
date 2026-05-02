@@ -578,9 +578,13 @@ class ReportSheet extends BaseElement {
               <h3>Попередження</h3>
               <span class="report-sheet__tag report-sheet__tag--key">Ключове</span>
             </div>
+            ${this.warnings.length ? `
             <ul class="report-sheet__list report-sheet__list--warning report-sheet__list--compact">
-              ${(this.warnings.length ? this.warnings : ['Критичних зауважень для поточної моделі не виявлено.']).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+              ${this.warnings.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
             </ul>
+            ` : `
+            <p class="report-sheet__all-ok">✓ Критичних зауважень не виявлено</p>
+            `}
           </section>
           `
               : `

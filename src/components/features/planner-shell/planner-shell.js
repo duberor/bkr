@@ -97,7 +97,7 @@ class PlannerShell extends BaseElement {
             </div>
             ${this.renderActions()}
           </div>
-          <aside class="planner-shell__aside">
+          <aside class="planner-shell__aside" ${this.step === '1' ? 'style="display:none"' : ''}>
             <planner-summary></planner-summary>
           </aside>
         </div>
