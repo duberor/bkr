@@ -70,27 +70,31 @@ class SystemPage extends BaseElement {
       </div>`;
 
     const best = calc.recommendedBatteryConfigs?.[0];
-    const batStr = best
-      ? `${best.totalBatteries} × ${Math.round((best.bankCapacityAh || 0) / (best.totalBatteries || 1))} Аг`
-      : formatBattery(calc.recommendedBatteryCapacityAh);
-    const hasWarn = calc.startupCoverageRatio < 1 || calc.inverterHeadroomPercent < 0.15;
+    const batCount   = best?.totalBatteries || '?';
+    const batAh      = best ? Math.round((best.bankCapacityAh || 0) / (best.totalBatteries || 1)) : 0;
+    const inverterKw = (calc.recommendedInverterPower / 1000).toFixed(0);
+    const autoMain   = formatAutonomy(calc.estimatedAutonomyHours);
+    const autoCrit   = formatAutonomy(calc.criticalAutonomyHours);
+
+    const warnCount  = [
+      calc.startupCoverageRatio < 1,
+      calc.inverterHeadroomPercent < 0.15,
+    ].filter(Boolean).length;
 
     return `
       <div class="sp-hero">
-        <div class="sp-hero__ans">
-          ${formatPower(calc.recommendedInverterPower)} + ${batStr}
-          <span class="sp-hero__eq">= ${formatAutonomy(calc.estimatedAutonomyHours)}</span>
+        <div class="sp-hero__main">
+          Інвертор ${inverterKw} кВт + ${batCount} акумулятори по ${batAh} Аг = ${autoMain}
         </div>
         <div class="sp-hero__sub">
-          Критичні прилади: ${formatAutonomy(calc.criticalAutonomyHours)}
-          &nbsp;·&nbsp;
-          Добова: ${formatEnergyWh(calc.dailyConsumptionWh || 0)}
+          Тільки критичні (котел + насос): ${autoCrit}
         </div>
         <div class="sp-hero__badges">
-          <span class="sp-badge sp-badge--${hasWarn ? 'warn' : 'ok'}">
-            ${hasWarn ? '⚠ Є попередження' : '✓ Параметри в нормі'}
-          </span>
-          <a href="#/report" class="sp-badge sp-badge--link">Детальний звіт →</a>
+          <span class="sp-badge sp-badge--ok">Потужність ОК</span>
+          ${warnCount > 0
+            ? `<span class="sp-badge sp-badge--warn">${warnCount} попередження</span>`
+            : ''}
+          <a href="#/report" class="sp-badge sp-badge--link">Схема ↗</a>
         </div>
       </div>
     `;
