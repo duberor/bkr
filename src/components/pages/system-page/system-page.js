@@ -91,34 +91,6 @@ class SystemPage extends BaseElement {
     `;
   }
 
-  renderTopologySelector() {
-    const topologies = [
-      { key: 'offline',          main: 'Базова',      sub: 'Off-line · 20 мс' },
-      { key: 'line-interactive', main: 'Стандартна',  sub: 'Line-interactive · 5 мс, для дому' },
-      { key: 'online',           main: 'Безперервна', sub: 'On-line · 0 мс, для серверів' },
-    ];
-    const cur = this.state.systemSettings?.topology || 'line-interactive';
-    return `
-      <ui-card padding="md">
-        <div class="system-page__topo-head">
-          <span class="system-page__topo-label">Тип ДБЖ</span>
-          <ui-tooltip label="?" text="Базова: найдешевша, перемикання 20 мс. Стандартна: 5 мс, підходить для більшості будинків. Безперервна: 0 мс, для серверів і медтехніки."></ui-tooltip>
-        </div>
-        <div class="system-page__topo-group">
-          ${topologies.map(({ key, main, sub }) => `
-            <div class="system-page__topo-opt ${cur === key ? 'is-sel' : ''}" data-topo="${key}">
-              <div class="system-page__topo-radio"></div>
-              <div>
-                <div class="system-page__topo-main">${main}</div>
-                <div class="system-page__topo-sub">${sub}</div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </ui-card>
-    `;
-  }
-
   renderZoneRows() {
     if (!this.zoneRows.length)
       return '<tr><td colspan="5">Ще не додано жодної зони або приладу.</td></tr>';
@@ -192,8 +164,6 @@ class SystemPage extends BaseElement {
         }
 
         ${this.renderHero(calc)}
-
-        ${this.renderTopologySelector()}
 
         <solution-variants></solution-variants>
 
@@ -296,12 +266,6 @@ class SystemPage extends BaseElement {
       form.addEventListener('system-settings-change', this.handleSettingsChange);
     }
 
-    // Topology radio click
-    this.shadowRoot.querySelectorAll('[data-topo]').forEach((el) => {
-      el.addEventListener('click', () => {
-        appStore.setSystemSettings({ ...this.state.systemSettings, topology: el.getAttribute('data-topo') });
-      });
-    });
   }
 
   handleSettingsChange = (event) => appStore.setSystemSettings(event.detail.settings);

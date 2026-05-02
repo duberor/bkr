@@ -2,6 +2,7 @@ import { BaseElement } from '../../base/base-element.js';
 import '../../ui/ui-card/ui-card.js';
 import { getSolutionVariants } from '../../../utils/consumer-utils.js';
 import { formatAutonomy, formatBattery, formatPower } from '../../../utils/format.js';
+import { appStore } from '../../../store/app-store.js';
 import styles from './solution-variants.scss?inline';
 
 class SolutionVariants extends BaseElement {
@@ -33,6 +34,10 @@ class SolutionVariants extends BaseElement {
     return this._settings;
   }
 
+  get selectedVariant() {
+    return this._settings?.selectedVariant || null;
+  }
+
   renderItems(items = []) {
     if (!items.length)
       return '<span class="solution-variants__placeholder">Усе навантаження входить у цей варіант.</span>';
@@ -61,31 +66,40 @@ class SolutionVariants extends BaseElement {
     }
 
     const variants = getSolutionVariants(this.items, this.settings);
+    // Якщо варіант ще не обраний — рекомендований активний за замовчуванням
+    const activeKey = this.selectedVariant || variants.find((v) => v.isRecommended)?.key || variants[0]?.key;
 
     return `
       <ui-card padding="md">
         <section class="solution-variants">
           <div class="solution-variants__head">
-            <p class="solution-variants__eyebrow">Крок 4</p>
-            <h2>Кілька варіантів рішення</h2>
+            <p class="solution-variants__eyebrow">Варіанти системи</p>
+            <h2>Оберіть конфігурацію</h2>
           </div>
 
           <div class="solution-variants__grid">
             ${variants
               .map(
                 (variant) => `
-              <article class="solution-variants__card ${variant.isRecommended ? 'is-recommended' : ''}">
+              <article
+                class="solution-variants__card ${variant.isRecommended ? 'is-recommended' : ''} ${activeKey === variant.key ? 'is-active' : ''}"
+                data-variant-key="${variant.key}"
+                role="button"
+                tabindex="0"
+              >
                 <div class="solution-variants__card-head">
                   <div>
                     <span class="solution-variants__badge">${variant.isRecommended ? 'Рекомендовано' : 'Варіант'}</span>
                     <h3>${variant.title}</h3>
                   </div>
+                  ${activeKey === variant.key ? '<div class="solution-variants__chosen">✓ Обрано</div>' : ''}
                 </div>
 
                 <div class="solution-variants__metrics">
                   <div><span>Інвертор</span><strong>${formatPower(variant.calc.recommendedInverterPower)}</strong></div>
                   <div><span>АКБ</span><strong>${formatBattery(variant.calc.recommendedBatteryCapacityAh)}</strong></div>
                   <div><span>Час роботи</span><strong>${formatAutonomy(variant.calc.estimatedAutonomyHours)}</strong></div>
+                  <div><span>Тільки крит.</span><strong>${formatAutonomy(variant.calc.criticalAutonomyHours)}</strong></div>
                 </div>
 
                 <div class="solution-variants__lists">
@@ -106,6 +120,17 @@ class SolutionVariants extends BaseElement {
         </section>
       </ui-card>
     `;
+  }
+
+  afterRender() {
+    this.shadowRoot.querySelectorAll('[data-variant-key]').forEach((card) => {
+      const handler = () => {
+        const key = card.getAttribute('data-variant-key');
+        appStore.setSystemSettings({ ...this._settings, selectedVariant: key });
+      };
+      card.addEventListener('click', handler);
+      card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') handler(); });
+    });
   }
 }
 

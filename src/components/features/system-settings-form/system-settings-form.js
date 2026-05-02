@@ -292,6 +292,7 @@ class SystemSettingsForm extends BaseElement {
     const voltage = this.shadowRoot.querySelector('ui-select[name="batteryVoltage"]');
     const batteryType = this.shadowRoot.querySelector('ui-select[name="batteryType"]');
     const autonomyInputUnit = this.shadowRoot.querySelector('ui-select[name="autonomyInputUnit"]');
+    const topology = this.shadowRoot.querySelector('ui-select[name="topology"]');
 
     if (voltage) {
       voltage.options = [
@@ -317,6 +318,15 @@ class SystemSettingsForm extends BaseElement {
         { value: 'days', label: 'Доби' },
       ];
       autonomyInputUnit.value = this.draft.autonomyInputUnit;
+    }
+
+    if (topology) {
+      topology.options = [
+        { value: 'offline',          label: 'Базова (Off-line · 20 мс)' },
+        { value: 'line-interactive', label: 'Стандартна (Line-interactive · 5 мс)' },
+        { value: 'online',           label: 'Безперервна (On-line · 0 мс)' },
+      ];
+      topology.value = this.settings.topology || 'line-interactive';
     }
 
     this.shadowRoot.removeEventListener('ui-input', this.handleField);
