@@ -238,3 +238,35 @@
 .dashboard__empty-btn:hover {
   opacity: 0.85;
 }
+
+/* ── 4 columns for stat cards ── */
+.dashboard__stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stat--warn strong {
+  color: $danger20;
+}
+
+/* ── Persistent alert ── */
+.dashboard__alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.dashboard__alert--warn {
+  background: rgba($warn10, 0.18);
+  border: 1px solid rgba($warn20, 0.35);
+  color: $warn20;
+}
+
+@media (max-width: 1100px) {
+  .dashboard__stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

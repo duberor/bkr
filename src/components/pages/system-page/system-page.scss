@@ -117,3 +117,138 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── hero block ── */
+.system-page__hero {
+  background: linear-gradient(135deg, rgba($info20, 0.1) 0%, rgba($primary80, 0.07) 100%);
+  border: 1px solid rgba($info20, 0.35);
+  border-radius: 16px;
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.system-page__hero::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 140px; height: 140px;
+  background: radial-gradient(circle, rgba(255,206,122,0.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.system-page__hero-main {
+  font-size: 16px;
+  font-weight: 500;
+  color: $white;
+  line-height: 1.4;
+  position: relative;
+}
+
+.system-page__hero-sub {
+  font-size: 12px;
+  color: $info30;
+  margin-top: 5px;
+}
+
+.system-page__hero-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.system-page__hero-badge {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-weight: 500;
+}
+
+.system-page__hero-badge--ok {
+  background: rgba($success10, 0.2);
+  color: $success20;
+  border: 1px solid rgba($success20, 0.32);
+}
+
+.system-page__hero-badge--warn {
+  background: rgba($warn10, 0.2);
+  color: $warn20;
+  border: 1px solid rgba($warn20, 0.38);
+}
+
+.system-page__hero-link {
+  font-size: 11px;
+  color: $info30;
+  margin-left: auto;
+  text-decoration: none;
+  opacity: 0.8;
+}
+
+.system-page__hero-link:hover { opacity: 1; }
+
+/* ── topology selector ── */
+.system-page__topo-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.system-page__topo-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba($white, 0.9);
+}
+
+.system-page__topo-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.system-page__topo-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid rgba($white, 0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.system-page__topo-opt:hover { border-color: rgba($white, 0.18); }
+
+.system-page__topo-opt.is-sel {
+  border-color: rgba($info20, 0.42);
+  background: rgba($info20, 0.1);
+}
+
+.system-page__topo-radio {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1.5px solid rgba($white, 0.3);
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.system-page__topo-opt.is-sel .system-page__topo-radio {
+  background: $info20;
+  border-color: $info20;
+}
+
+.system-page__topo-main {
+  font-size: 13px;
+  font-weight: 500;
+  color: $white;
+}
+
+.system-page__topo-sub {
+  font-size: 11px;
+  color: rgba($white, 0.4);
+  margin-top: 1px;
+}

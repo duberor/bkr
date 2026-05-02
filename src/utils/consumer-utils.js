@@ -589,12 +589,18 @@ export function getSystemCalculation(consumers = [], settings = {}) {
     .filter((item) => item.priority === 'high')
     .reduce((sum, item) => sum + Number(item.power || 0) * Number(item.quantity || 0), 0);
 
+  // Добове споживання тільки критичних — враховує реальний графік роботи (як estimatedAutonomyHours)
+  const criticalDailyWh = getDailyConsumptionWh(
+    consumers.filter((item) => item.priority === 'high'),
+  );
+
   const estimatedAutonomyHours = getAutonomyHoursByDailyConsumption(
     bestUsableEnergyWh,
     dailyConsumptionWh,
   );
   const continuousAutonomyHours = getEstimatedAutonomyHours(bestUsableEnergyWh, designLoadPower);
-  const criticalAutonomyHours = getEstimatedAutonomyHours(bestUsableEnergyWh, criticalPower);
+  // Виправлено: раніше ділило на пікову потужність (24/7), тепер через добове споживання
+  const criticalAutonomyHours = getAutonomyHoursByDailyConsumption(bestUsableEnergyWh, criticalDailyWh);
   const inverterHeadroomW = Math.max(
     0,
     Number(recommendedInverterPower || 0) - Number(designLoadPower || 0),
