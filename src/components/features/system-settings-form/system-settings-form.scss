@@ -176,3 +176,20 @@
   cursor: pointer;
 }
 
+
+/* ── Compact mode (for sidebar usage) ── */
+:host([compact]) .settings-form__head {
+  display: none;
+}
+
+:host([compact]) .settings-form__grid--primary {
+  grid-template-columns: 1fr;
+}
+
+:host([compact]) .settings-form__grid {
+  grid-template-columns: 1fr;
+}
+
+:host([compact]) .settings-form {
+  gap: 10px;
+}

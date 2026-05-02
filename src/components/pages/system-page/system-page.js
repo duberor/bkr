@@ -1,5 +1,4 @@
 import { BaseElement } from '../../base/base-element.js';
-import '../../features/planner-shell/planner-shell.js';
 import '../../ui/ui-card/ui-card.js';
 import '../../ui/ui-disclosure/ui-disclosure.js';
 import '../../ui/ui-tooltip/ui-tooltip.js';
@@ -19,6 +18,19 @@ import {
 } from '../../../utils/format.js';
 import styles from './system-page.scss?inline';
 
+const STEPS = [
+  { hash: '#/dashboard', label: 'Огляд',    n: 1 },
+  { hash: '#/consumers', label: 'Прилади',  n: 2 },
+  { hash: '#/system',    label: 'Система',  n: 3 },
+  { hash: '#/report',    label: 'Звіт',     n: 4 },
+];
+
+const TOPO = [
+  { key: 'offline',          name: 'Базова',      hint: 'Off-line · 20 мс' },
+  { key: 'line-interactive', name: 'Стандартна',  hint: 'Line-interactive · 5 мс, для дому' },
+  { key: 'online',           name: 'Безперервна', hint: 'On-line · 0 мс, для серверів' },
+];
+
 class SystemPage extends BaseElement {
   constructor() {
     super();
@@ -37,128 +49,127 @@ class SystemPage extends BaseElement {
     this.unsubscribe?.();
   }
 
-  styles() {
-    return styles;
+  styles() { return styles; }
+
+  /* ── Steps topbar ── */
+  renderSteps() {
+    return STEPS.map(({ hash, label, n }) => `
+      <a class="sp-step ${location.hash === hash ? 'is-active' : ''}" href="${hash}">
+        <span class="sp-step__num">${n}</span>
+        <span>${label}</span>
+      </a>
+    `).join('');
   }
 
+  /* ── Hero ── */
   renderHero(calc) {
-    if (!calc.totalPower) return '';
+    if (!calc.totalPower) return `
+      <div class="sp-notice">
+        Щоб побачити розрахунок, спочатку
+        <a href="#/consumers">додайте прилади</a>.
+      </div>`;
 
     const best = calc.recommendedBatteryConfigs?.[0];
     const batStr = best
       ? `${best.totalBatteries} × ${Math.round((best.bankCapacityAh || 0) / (best.totalBatteries || 1))} Аг`
       : formatBattery(calc.recommendedBatteryCapacityAh);
-
     const hasWarn = calc.startupCoverageRatio < 1 || calc.inverterHeadroomPercent < 0.15;
 
     return `
-      <div class="system-page__hero">
-        <div class="system-page__hero-main">
-          ${formatPower(calc.recommendedInverterPower)} + ${batStr} = ${formatAutonomy(calc.estimatedAutonomyHours)}
+      <div class="sp-hero">
+        <div class="sp-hero__ans">
+          ${formatPower(calc.recommendedInverterPower)} + ${batStr}
+          <span class="sp-hero__eq">= ${formatAutonomy(calc.estimatedAutonomyHours)}</span>
         </div>
-        <div class="system-page__hero-sub">
-          Критичні прилади: ${formatAutonomy(calc.criticalAutonomyHours)} · Добова енергія: ${formatEnergyWh(calc.dailyConsumptionWh || 0)}
+        <div class="sp-hero__sub">
+          Критичні прилади: ${formatAutonomy(calc.criticalAutonomyHours)}
+          &nbsp;·&nbsp;
+          Добова: ${formatEnergyWh(calc.dailyConsumptionWh || 0)}
         </div>
-        <div class="system-page__hero-row">
-          <span class="system-page__hero-badge ${hasWarn ? 'system-page__hero-badge--warn' : 'system-page__hero-badge--ok'}">
+        <div class="sp-hero__badges">
+          <span class="sp-badge sp-badge--${hasWarn ? 'warn' : 'ok'}">
             ${hasWarn ? '⚠ Є попередження' : '✓ Параметри в нормі'}
           </span>
+          <a href="#/report" class="sp-badge sp-badge--link">Детальний звіт →</a>
         </div>
       </div>
     `;
   }
 
-  get zoneMap() {
-    return new Map((this.state.zones || []).map((z) => [z.id, z.name]));
-  }
+  /* ── Sidebar: topology + settings-form ── */
+  renderSidebar() {
+    const cur = this.state.systemSettings?.topology || 'line-interactive';
+    const hasGen = Boolean(this.state.systemSettings?.hasGenerator);
 
-  get zoneRows() {
-    const groups = new Map();
-    (this.state.consumers || []).forEach((c) => {
-      const name = this.zoneMap.get(c.zoneId) || 'Без зони';
-      if (!groups.has(name)) groups.set(name, { count: 0, totalPower: 0, dailyEnergy: 0, highPriority: 0 });
-      const row = groups.get(name);
-      const power = Number(c.power || 0) * Number(c.quantity || 1);
-      row.count += 1;
-      row.totalPower += power;
-      row.dailyEnergy += power * Number(c.hoursPerDay || 0);
-      if (c.priority === 'high') row.highPriority += power;
-    });
-    return [...groups.entries()]
-      .map(([zoneName, row]) => ({ zoneName, ...row }))
-      .sort((a, b) => b.dailyEnergy - a.dailyEnergy);
-  }
+    return `
+      <aside class="sp-sidebar">
+        <div class="sp-sidebar__section">Топологія ДБЖ</div>
+        <div class="sp-topo">
+          ${TOPO.map(({ key, name, hint }) => `
+            <div class="sp-topo__opt ${cur === key ? 'is-sel' : ''}" data-topo="${key}">
+              <div class="sp-topo__radio"></div>
+              <div>
+                <div class="sp-topo__name">${name}</div>
+                <div class="sp-topo__hint">${hint}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
 
-  renderZoneRows() {
-    if (!this.zoneRows.length)
-      return '<tr><td colspan="5" style="color:rgba(255,255,255,0.45);padding:12px 8px">Ще не додано жодної зони або приладу.</td></tr>';
-    return this.zoneRows.map((row) => `
-      <tr>
-        <td>${row.zoneName}</td>
-        <td>${row.count}</td>
-        <td>${formatPower(row.totalPower)}</td>
-        <td>${formatEnergyWh(row.dailyEnergy)}</td>
-        <td>${formatPower(row.highPriority)}</td>
-      </tr>
-    `).join('');
+        <div class="sp-sidebar__divider"></div>
+        <div class="sp-sidebar__section">Генератор</div>
+        <label class="sp-toggle-row" data-toggle-gen>
+          <div class="sp-toggle ${hasGen ? 'is-on' : ''}">
+            <div class="sp-toggle__dot"></div>
+          </div>
+          <span>${hasGen ? 'Є генератор' : 'Без генератора'}</span>
+        </label>
+
+        <div class="sp-sidebar__divider"></div>
+        <div class="sp-sidebar__section">Параметри</div>
+        <system-settings-form></system-settings-form>
+      </aside>
+    `;
   }
 
   render() {
     const calc = getSystemCalculation(this.state.consumers, this.state.systemSettings);
-    const hasConsumers = this.state.consumers.length > 0;
 
     return `
-      <planner-shell
-        step="3"
-        eyebrow="Система"
-        title="Конфігурація системи"
-        prev-href="#/consumers"
-        prev-label="Повернутися до приладів"
-        next-href="#/report"
-        next-label="Перейти до звіту"
-      >
-        ${!hasConsumers ? `
-          <div class="system-page__notice">
-            <span>Щоб побачити готове рішення, спочатку додайте хоча б один прилад.</span>
-            <a class="system-page__notice-link" href="#/consumers">Перейти до приладів</a>
+      <div class="sp-page">
+
+        <!-- topbar зі steps і навігацією -->
+        <div class="sp-topbar">
+          <nav class="sp-steps">${this.renderSteps()}</nav>
+          <div class="sp-topbar__nav">
+            <a href="#/consumers" class="sp-nav-btn">← Прилади</a>
+            <a href="#/report"    class="sp-nav-btn sp-nav-btn--prim">До звіту →</a>
           </div>
-        ` : ''}
+        </div>
 
-        ${this.renderHero(calc)}
+        <!-- двоколонковий layout -->
+        <div class="sp-layout">
 
-        <system-checks></system-checks>
+          ${this.renderSidebar()}
 
-        <solution-variants></solution-variants>
+          <div class="sp-content">
+            ${this.renderHero(calc)}
 
-        <system-visualizer></system-visualizer>
+            <system-checks></system-checks>
 
-        <ui-disclosure label="Що споживає найбільше (по зонах)">
-          <div class="system-page__table-wrap">
-            <table class="system-page__table">
-              <thead>
-                <tr>
-                  <th>Зона</th><th>Приладів</th><th>Потужність</th><th>За добу</th><th>Критичне</th>
-                </tr>
-              </thead>
-              <tbody>${this.renderZoneRows()}</tbody>
-            </table>
+            <solution-variants></solution-variants>
+
+            <ui-disclosure label="Схема системи">
+              <system-visualizer></system-visualizer>
+            </ui-disclosure>
+
+            <ui-disclosure label="Конфігуратор батарейного банку">
+              <battery-configurator></battery-configurator>
+            </ui-disclosure>
           </div>
-        </ui-disclosure>
 
-        <ui-disclosure label="Конфігуратор батарейного банку">
-          <battery-configurator></battery-configurator>
-        </ui-disclosure>
-
-        <ui-card padding="md">
-          <section class="system-page__panel">
-            <div class="system-page__panel-head">
-              <h2>Налаштування розрахунку</h2>
-            </div>
-            <system-settings-form></system-settings-form>
-          </section>
-        </ui-card>
-
-      </planner-shell>
+        </div>
+      </div>
     `;
   }
 
@@ -175,11 +186,27 @@ class SystemPage extends BaseElement {
     if (checks)     { checks.items     = this.state.consumers; checks.settings     = this.state.systemSettings; }
 
     if (form) {
+      form.setAttribute('compact', '');
       form.items    = this.state.consumers;
       form.settings = this.state.systemSettings;
       form.syncAutoSelections?.();
       form.addEventListener('system-settings-change', this.handleSettingsChange);
     }
+
+    /* topology click */
+    this.shadowRoot.querySelectorAll('[data-topo]').forEach((el) => {
+      el.addEventListener('click', () => {
+        appStore.setSystemSettings({ ...this.state.systemSettings, topology: el.dataset.topo });
+      });
+    });
+
+    /* generator toggle */
+    this.shadowRoot.querySelector('[data-toggle-gen]')?.addEventListener('click', () => {
+      appStore.setSystemSettings({
+        ...this.state.systemSettings,
+        hasGenerator: !this.state.systemSettings?.hasGenerator,
+      });
+    });
   }
 
   handleSettingsChange = (e) => appStore.setSystemSettings(e.detail.settings);
