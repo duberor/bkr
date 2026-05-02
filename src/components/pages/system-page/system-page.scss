@@ -2,233 +2,193 @@
   display: block;
 }
 
-.system-page__notice {
-  display: grid;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  border: 1px solid rgba($warn20, 0.24);
-  background: rgba($warn20, 0.08);
-  color: rgba($white, 0.86);
+/* ═══════════════════════════════════════
+   PAGE WRAPPER
+═══════════════════════════════════════ */
+.sp-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 100%;
 }
 
-.system-page__notice-link {
-  width: fit-content;
-  padding: 8px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba($warn30, 0.35);
-  color: $white;
-  text-decoration: none;
-}
-
-.system-page__notice-link:hover {
-  background: rgba($warn20, 0.12);
-}
-
-.system-page__detail-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 12px;
-}
-
-.system-page__panel {
-  display: grid;
-  gap: 14px;
-}
-
-.system-page__panel-head {
-  display: grid;
-  gap: 6px;
-}
-
-.system-page__title-row {
+/* ═══════════════════════════════════════
+   TOPBAR — steps + nav
+═══════════════════════════════════════ */
+.sp-topbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.system-page__panel-head h2 {
-  margin: 0;
-  font-size: 19px;
-}
-
-.system-page__bullet-cards {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.system-page__bullet-cards > div {
-  display: grid;
-  gap: 4px;
-  padding: 10px;
-  border-radius: 12px;
-  background: rgba($white, 0.04);
-  border: 1px solid rgba($white, 0.08);
-}
-
-.system-page__bullet-cards span {
-  color: rgba($white, 0.58);
-  font-size: 12px;
-  line-height: 1.35;
-}
-
-.system-page__bullet-cards strong {
-  font-size: 16px;
-}
-
-.system-page__table-wrap {
-  overflow: auto;
-}
-
-.system-page__table {
-  width: 100%;
-  min-width: 620px;
-  border-collapse: collapse;
-}
-
-.system-page__table--configs {
-  min-width: 960px;
-}
-
-.system-page__table th,
-.system-page__table td {
-  padding: 8px 8px;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 20px;
   border-bottom: 1px solid rgba($white, 0.08);
-  text-align: left;
-  vertical-align: top;
+  background: rgba(10, 16, 27, 0.7);
+  backdrop-filter: blur(18px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.system-page__table th {
-  color: rgba($white, 0.58);
-  font-size: 13px;
-}
-
-.system-page__table tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-@media (max-width: 1080px) {
-  .system-page__detail-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .system-page__bullet-cards {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ── hero block ── */
-.system-page__hero {
-  background: linear-gradient(135deg, rgba($info20, 0.1) 0%, rgba($primary80, 0.07) 100%);
-  border: 1px solid rgba($info20, 0.35);
-  border-radius: 16px;
-  padding: 16px 18px;
-  position: relative;
-  overflow: hidden;
-}
-
-.system-page__hero::before {
-  content: '';
-  position: absolute;
-  top: -30px; right: -30px;
-  width: 140px; height: 140px;
-  background: radial-gradient(circle, rgba(255,206,122,0.1) 0%, transparent 65%);
-  pointer-events: none;
-}
-
-.system-page__hero-main {
-  font-size: 16px;
-  font-weight: 500;
-  color: $white;
-  line-height: 1.4;
-  position: relative;
-}
-
-.system-page__hero-sub {
-  font-size: 12px;
-  color: $info30;
-  margin-top: 5px;
-}
-
-.system-page__hero-row {
+.sp-steps {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 4px;
   flex-wrap: wrap;
 }
 
-.system-page__hero-badge {
-  font-size: 11px;
-  padding: 3px 9px;
-  border-radius: 5px;
-  font-weight: 500;
-}
-
-.system-page__hero-badge--ok {
-  background: rgba($success10, 0.2);
-  color: $success20;
-  border: 1px solid rgba($success20, 0.32);
-}
-
-.system-page__hero-badge--warn {
-  background: rgba($warn10, 0.2);
-  color: $warn20;
-  border: 1px solid rgba($warn20, 0.38);
-}
-
-.system-page__hero-link {
-  font-size: 11px;
-  color: $info30;
-  margin-left: auto;
-  text-decoration: none;
-  opacity: 0.8;
-}
-
-.system-page__hero-link:hover { opacity: 1; }
-
-/* ── topology selector ── */
-.system-page__topo-head {
-  display: flex;
+.sp-step {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba($white, 0.08);
+  background: rgba($white, 0.03);
+  color: rgba($white, 0.55);
+  text-decoration: none;
+  font-size: 12px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-.system-page__topo-label {
+.sp-step:hover {
+  color: rgba($white, 0.85);
+  border-color: rgba($white, 0.14);
+}
+
+.sp-step.is-active {
+  border-color: rgba($info20, 0.45);
+  background: rgba($info20, 0.14);
+  color: $info30;
+}
+
+.sp-step__num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sp-step.is-active .sp-step__num {
+  background: $info20;
+  border-color: $info20;
+  color: $white;
+}
+
+.sp-topbar__nav {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sp-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 999px;
   font-size: 13px;
   font-weight: 500;
-  color: rgba($white, 0.9);
+  text-decoration: none;
+  border: 1px solid rgba($white, 0.12);
+  background: rgba($white, 0.04);
+  color: rgba($white, 0.84);
+  transition: background 0.15s, border-color 0.15s;
 }
 
-.system-page__topo-group {
+.sp-nav-btn:hover {
+  background: rgba($white, 0.08);
+  border-color: rgba($white, 0.2);
+}
+
+.sp-nav-btn--prim {
+  background: linear-gradient(180deg, $primary20, $primary30);
+  color: $grey10;
+  border-color: rgba($primary70, 0.42);
+}
+
+.sp-nav-btn--prim:hover {
+  background: linear-gradient(180deg, $primary30, $primary40);
+}
+
+/* ═══════════════════════════════════════
+   TWO-COLUMN LAYOUT
+═══════════════════════════════════════ */
+.sp-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 0;
+  align-items: start;
+  min-height: calc(100vh - 110px);
+}
+
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
+.sp-sidebar {
+  border-right: 1px solid rgba($white, 0.08);
+  padding: 16px 14px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  position: sticky;
+  top: 57px;
+  max-height: calc(100vh - 57px);
+  overflow-y: auto;
+  background: rgba(10, 16, 27, 0.3);
+
+  /* hide scrollbar */
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
-.system-page__topo-opt {
+.sp-sidebar__section {
+  font-size: 10px;
+  color: rgba($white, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 8px 4px 3px;
+}
+
+.sp-sidebar__divider {
+  border-top: 1px solid rgba($white, 0.07);
+  margin: 8px 0;
+}
+
+/* ── Topology ── */
+.sp-topo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sp-topo__opt {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 9px 11px;
-  border: 1px solid rgba($white, 0.08);
-  border-radius: 12px;
+  gap: 8px;
+  padding: 7px 8px;
+  border: 1px solid rgba($white, 0.07);
+  border-radius: 10px;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 }
 
-.system-page__topo-opt:hover { border-color: rgba($white, 0.18); }
+.sp-topo__opt:hover {
+  border-color: rgba($white, 0.15);
+  background: rgba($white, 0.03);
+}
 
-.system-page__topo-opt.is-sel {
-  border-color: rgba($info20, 0.42);
+.sp-topo__opt.is-sel {
+  border-color: rgba($info20, 0.4);
   background: rgba($info20, 0.1);
 }
 
-.system-page__topo-radio {
-  width: 13px;
-  height: 13px;
+.sp-topo__radio {
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   border: 1.5px solid rgba($white, 0.3);
   flex-shrink: 0;
@@ -236,19 +196,215 @@
   transition: background 0.15s, border-color 0.15s;
 }
 
-.system-page__topo-opt.is-sel .system-page__topo-radio {
+.sp-topo__opt.is-sel .sp-topo__radio {
   background: $info20;
   border-color: $info20;
 }
 
-.system-page__topo-main {
-  font-size: 13px;
+.sp-topo__name {
+  font-size: 12px;
   font-weight: 500;
   color: $white;
 }
 
-.system-page__topo-sub {
-  font-size: 11px;
-  color: rgba($white, 0.4);
+.sp-topo__hint {
+  font-size: 10px;
+  color: rgba($white, 0.38);
   margin-top: 1px;
+}
+
+/* ── Generator toggle ── */
+.sp-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: rgba($white, 0.75);
+  user-select: none;
+}
+
+.sp-toggle {
+  width: 28px;
+  height: 16px;
+  border-radius: 8px;
+  background: rgba($white, 0.1);
+  border: 1px solid rgba($white, 0.14);
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.sp-toggle.is-on {
+  background: $success10;
+  border-color: $success10;
+}
+
+.sp-toggle__dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba($white, 0.5);
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: left 0.15s, background 0.15s;
+}
+
+.sp-toggle.is-on .sp-toggle__dot {
+  left: 15px;
+  background: $white;
+}
+
+/* ── settings-form override: compact in sidebar ── */
+system-settings-form {
+  display: block;
+  margin-top: 4px;
+}
+
+/* ═══════════════════════════════════════
+   MAIN CONTENT
+═══════════════════════════════════════ */
+.sp-content {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* ── Notice (no consumers) ── */
+.sp-notice {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba($warn20, 0.24);
+  background: rgba($warn20, 0.07);
+  color: rgba($white, 0.8);
+  font-size: 14px;
+  line-height: 1.6;
+
+  a {
+    color: $info30;
+    text-decoration: none;
+  }
+}
+
+/* ── Hero ── */
+.sp-hero {
+  background: linear-gradient(135deg, rgba($info20, 0.1) 0%, rgba($primary80, 0.06) 100%);
+  border: 1px solid rgba($info20, 0.32);
+  border-radius: 14px;
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sp-hero::before {
+  content: '';
+  position: absolute;
+  top: -28px; right: -28px;
+  width: 130px; height: 130px;
+  background: radial-gradient(circle, rgba(255, 206, 122, 0.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.sp-hero__ans {
+  font-size: 17px;
+  font-weight: 500;
+  color: $white;
+  line-height: 1.4;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sp-hero__eq {
+  color: $info30;
+}
+
+.sp-hero__sub {
+  font-size: 12px;
+  color: rgba($white, 0.55);
+  margin-top: 5px;
+}
+
+.sp-hero__badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.sp-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.sp-badge--ok {
+  background: rgba($success10, 0.2);
+  color: $success20;
+  border: 1px solid rgba($success20, 0.3);
+}
+
+.sp-badge--warn {
+  background: rgba($warn10, 0.2);
+  color: $warn20;
+  border: 1px solid rgba($warn20, 0.35);
+}
+
+.sp-badge--link {
+  color: $info30;
+  background: transparent;
+  border: 1px solid rgba($info20, 0.3);
+  text-decoration: none;
+  margin-left: auto;
+  transition: background 0.15s;
+}
+
+.sp-badge--link:hover {
+  background: rgba($info20, 0.1);
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 960px) {
+  .sp-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sp-sidebar {
+    position: static;
+    border-right: none;
+    border-bottom: 1px solid rgba($white, 0.08);
+    max-height: none;
+    overflow: visible;
+  }
+
+  .sp-topbar {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .sp-topbar__nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sp-steps {
+    gap: 3px;
+  }
+
+  .sp-step span:last-child {
+    display: none;
+  }
 }
