@@ -9,49 +9,30 @@ class SolutionVariants extends BaseElement {
     super();
     this._items = [];
     this._settings = {};
-    this._selectedVariant = null; // локальний стан — не йде через store
+    this._selectedVariant = null;
   }
 
-  styles() {
-    return styles;
-  }
+  styles() { return styles; }
 
-  set items(value) {
-    this._items = Array.isArray(value) ? value : [];
-    if (this.isConnected) this.update();
-  }
+  set items(v)    { this._items    = Array.isArray(v) ? v : []; if (this.isConnected) this.update(); }
+  get items()     { return this._items; }
+  set settings(v) { this._settings = v || {};                    if (this.isConnected) this.update(); }
+  get settings()  { return this._settings; }
 
-  get items() { return this._items; }
-
-  set settings(value) {
-    this._settings = value || {};
-    if (this.isConnected) this.update();
-  }
-
-  get settings() { return this._settings; }
-
-  renderItemBadges(items = []) {
-    if (!items.length) return '<span class="sv-none">—</span>';
-    return items.slice(0, 3).map((i) => `<span class="sv-tag sv-tag--on">${i}</span>`).join('') +
-      (items.length > 3 ? `<span class="sv-tag sv-tag--more">+${items.length - 3}</span>` : '');
-  }
-
-  renderDeferredBadges(items = []) {
-    if (!items.length) return '<span class="sv-none">Усе покривається</span>';
-    return items.slice(0, 3).map((i) => `<span class="sv-tag sv-tag--off">${i}</span>`).join('') +
-      (items.length > 3 ? `<span class="sv-tag sv-tag--more">+${items.length - 3}</span>` : '');
+  renderBadges(items, type) {
+    if (!items.length) return type === 'on'
+      ? '<span class="sv-all-ok">Усе обладнання ✓</span>'
+      : '<span class="sv-none">—</span>';
+    return items.map((i) => `<span class="sv-tag sv-tag--${type}">${i}</span>`).join('');
   }
 
   render() {
     if (!this.items.length) {
       return `
-        <ui-card padding="md">
-          <div class="sv-empty">
-            <p>Додайте прилади, щоб побачити варіанти конфігурації.</p>
-            <a href="#/consumers">Перейти до приладів →</a>
-          </div>
-        </ui-card>
-      `;
+        <div class="sv-wrap sv-wrap--empty">
+          <p>Додайте прилади, щоб побачити варіанти.</p>
+          <a href="#/consumers">Перейти до приладів →</a>
+        </div>`;
     }
 
     const variants = getSolutionVariants(this.items, this.settings);
@@ -60,59 +41,49 @@ class SolutionVariants extends BaseElement {
       || variants[0]?.key;
 
     return `
-      <ui-card padding="md">
-        <div class="sv-head">
-          <p class="sv-eyebrow">Варіанти системи</p>
+      <div class="sv-wrap">
+        <div class="sv-header">
+          <span class="sv-label">ВАРІАНТИ КОНФІГУРАЦІЇ</span>
         </div>
-        <div class="sv-tabs">
-          ${variants.map((v) => `
-            <button class="sv-tab ${activeKey === v.key ? 'is-active' : ''}" data-key="${v.key}">
-              ${v.isRecommended ? '<span class="sv-rec-dot"></span>' : ''}
-              ${v.title}
-            </button>
-          `).join('')}
+        <div class="sv-grid">
+          ${variants.map((v) => {
+            const isActive = activeKey === v.key;
+            return `
+              <div class="sv-card ${isActive ? 'is-active' : ''} ${v.isRecommended ? 'is-rec' : ''}"
+                   data-key="${v.key}">
+                <div class="sv-card__top">
+                  <span class="sv-card__label">${v.title}</span>
+                  ${v.isRecommended ? '<span class="sv-rec-badge">Рекомендовано</span>' : ''}
+                </div>
+                <div class="sv-card__spec">
+                  ${formatPower(v.calc.recommendedInverterPower)} · ${formatBattery(v.calc.recommendedBatteryCapacityAh)}
+                </div>
+                <div class="sv-card__auto">~${formatAutonomy(v.calc.estimatedAutonomyHours)} · ${v.calc.normalizedSettings?.batteryVoltage || 24} В</div>
+                <div class="sv-card__lists">
+                  <div class="sv-card__on">${this.renderBadges(v.activeItems, 'on')}</div>
+                  ${v.deferredItems.length ? `<div class="sv-card__off">${this.renderBadges(v.deferredItems, 'off')}</div>` : ''}
+                </div>
+                <button class="sv-card__buy" data-buy="${v.key}">Список покупок ↗</button>
+              </div>
+            `;
+          }).join('')}
         </div>
-        ${variants.map((v) => `
-          <div class="sv-panel ${activeKey === v.key ? 'is-visible' : 'is-hidden'}" data-panel="${v.key}">
-            <div class="sv-metrics">
-              <div class="sv-metric">
-                <span>Інвертор</span>
-                <strong>${formatPower(v.calc.recommendedInverterPower)}</strong>
-              </div>
-              <div class="sv-metric">
-                <span>АКБ</span>
-                <strong>${formatBattery(v.calc.recommendedBatteryCapacityAh)}</strong>
-              </div>
-              <div class="sv-metric">
-                <span>Автономність</span>
-                <strong>${formatAutonomy(v.calc.estimatedAutonomyHours)}</strong>
-              </div>
-              <div class="sv-metric">
-                <span>Крит. прилади</span>
-                <strong>${formatAutonomy(v.calc.criticalAutonomyHours)}</strong>
-              </div>
-            </div>
-            <div class="sv-lists">
-              <div class="sv-list-row">
-                <span class="sv-list-label">Працюватиме:</span>
-                <div class="sv-tags">${this.renderItemBadges(v.activeItems)}</div>
-              </div>
-              <div class="sv-list-row">
-                <span class="sv-list-label">Відкласти:</span>
-                <div class="sv-tags">${this.renderDeferredBadges(v.deferredItems)}</div>
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </ui-card>
+      </div>
     `;
   }
 
   afterRender() {
-    this.shadowRoot.querySelectorAll('[data-key]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        this._selectedVariant = btn.getAttribute('data-key');
+    this.shadowRoot.querySelectorAll('[data-key]').forEach((card) => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('[data-buy]')) return; // buy button — не міняємо вибір
+        this._selectedVariant = card.getAttribute('data-key');
         this.update();
+      });
+    });
+    this.shadowRoot.querySelectorAll('[data-buy]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // TODO: список покупок
       });
     });
   }
