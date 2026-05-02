@@ -2,6 +2,7 @@ import { BaseElement } from '../../base/base-element.js';
 import '../../ui/ui-card/ui-card.js';
 import '../../ui/ui-disclosure/ui-disclosure.js';
 import '../../features/planner-shell/planner-shell.js';
+import '../../features/scenario-presets/scenario-presets.js';
 import {
   Chart,
   BarController,
@@ -24,7 +25,7 @@ import {
   getHourlyLoadProfile,
   getSystemCalculation,
 } from '../../../utils/consumer-utils.js';
-import { formatPower, formatNumber } from '../../../utils/format.js';
+import { formatPower, formatNumber, formatEnergyWh } from '../../../utils/format.js';
 import styles from './dashboard-page.scss?inline';
 
 Chart.register(
@@ -73,11 +74,18 @@ class DashboardPage extends BaseElement {
   }
 
   renderStatCards(calc) {
+    const dailyWh = this.state.consumers.reduce(
+      (sum, c) => sum + Number(c.power || 0) * Number(c.quantity || 1) * Number(c.hoursPerDay || 0),
+      0,
+    );
+    const surgeWarn = calc.totalSurgePower > 0 && calc.recommendedInverterPower > 0
+      && calc.totalSurgePower > calc.recommendedInverterPower * 0.8;
     return `
       <div class="dashboard__stats">
         <ui-card padding="md"><div class="stat"><span>Приладів у проєкті</span><strong>${formatNumber(this.state.consumers.length)}</strong></div></ui-card>
         <ui-card padding="md"><div class="stat"><span>Сумарна потужність</span><strong>${formatPower(calc.totalPower)}</strong></div></ui-card>
-        <ui-card padding="md"><div class="stat"><span>Пусковий пік</span><strong>${formatPower(calc.totalSurgePower)}</strong></div></ui-card>
+        <ui-card padding="md"><div class="stat ${surgeWarn ? 'stat--warn' : ''}"><span>Пусковий пік</span><strong>${formatPower(calc.totalSurgePower)}</strong></div></ui-card>
+        <ui-card padding="md"><div class="stat"><span>Добова енергія</span><strong>${formatEnergyWh(dailyWh)}</strong></div></ui-card>
       </div>
     `;
   }
@@ -176,7 +184,15 @@ class DashboardPage extends BaseElement {
               <a href="#/consumers" class="dashboard__empty-btn">Додати перший прилад</a>
             </div>
           </ui-card>
+          <scenario-presets></scenario-presets>
         `}
+
+        ${hasConsumers && calc.totalSurgePower > calc.recommendedInverterPower * 0.8 ? `
+          <div class="dashboard__alert dashboard__alert--warn">
+            <span>⚠</span>
+            <span>Пусковий струм (${formatPower(calc.totalSurgePower)}) перевищує 80% розрахункового інвертора — перевірте сумісність перед покупкою</span>
+          </div>
+        ` : ''}
 
         ${this.renderStatCards(calc)}
 
@@ -193,6 +209,12 @@ class DashboardPage extends BaseElement {
 
   afterRender() {
     this.destroyCharts();
+
+    // scenario-presets у empty state
+    const presetsEl = this.shadowRoot.querySelector('scenario-presets');
+    if (presetsEl) {
+      presetsEl.addEventListener('scenario-preset-select', this.handlePresetSelect);
+    }
 
     const categoryCtx = this.shadowRoot.querySelector('[data-chart="category"]');
     const consumersCtx = this.shadowRoot.querySelector('[data-chart="consumers"]');
@@ -295,6 +317,18 @@ class DashboardPage extends BaseElement {
       .querySelector('[data-project-file]')
       ?.addEventListener('change', this.handleProjectImportFile);
   }
+
+  handlePresetSelect = (event) => {
+    const { preset } = event.detail;
+    if (!preset) return;
+    appStore.replaceProject({
+      consumers: preset.consumers || [],
+      zones: preset.zones || [],
+      systemSettings: preset.systemSettings || {},
+      scenario: preset.scenario || {},
+    });
+    location.hash = '#/consumers';
+  };
 
   handleProjectExport = () => {
     const payload = {
