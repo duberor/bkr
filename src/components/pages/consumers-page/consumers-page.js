@@ -1,5 +1,4 @@
 import { BaseElement } from '../../base/base-element.js';
-import '../../features/planner-shell/planner-shell.js';
 import '../../ui/ui-card/ui-card.js';
 import '../../ui/ui-button/ui-button.js';
 import '../../ui/ui-disclosure/ui-disclosure.js';
@@ -10,9 +9,14 @@ import '../../features/consumers/consumers-list/consumers-list.js';
 import '../../features/consumers/consumers-summary/consumers-summary.js';
 import '../../features/consumers/consumer-modal/consumer-modal.js';
 import '../../features/zones/zone-modal/zone-modal.js';
+import '../../features/scenario-presets/scenario-presets.js';
 import { appStore } from '../../../store/app-store.js';
 import { escapeHtml } from '../../../utils/escape.js';
 import { normalizeComparableString } from '../../../utils/number.js';
+import { getSystemCalculation } from '../../../utils/consumer-utils.js';
+import { formatPower, formatEnergyWh } from '../../../utils/format.js';
+import { CONSUMER_CATEGORIES } from '../../../data/consumer-categories.js';
+import { SCENARIO_PRESETS } from '../../../data/scenario-presets.js';
 import styles from './consumers-page.scss?inline';
 
 class ConsumersPage extends BaseElement {
@@ -208,111 +212,291 @@ class ConsumersPage extends BaseElement {
     `;
   }
 
+  /* ── Steps topbar ── */
+  renderSteps() {
+    const steps = [
+      { hash: '#/dashboard', label: 'Огляд',   n: 1 },
+      { hash: '#/consumers', label: 'Прилади', n: 2 },
+      { hash: '#/system',    label: 'Система', n: 3 },
+      { hash: '#/report',    label: 'Звіт',    n: 4 },
+    ];
+    return steps.map(({ hash, label, n }) => `
+      <a class="cp-step ${location.hash === hash ? 'is-active' : ''}" href="${hash}">
+        <span class="cp-step__num">${n}</span>
+        <span>${label}</span>
+      </a>`).join('');
+  }
+
+  /* ── Sidebar ── */
+  renderSidebar() {
+    const categories = CONSUMER_CATEGORIES;
+    const consumers  = this.state.consumers;
+    const allCount   = consumers.length;
+
+    // Категорії з підрахунком
+    const catRows = categories
+      .filter((c) => consumers.some((i) => i.category === c.value))
+      .map((c) => {
+        const cnt = consumers.filter((i) => i.category === c.value).length;
+        return `<div class="cp-sb-item" data-cat-filter="${c.value}">
+          ${escapeHtml(c.label)} <span class="cp-sb-count">${cnt}</span>
+        </div>`;
+      }).join('');
+
+    // Зони
+    const zoneRows = this.state.zones.map((z) => {
+      const cnt = consumers.filter((i) => i.zoneId === z.id).length;
+      return `<div class="cp-sb-item cp-sb-item--zone">
+        <span>${escapeHtml(z.name)}</span>
+        <span class="cp-sb-count">${cnt}</span>
+        <div class="cp-sb-zone-btns">
+          <button class="cp-sb-icon-btn" data-zone-edit="${z.id}" title="Редагувати">✏</button>
+          <button class="cp-sb-icon-btn cp-sb-icon-btn--del" data-zone-remove="${z.id}" title="Видалити">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Пресети
+    const presetRows = SCENARIO_PRESETS.map((p) =>
+      `<div class="cp-sb-item" data-preset-id="${p.id}">${escapeHtml(p.title)}</div>`
+    ).join('');
+
+    return `
+      <aside class="cp-sidebar">
+        <div class="cp-sb-section">Категорії</div>
+        <div class="cp-sb-item ${this.filter === 'all' ? 'is-active' : ''}" data-filter="all">
+          Усі прилади <span class="cp-sb-count">${allCount}</span>
+        </div>
+        <div class="cp-sb-item ${this.filter === 'high' ? 'is-active' : ''}" data-filter="high">
+          Критичні <span class="cp-sb-count">${consumers.filter(c=>c.priority==='high').length}</span>
+        </div>
+        <div class="cp-sb-item ${this.filter === 'medium' ? 'is-active' : ''}" data-filter="medium">
+          Бажані <span class="cp-sb-count">${consumers.filter(c=>c.priority==='medium').length}</span>
+        </div>
+        <div class="cp-sb-item ${this.filter === 'low' ? 'is-active' : ''}" data-filter="low">
+          Необов'язкові <span class="cp-sb-count">${consumers.filter(c=>c.priority==='low').length}</span>
+        </div>
+        ${catRows}
+        <button class="cp-sb-add" data-open-zone-modal>+ Нова категорія</button>
+
+        <div class="cp-sb-divider"></div>
+        <div class="cp-sb-section">Пресети</div>
+        ${presetRows}
+        <button class="cp-sb-add">+ Зберегти свій</button>
+
+        <div class="cp-sb-divider"></div>
+        <div class="cp-sb-section">Зони</div>
+        ${zoneRows || '<div class="cp-sb-empty">Зон ще немає</div>'}
+        <button class="cp-sb-add" data-open-zone-modal>+ Додати зону</button>
+      </aside>
+    `;
+  }
+
+  /* ── Persistent surge alert ── */
+  renderSurgeAlert() {
+    const highSurge = this.state.consumers.find(
+      (c) => c.surgePower && c.surgePower > c.power * 3,
+    );
+    if (!highSurge) return '';
+    return `
+      <div class="cp-alert cp-alert--warn">
+        <span>⚠</span>
+        <span>${escapeHtml(highSurge.name)}: номінал ${highSurge.power} Вт, пусковий струм ${highSurge.surgePower} Вт.
+        Переконайтесь що інвертор витримає пуск.</span>
+      </div>
+    `;
+  }
+
+  /* ── Footer summary ── */
+  renderFooter() {
+    const calc = getSystemCalculation(this.state.consumers, this.state.systemSettings);
+    const surgeTotal = this.state.consumers.reduce(
+      (s, c) => s + Number(c.surgePower || c.power || 0) * Number(c.quantity || 1), 0,
+    );
+    const dailyWh = this.state.consumers.reduce(
+      (s, c) => s + Number(c.power || 0) * Number(c.quantity || 1) * Number(c.hoursPerDay || 0), 0,
+    );
+    return `
+      <div class="cp-footer">
+        <div class="cp-footer__stats">
+          <div class="cp-footer__stat">
+            Разом: <strong>${formatPower(calc.totalPower)}</strong>
+          </div>
+          <div class="cp-footer__stat ${surgeTotal > 1000 ? 'cp-footer__stat--warn' : ''}">
+            Пуск: <strong>${formatPower(surgeTotal)}</strong>
+          </div>
+          <div class="cp-footer__stat">
+            Добова: <strong>${formatEnergyWh(dailyWh)}</strong>
+          </div>
+        </div>
+        <a href="#/system" class="cp-footer__btn">Система →</a>
+      </div>
+    `;
+  }
+
   render() {
     return `
-      <planner-shell
-        step="2"
-        eyebrow="Прилади"
-        title="Що має працювати під час відключення"
-        prev-href="#/dashboard"
-        prev-label="Повернутися до огляду"
-        next-href="#/system"
-        next-label="Перейти до часу роботи"
-      >
-        ${this.renderFeedback()}
-        <consumers-summary></consumers-summary>
-        <consumer-library-picker></consumer-library-picker>
+      <div class="cp-page">
 
-        <div class="consumers-page__layout">
-          <div class="consumers-page__stack">
-            ${this.renderZonesCard()}
-            <ui-card padding="md"><consumer-form></consumer-form></ui-card>
-          </div>
-          <div class="consumers-page__list-wrap">
-            ${this.renderListTools()}
-            <consumers-list></consumers-list>
+        <!-- topbar -->
+        <div class="cp-topbar">
+          <nav class="cp-steps">${this.renderSteps()}</nav>
+          <div class="cp-topbar__actions">
+            <button class="cp-btn cp-btn--ghost" data-project-import>Імпорт</button>
+            <input class="cp-file-input" type="file" accept="application/json,.json" data-project-file />
           </div>
         </div>
 
-        ${this.renderProjectActions()}
+        <!-- layout -->
+        <div class="cp-layout">
+          ${this.renderSidebar()}
 
-        <zone-modal></zone-modal>
+          <div class="cp-content">
+            ${this.renderFeedback()}
+            ${this.renderSurgeAlert()}
+
+            <div class="cp-content__head">
+              <span class="cp-label">СПОЖИВАЧІ</span>
+              <button class="cp-btn cp-btn--secondary" data-open-consumer-library>Вибір зі списку</button>
+            </div>
+
+            <consumers-list></consumers-list>
+
+            <button class="cp-add-btn" data-open-add-form>+ Додати прилад</button>
+
+            ${this.renderFooter()}
+          </div>
+        </div>
+
+        <!-- modals -->
+        <consumer-library-picker></consumer-library-picker>
         <consumer-modal></consumer-modal>
+        <zone-modal></zone-modal>
         <ui-confirm-dialog></ui-confirm-dialog>
-      </planner-shell>
+
+      </div>
     `;
   }
 
   afterRender() {
-    const summary = this.shadowRoot.querySelector('consumers-summary');
-    const form = this.shadowRoot.querySelector('consumer-form');
-    const picker = this.shadowRoot.querySelector('consumer-library-picker');
-    const list = this.shadowRoot.querySelector('consumers-list');
-    const zoneModal = this.shadowRoot.querySelector('zone-modal');
-    const consumerModal = this.shadowRoot.querySelector('consumer-modal');
-    const confirmDialog = this.shadowRoot.querySelector('ui-confirm-dialog');
+    const list         = this.shadowRoot.querySelector('consumers-list');
+    const picker       = this.shadowRoot.querySelector('consumer-library-picker');
+    const zoneModal    = this.shadowRoot.querySelector('zone-modal');
+    const consumerModal= this.shadowRoot.querySelector('consumer-modal');
+    const confirmDialog= this.shadowRoot.querySelector('ui-confirm-dialog');
 
-    summary.items = this.state.consumers;
-    summary.settings = this.state.systemSettings;
-
-    form.zones = this.state.zones;
-    if (this.pendingTemplate) {
-      form.applyTemplate(this.pendingTemplate);
-      this.pendingTemplate = null;
+    if (list) {
+      list.items = this.filteredItems;
+      list.zones = this.state.zones;
+      list.emptyMessage = this.state.consumers.length
+        ? 'Для вибраного фільтру приладів немає.'
+        : 'Додайте перший прилад, щоб побачити список.';
+      list.addEventListener('consumer-remove', this.handleRemove);
+      list.addEventListener('consumer-edit', this.handleOpenConsumerModal);
     }
-    list.items = this.filteredItems;
-    list.zones = this.state.zones;
-    list.emptyMessage = this.state.consumers.length
-      ? 'Для цієї важливості приладів поки немає.'
-      : 'Додайте перший прилад, щоб побачити список, групування по зонах та підсумки.';
 
-    zoneModal.zones = this.state.zones;
-    zoneModal.zone = this.zoneDraft;
-    zoneModal.open = this.isZoneModalOpen;
+    if (picker) {
+      picker.addEventListener('consumer-library-select', this.handleLibrarySelect);
+    }
 
-    consumerModal.zones = this.state.zones;
-    consumerModal.consumer = this.consumerDraft;
-    consumerModal.open = this.isConsumerModalOpen;
+    if (zoneModal) {
+      zoneModal.zones = this.state.zones;
+      zoneModal.zone  = this.zoneDraft;
+      zoneModal.open  = this.isZoneModalOpen;
+      zoneModal.addEventListener('zone-save', this.handleZoneSave);
+      zoneModal.addEventListener('zone-modal-close', this.handleCloseZoneModal);
+      zoneModal.addEventListener('zone-modal-invalid', this.handleInvalid);
+    }
 
-    confirmDialog.title = this.confirmDialog.title;
-    confirmDialog.message = this.confirmDialog.message;
-    confirmDialog.confirmLabel = this.confirmDialog.confirmLabel;
-    confirmDialog.cancelLabel = this.confirmDialog.cancelLabel;
-    confirmDialog.open = this.confirmDialog.open;
+    if (consumerModal) {
+      consumerModal.zones    = this.state.zones;
+      consumerModal.consumer = this.consumerDraft;
+      consumerModal.open     = this.isConsumerModalOpen;
+      consumerModal.addEventListener('consumer-save', this.handleConsumerSave);
+      consumerModal.addEventListener('consumer-modal-close', this.handleCloseConsumerModal);
+      consumerModal.addEventListener('consumer-modal-invalid', this.handleInvalid);
+    }
 
-    form.addEventListener('consumer-add', this.handleAdd);
-    form.addEventListener('consumer-invalid', this.handleInvalid);
-    form.addEventListener('open-zone-modal', this.handleOpenZoneModal);
-    picker?.addEventListener('consumer-library-select', this.handleLibrarySelect);
-    list.addEventListener('consumer-remove', this.handleRemove);
-    list.addEventListener('consumer-edit', this.handleOpenConsumerModal);
+    if (confirmDialog) {
+      confirmDialog.title        = this.confirmDialog.title;
+      confirmDialog.message      = this.confirmDialog.message;
+      confirmDialog.confirmLabel = this.confirmDialog.confirmLabel;
+      confirmDialog.cancelLabel  = this.confirmDialog.cancelLabel;
+      confirmDialog.open         = this.confirmDialog.open;
+      confirmDialog.addEventListener('confirm-dialog-close', this.handleCloseConfirmDialog);
+      confirmDialog.addEventListener('confirm-dialog-confirm', this.handleConfirmDialogConfirm);
+    }
+
+    // Sidebar: фільтр по пріоритету / категорії
+    this.shadowRoot.querySelectorAll('[data-filter]').forEach((btn) =>
+      btn.addEventListener('click', this.handleFilter),
+    );
+
+    // Sidebar: preset click
+    this.shadowRoot.querySelectorAll('[data-preset-id]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const preset = SCENARIO_PRESETS.find((p) => p.id === btn.dataset.presetId);
+        if (!preset) return;
+        appStore.replaceProject({
+          consumers: preset.consumers || [],
+          zones: preset.zones || [],
+          systemSettings: preset.systemSettings || {},
+          scenario: preset.scenario || {},
+        });
+      });
+    });
+
+    // Sidebar: zone edit/remove
+    this.shadowRoot.querySelectorAll('[data-zone-edit]').forEach((btn) =>
+      btn.addEventListener('click', this.handleZoneEdit),
+    );
+    this.shadowRoot.querySelectorAll('[data-zone-remove]').forEach((btn) =>
+      btn.addEventListener('click', this.handleZoneRemove),
+    );
+
+    // Open zone modal
+    this.shadowRoot.querySelectorAll('[data-open-zone-modal]').forEach((btn) =>
+      btn.addEventListener('click', this.handleOpenZoneModal),
+    );
+
+    // Open consumer modal (add)
+    this.shadowRoot.querySelector('[data-open-add-form]')?.addEventListener('click', () => {
+      this.consumerDraft = null;
+      this.isConsumerModalOpen = true;
+      this.update();
+    });
+
+    // Open consumer library picker
+    this.shadowRoot.querySelector('[data-open-consumer-library]')?.addEventListener('click', () => {
+      picker?.open?.();
+    });
+
+    // Import
+    this.shadowRoot.querySelector('[data-project-import]')?.addEventListener('click', () => {
+      this.shadowRoot.querySelector('[data-project-file]')?.click();
+    });
+    this.shadowRoot.querySelector('[data-project-file]')?.addEventListener('change', async (e) => {
+      const file = e.target?.files?.[0];
+      if (!file) return;
+      try {
+        const raw = await file.text();
+        const payload = JSON.parse(raw);
+        const project = payload?.project && typeof payload.project === 'object' ? payload.project : payload;
+        appStore.replaceProject(project);
+        this.setFeedback('Проєкт успішно імпортовано.', 'success');
+      } catch {
+        this.setFeedback('Не вдалося імпортувати файл.', 'error');
+      }
+      e.target.value = '';
+      this.update();
+    });
+
+    // Legacy: clear buttons still in page
     this.shadowRoot.querySelector('.clear-btn')?.addEventListener('ui-click', this.handleClear);
-    this.shadowRoot
-      .querySelector('.clear-all-btn')
-      ?.addEventListener('ui-click', this.handleClearAll);
-    this.shadowRoot
-      .querySelector('.zone-add-btn')
-      ?.addEventListener('ui-click', this.handleOpenZoneModal);
-    this.shadowRoot
-      .querySelectorAll('[data-filter]')
-      .forEach((button) => button.addEventListener('click', this.handleFilter));
-    this.shadowRoot
-      .querySelectorAll('[data-zone-remove]')
-      .forEach((button) => button.addEventListener('click', this.handleZoneRemove));
-    this.shadowRoot
-      .querySelectorAll('[data-zone-edit]')
-      .forEach((button) => button.addEventListener('click', this.handleZoneEdit));
-    this.shadowRoot
-      .querySelectorAll('[data-list-action]')
-      .forEach((button) => button.addEventListener('click', this.handleListAction));
-    zoneModal.addEventListener('zone-save', this.handleZoneSave);
-    zoneModal.addEventListener('zone-modal-close', this.handleCloseZoneModal);
-    zoneModal.addEventListener('zone-modal-invalid', this.handleInvalid);
-    consumerModal.addEventListener('consumer-save', this.handleConsumerSave);
-    consumerModal.addEventListener('consumer-modal-close', this.handleCloseConsumerModal);
-    consumerModal.addEventListener('consumer-modal-invalid', this.handleInvalid);
-    confirmDialog.addEventListener('confirm-dialog-close', this.handleCloseConfirmDialog);
-    confirmDialog.addEventListener('confirm-dialog-confirm', this.handleConfirmDialogConfirm);
+    this.shadowRoot.querySelector('.clear-all-btn')?.addEventListener('ui-click', this.handleClearAll);
+    this.shadowRoot.querySelectorAll('[data-list-action]').forEach((btn) =>
+      btn.addEventListener('click', this.handleListAction),
+    );
   }
 
   setFeedback(message, type = 'info') {
