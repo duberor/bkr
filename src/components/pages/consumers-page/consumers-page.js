@@ -21,7 +21,8 @@ class ConsumersPage extends BaseElement {
   constructor() {
     super();
     this.state = appStore.getState();
-    this.filter = 'all';
+    this.filter = 'all';      // priority filter
+    this.catFilter = null;    // category filter
     this.isZoneModalOpen = false;
     this.zoneDraft = null;
     this.isConsumerModalOpen = false;
@@ -47,8 +48,14 @@ class ConsumersPage extends BaseElement {
   }
 
   get filteredItems() {
-    if (this.filter === 'all') return this.state.consumers;
-    return this.state.consumers.filter((item) => item.priority === this.filter);
+    let items = this.state.consumers;
+    if (this.filter !== 'all') {
+      items = items.filter((item) => item.priority === this.filter);
+    }
+    if (this.catFilter) {
+      items = items.filter((item) => item.category === this.catFilter);
+    }
+    return items;
   }
 
   get hasFilteredConsumers() {
@@ -236,7 +243,8 @@ class ConsumersPage extends BaseElement {
       .filter((c) => consumers.some((i) => i.category === c.value))
       .map((c) => {
         const cnt = consumers.filter((i) => i.category === c.value).length;
-        return `<div class="cp-sb-item" data-cat-filter="${c.value}">
+        const isActive = this.catFilter === c.value;
+        return `<div class="cp-sb-item ${isActive ? 'is-active' : ''}" data-cat-filter="${c.value}">
           ${escapeHtml(c.label)} <span class="cp-sb-count">${cnt}</span>
         </div>`;
       }).join('');
@@ -280,7 +288,7 @@ class ConsumersPage extends BaseElement {
         <div class="cp-sb-divider"></div>
         <div class="cp-sb-section">Пресети</div>
         ${presetRows}
-        <button class="cp-sb-add">+ Зберегти свій</button>
+        <button class="cp-sb-add" data-save-preset>+ Зберегти свій</button>
 
         <div class="cp-sb-divider"></div>
         <div class="cp-sb-section">Зони</div>
@@ -452,6 +460,14 @@ class ConsumersPage extends BaseElement {
       btn.addEventListener('click', this.handleZoneRemove),
     );
 
+    // Sidebar: категорійний фільтр
+    this.shadowRoot.querySelectorAll('[data-cat-filter]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        this.catFilter = btn.dataset.catFilter || null;
+        this.update();
+      });
+    });
+
     // Open zone modal
     this.shadowRoot.querySelectorAll('[data-open-zone-modal]').forEach((btn) =>
       btn.addEventListener('click', this.handleOpenZoneModal),
@@ -464,9 +480,17 @@ class ConsumersPage extends BaseElement {
       this.update();
     });
 
-    // Open consumer library picker
+    // Open consumer library picker — picker рендерить ui-disclosure, відкриваємо першу disclosure
     this.shadowRoot.querySelector('[data-open-consumer-library]')?.addEventListener('click', () => {
-      picker?.open?.();
+      const pickerEl = this.shadowRoot.querySelector('consumer-library-picker');
+      if (!pickerEl) return;
+      const disclosure = pickerEl.shadowRoot?.querySelector('ui-disclosure');
+      if (disclosure) {
+        // ui-disclosure відкривається через click на summary button
+        const summary = disclosure.shadowRoot?.querySelector('button, .disclosure__trigger, summary');
+        summary?.click();
+      }
+      pickerEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
     // Import
@@ -489,7 +513,11 @@ class ConsumersPage extends BaseElement {
       this.update();
     });
 
-    // Legacy: clear buttons still in page
+    // Save custom preset (placeholder — shows feedback)
+    this.shadowRoot.querySelector('[data-save-preset]')?.addEventListener('click', () => {
+      this.setFeedback('Збереження власних пресетів буде у наступній версії.', 'info');
+      this.update();
+    });
     this.shadowRoot.querySelector('.clear-btn')?.addEventListener('ui-click', this.handleClear);
     this.shadowRoot.querySelector('.clear-all-btn')?.addEventListener('ui-click', this.handleClearAll);
     this.shadowRoot.querySelectorAll('[data-list-action]').forEach((btn) =>

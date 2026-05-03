@@ -129,31 +129,12 @@ class DashboardPage extends BaseElement {
   }
 
   renderProjectTools() {
+    if (!this.projectMessage?.text) return '';
     return `
-      <ui-card padding="md">
-        <section class="dashboard__project-card">
-          <div class="dashboard__project-copy">
-            <p class="dashboard__eyebrow">Керування проєктом</p>
-            <h2>Імпорт та експорт</h2>
-          </div>
-          <ui-disclosure label="Керування файлами проєкту">
-            <div class="dashboard__project-tools">
-              <button type="button" class="dashboard__tool-btn" data-project-export>Експорт JSON</button>
-              <button type="button" class="dashboard__tool-btn" data-project-import>Імпорт JSON</button>
-              <input class="dashboard__project-file" type="file" accept="application/json,.json" data-project-file />
-            </div>
-            ${
-              this.projectMessage?.text
-                ? `
-              <div class="dashboard__project-message dashboard__project-message--${this.projectMessage.type || 'info'}" role="status" aria-live="polite">
-                ${this.projectMessage.text}
-              </div>
-            `
-                : ''
-            }
-          </ui-disclosure>
-        </section>
-      </ui-card>
+      <div class="dashboard__project-message dashboard__project-message--${this.projectMessage.type || 'info'}"
+           role="status" aria-live="polite">
+        ${this.projectMessage.text}
+      </div>
     `;
   }
 
