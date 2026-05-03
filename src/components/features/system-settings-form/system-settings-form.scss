@@ -193,3 +193,12 @@
 :host([compact]) .settings-form {
   gap: 10px;
 }
+
+/* BUG-13: hide secondary grid and advanced disclosure in sidebar compact mode */
+:host([compact]) .settings-form__grid:not(.settings-form__grid--primary) {
+  display: none;
+}
+
+:host([compact]) ui-disclosure {
+  display: none;
+}
