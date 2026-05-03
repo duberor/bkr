@@ -146,159 +146,6 @@ class ConsumersPage extends BaseElement {
     `;
   }
 
-  renderListTools() {
-    return `
-      <div class="consumers-page__list-tools">
-        ${
-          this.state.consumers.length
-            ? `
-          <div class="consumers-page__filters">
-            <span class="consumers-page__filters-label">Фільтр списку</span>
-            <div class="chips chips--compact">
-              <button data-filter="all" class="chip ${this.filter === 'all' ? 'is-active' : ''}">Усі</button>
-              <button data-filter="high" class="chip ${this.filter === 'high' ? 'is-active' : ''}">Критично</button>
-              <button data-filter="medium" class="chip ${this.filter === 'medium' ? 'is-active' : ''}">Бажано</button>
-              <button data-filter="low" class="chip ${this.filter === 'low' ? 'is-active' : ''}">Необов’язково</button>
-            </div>
-          </div>
-        `
-            : ''
-        }
-        <div class="consumers-page__cta-row">
-          <button
-            type="button"
-            class="consumers-page__icon-btn"
-            data-list-action="expand-all"
-            aria-label="Розгорнути всі зони"
-            title="Розгорнути всі зони"
-            ${this.state.consumers.length ? '' : 'disabled'}
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M7 6l5 5 5-5" />
-              <path d="M7 13l5 5 5-5" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            class="consumers-page__icon-btn"
-            data-list-action="collapse-all"
-            aria-label="Згорнути всі зони"
-            title="Згорнути всі зони"
-            ${this.state.consumers.length ? '' : 'disabled'}
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M7 11l5-5 5 5" />
-              <path d="M7 18l5-5 5 5" />
-            </svg>
-          </button>
-          <ui-button class="clear-btn" variant="secondary" size="sm" ${this.state.consumers.length ? '' : 'disabled'}>Видалити всі прилади</ui-button>
-        </div>
-      </div>
-    `;
-  }
-
-  renderProjectActions() {
-    return `
-      <ui-card padding="md">
-        <section class="consumers-page__project-actions">
-          <div class="consumers-page__project-actions-head">
-            <div>
-              <p class="page-eyebrow">Проєкт</p>
-              <h2>Керування проєктом</h2>
-            </div>
-          </div>
-          <ui-disclosure label="Небезпечні дії">
-            <div class="consumers-page__project-actions-body">
-              <ui-button class="clear-all-btn" variant="secondary" size="sm">Скинути весь проєкт</ui-button>
-            </div>
-          </ui-disclosure>
-        </section>
-      </ui-card>
-    `;
-  }
-
-  /* ── Steps topbar ── */
-  renderSteps() {
-    const steps = [
-      { hash: '#/dashboard', label: 'Огляд',   n: 1 },
-      { hash: '#/consumers', label: 'Прилади', n: 2 },
-      { hash: '#/system',    label: 'Система', n: 3 },
-      { hash: '#/report',    label: 'Звіт',    n: 4 },
-    ];
-    return steps.map(({ hash, label, n }) => `
-      <a class="cp-step ${location.hash === hash ? 'is-active' : ''}" href="${hash}">
-        <span class="cp-step__num">${n}</span>
-        <span>${label}</span>
-      </a>`).join('');
-  }
-
-  /* ── Sidebar ── */
-  renderSidebar() {
-    const categories = CONSUMER_CATEGORIES;
-    const consumers  = this.state.consumers;
-    const allCount   = consumers.length;
-
-    // Категорії з підрахунком
-    const catRows = categories
-      .filter((c) => consumers.some((i) => i.category === c.value))
-      .map((c) => {
-        const cnt = consumers.filter((i) => i.category === c.value).length;
-        const isActive = this.catFilter === c.value;
-        return `<div class="cp-sb-item ${isActive ? 'is-active' : ''}" data-cat-filter="${c.value}">
-          ${escapeHtml(c.label)} <span class="cp-sb-count">${cnt}</span>
-        </div>`;
-      }).join('');
-
-    // Зони
-    const zoneRows = this.state.zones.map((z) => {
-      const cnt = consumers.filter((i) => i.zoneId === z.id).length;
-      return `<div class="cp-sb-item cp-sb-item--zone">
-        <span>${escapeHtml(z.name)}</span>
-        <span class="cp-sb-count">${cnt}</span>
-        <div class="cp-sb-zone-btns">
-          <button class="cp-sb-icon-btn" data-zone-edit="${z.id}" title="Редагувати">✏</button>
-          <button class="cp-sb-icon-btn cp-sb-icon-btn--del" data-zone-remove="${z.id}" title="Видалити">✕</button>
-        </div>
-      </div>`;
-    }).join('');
-
-    // Пресети
-    const presetRows = SCENARIO_PRESETS.map((p) =>
-      `<div class="cp-sb-item" data-preset-id="${p.id}">${escapeHtml(p.title)}</div>`
-    ).join('');
-
-    return `
-      <aside class="cp-sidebar">
-        <div class="cp-sb-section">Категорії</div>
-        <div class="cp-sb-item ${this.filter === 'all' ? 'is-active' : ''}" data-filter="all">
-          Усі прилади <span class="cp-sb-count">${allCount}</span>
-        </div>
-        <div class="cp-sb-item ${this.filter === 'high' ? 'is-active' : ''}" data-filter="high">
-          Критичні <span class="cp-sb-count">${consumers.filter(c=>c.priority==='high').length}</span>
-        </div>
-        <div class="cp-sb-item ${this.filter === 'medium' ? 'is-active' : ''}" data-filter="medium">
-          Бажані <span class="cp-sb-count">${consumers.filter(c=>c.priority==='medium').length}</span>
-        </div>
-        <div class="cp-sb-item ${this.filter === 'low' ? 'is-active' : ''}" data-filter="low">
-          Необов'язкові <span class="cp-sb-count">${consumers.filter(c=>c.priority==='low').length}</span>
-        </div>
-        ${catRows}
-        <button class="cp-sb-add" data-open-zone-modal>+ Нова категорія</button>
-
-        <div class="cp-sb-divider"></div>
-        <div class="cp-sb-section">Пресети</div>
-        ${presetRows}
-        <button class="cp-sb-add" data-save-preset>+ Зберегти свій</button>
-
-        <div class="cp-sb-divider"></div>
-        <div class="cp-sb-section">Зони</div>
-        ${zoneRows || '<div class="cp-sb-empty">Зон ще немає</div>'}
-        <button class="cp-sb-add" data-open-zone-modal>+ Додати зону</button>
-      </aside>
-    `;
-  }
-
-  /* ── Persistent surge alert ── */
   renderSurgeAlert() {
     const highSurge = this.state.consumers.find(
       (c) => c.surgePower && c.surgePower > c.power * 3,
@@ -480,17 +327,17 @@ class ConsumersPage extends BaseElement {
       this.update();
     });
 
-    // Open consumer library picker — picker рендерить ui-disclosure, відкриваємо першу disclosure
+    // Open consumer library picker — ui-disclosure відкривається через атрибут open
     this.shadowRoot.querySelector('[data-open-consumer-library]')?.addEventListener('click', () => {
       const pickerEl = this.shadowRoot.querySelector('consumer-library-picker');
       if (!pickerEl) return;
+      // Шукаємо ui-disclosure в light DOM picker (picker рендерить у свій shadow DOM)
+      // Але picker живе в shadow DOM consumers-page — тому пробуємо через shadowRoot
       const disclosure = pickerEl.shadowRoot?.querySelector('ui-disclosure');
       if (disclosure) {
-        // ui-disclosure відкривається через click на summary button
-        const summary = disclosure.shadowRoot?.querySelector('button, .disclosure__trigger, summary');
-        summary?.click();
+        disclosure.setAttribute('open', '');
       }
-      pickerEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      pickerEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 
     // Import
@@ -527,6 +374,13 @@ class ConsumersPage extends BaseElement {
 
   setFeedback(message, type = 'info') {
     this.feedback = message ? { message, type } : null;
+    if (this._feedbackTimer) clearTimeout(this._feedbackTimer);
+    if (message && type !== 'error') {
+      this._feedbackTimer = setTimeout(() => {
+        this.feedback = null;
+        this.update();
+      }, 4000);
+    }
   }
 
   handleLibrarySelect = (event) => {

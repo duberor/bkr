@@ -1,5 +1,4 @@
 import { BaseElement } from '../../base/base-element.js';
-import '../../features/planner-shell/planner-shell.js';
 import '../../ui/ui-button/ui-button.js';
 import '../../ui/ui-card/ui-card.js';
 import '../../features/report-sheet/report-sheet.js';

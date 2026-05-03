@@ -62,3 +62,17 @@
   color: rgba($white, 0.86);
   font-size: 11px;
 }
+
+.scenario-presets__hint {
+  font-size: 12px;
+  color: rgba($white, 0.4);
+  margin-top: 2px;
+}
+
+.scenario-presets__count {
+  font-size: 11px;
+  color: rgba($white, 0.4);
+  margin-top: 4px;
+  padding-top: 5px;
+  border-top: 1px solid rgba($white, 0.08);
+}

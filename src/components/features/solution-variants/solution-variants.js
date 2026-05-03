@@ -83,7 +83,7 @@ class SolutionVariants extends BaseElement {
     this.shadowRoot.querySelectorAll('[data-buy]').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        // TODO: список покупок
+        location.hash = '#/report';
       });
     });
   }
