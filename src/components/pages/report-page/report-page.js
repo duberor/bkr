@@ -31,36 +31,39 @@ class ReportPage extends BaseElement {
 
   render() {
     const hasConsumers = this.state.consumers.length > 0;
+    const steps = [
+      { hash: '#/dashboard', label: 'Огляд',   n: 1 },
+      { hash: '#/consumers', label: 'Прилади', n: 2 },
+      { hash: '#/system',    label: 'Система', n: 3 },
+      { hash: '#/report',    label: 'Звіт',    n: 4 },
+    ];
+    const topbar = `
+      <div class="page-topbar">
+        <nav class="page-steps">
+          ${steps.map(({ hash, label, n }) => `
+            <a class="page-step ${location.hash === hash ? 'is-active' : ''}" href="${hash}">
+              <span class="page-step__n">${n}</span><span>${label}</span>
+            </a>`).join('')}
+        </nav>
+        <div class="page-topbar__end">
+          <a href="#/system" class="page-btn">← Система</a>
+          <ui-button class="print-btn" ${hasConsumers ? '' : 'disabled'}>Друк / PDF</ui-button>
+        </div>
+      </div>`;
+
     return `
-      <planner-shell
-        step="5"
-        eyebrow="Звіт"
-        title="Готовий звіт по системі"
-        prev-href="#/system"
-        prev-label="Повернутися до рішення"
-      >
-        <ui-card padding="md">
-          <section class="report-page__toolbar">
-            <div class="report-page__toolbar-copy">
-              <h2>Друк і PDF</h2>
+      <div class="page-wrap">
+        ${topbar}
+        <div class="page-body">
+          ${!hasConsumers ? `
+            <div class="report-page__notice">
+              <span>Щоб сформувати звіт, спочатку додайте прилади до проєкту.</span>
+              <a class="report-page__notice-link" href="#/consumers">Перейти до приладів</a>
             </div>
-            <ui-button class="print-btn" ${hasConsumers ? '' : 'disabled'}>Друк / PDF</ui-button>
-          </section>
-        </ui-card>
-
-        ${
-          hasConsumers
-            ? ''
-            : `
-          <div class="report-page__notice">
-            <span>Щоб сформувати змістовний звіт, спочатку додайте прилади до проєкту.</span>
-            <a class="report-page__notice-link" href="#/consumers">Перейти до приладів</a>
-          </div>
-        `
-        }
-
-        <report-sheet></report-sheet>
-      </planner-shell>
+          ` : ''}
+          <report-sheet></report-sheet>
+        </div>
+      </div>
     `;
   }
 

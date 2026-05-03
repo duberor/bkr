@@ -157,53 +157,72 @@ class DashboardPage extends BaseElement {
     `;
   }
 
+  renderTopbar() {
+    const steps = [
+      { hash: '#/dashboard', label: 'Огляд',   n: 1 },
+      { hash: '#/consumers', label: 'Прилади', n: 2 },
+      { hash: '#/system',    label: 'Система', n: 3 },
+      { hash: '#/report',    label: 'Звіт',    n: 4 },
+    ];
+    return `
+      <div class="page-topbar">
+        <nav class="page-steps">
+          ${steps.map(({ hash, label, n }) => `
+            <a class="page-step ${location.hash === hash ? 'is-active' : ''}" href="${hash}">
+              <span class="page-step__n">${n}</span><span>${label}</span>
+            </a>`).join('')}
+        </nav>
+        <div class="page-topbar__end">
+          <button class="page-btn" data-project-export>Зберегти</button>
+          <button class="page-btn" data-project-import>Завантажити</button>
+          <input class="dashboard__project-file" type="file" accept="application/json,.json" data-project-file />
+        </div>
+      </div>`;
+  }
+
   render() {
     const calc = getSystemCalculation(this.state.consumers, this.state.systemSettings);
     const profileData = getHourlyLoadProfile(this.state.consumers);
-
     const hasConsumers = this.state.consumers.length > 0;
 
     return `
-      <planner-shell
-        step="1"
-        eyebrow="Огляд"
-        title="Поточний стан проєкту"
-        next-href="#/consumers"
-        next-label="${hasConsumers ? 'Перейти до приладів' : 'Додати прилади'}"
-      >
-        ${hasConsumers ? '' : `
-          <ui-card padding="md">
-            <div class="dashboard__empty">
-              <h2>Почніть з приладів</h2>
-              <p>Додайте прилади, які мають працювати при відключенні світла. Система автоматично підбере інвертор та акумулятори.</p>
-              <div class="dashboard__empty-steps">
-                <div class="dashboard__empty-step"><strong>1</strong><span>Додайте прилади</span></div>
-                <div class="dashboard__empty-step"><strong>2</strong><span>Налаштуйте систему</span></div>
-                <div class="dashboard__empty-step"><strong>3</strong><span>Отримайте звіт</span></div>
+      <div class="page-wrap">
+        ${this.renderTopbar()}
+        <div class="page-body">
+          ${hasConsumers ? '' : `
+            <ui-card padding="md">
+              <div class="dashboard__empty">
+                <h2>Почніть з приладів</h2>
+                <p>Додайте прилади, які мають працювати при відключенні світла. Система автоматично підбере інвертор та акумулятори.</p>
+                <div class="dashboard__empty-steps">
+                  <div class="dashboard__empty-step"><strong>1</strong><span>Додайте прилади</span></div>
+                  <div class="dashboard__empty-step"><strong>2</strong><span>Налаштуйте систему</span></div>
+                  <div class="dashboard__empty-step"><strong>3</strong><span>Отримайте звіт</span></div>
+                </div>
+                <a href="#/consumers" class="dashboard__empty-btn">Додати перший прилад</a>
               </div>
-              <a href="#/consumers" class="dashboard__empty-btn">Додати перший прилад</a>
+            </ui-card>
+            <scenario-presets></scenario-presets>
+          `}
+
+          ${hasConsumers && calc.totalSurgePower > calc.recommendedInverterPower * 0.8 ? `
+            <div class="dashboard__alert dashboard__alert--warn">
+              <span>⚠</span>
+              <span>Пусковий струм (${formatPower(calc.totalSurgePower)}) перевищує 80% розрахункового інвертора — перевірте сумісність перед покупкою</span>
             </div>
-          </ui-card>
-          <scenario-presets></scenario-presets>
-        `}
+          ` : ''}
 
-        ${hasConsumers && calc.totalSurgePower > calc.recommendedInverterPower * 0.8 ? `
-          <div class="dashboard__alert dashboard__alert--warn">
-            <span>⚠</span>
-            <span>Пусковий струм (${formatPower(calc.totalSurgePower)}) перевищує 80% розрахункового інвертора — перевірте сумісність перед покупкою</span>
+          ${this.renderStatCards(calc)}
+
+          <div class="dashboard__charts">
+            <ui-card padding="md"><div class="chart-card"><div class="chart-card__head"><h2>На що йде енергія</h2></div><div class="chart-card__canvas-wrap"><canvas data-chart="category"></canvas></div></div></ui-card>
+            <ui-card padding="md"><div class="chart-card"><div class="chart-card__head"><h2>Потужність окремих приладів</h2></div><div class="chart-card__canvas-wrap"><canvas data-chart="consumers"></canvas></div></div></ui-card>
+            <ui-card padding="md" class="chart-card--wide"><div class="chart-card"><div class="chart-card__head"><h2>Навантаження протягом доби</h2></div>${this.renderProfileInfo(profileData)}<div class="chart-card__canvas-wrap chart-card__canvas-wrap--wide"><canvas data-chart="profile"></canvas></div></div></ui-card>
           </div>
-        ` : ''}
 
-        ${this.renderStatCards(calc)}
-
-        <div class="dashboard__charts">
-          <ui-card padding="md"><div class="chart-card"><div class="chart-card__head"><h2>На що йде енергія</h2></div><div class="chart-card__canvas-wrap"><canvas data-chart="category"></canvas></div></div></ui-card>
-          <ui-card padding="md"><div class="chart-card"><div class="chart-card__head"><h2>Потужність окремих приладів</h2></div><div class="chart-card__canvas-wrap"><canvas data-chart="consumers"></canvas></div></div></ui-card>
-          <ui-card padding="md" class="chart-card--wide"><div class="chart-card"><div class="chart-card__head"><h2>Навантаження протягом доби</h2></div>${this.renderProfileInfo(profileData)}<div class="chart-card__canvas-wrap chart-card__canvas-wrap--wide"><canvas data-chart="profile"></canvas></div></div></ui-card>
+          ${this.renderProjectTools()}
         </div>
-
-        ${this.renderProjectTools()}
-      </planner-shell>
+      </div>
     `;
   }
 

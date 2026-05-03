@@ -151,3 +151,8 @@
     width: 100%;
   }
 }
+
+/* Planner-shell тепер сам компенсує padding що прибрали з app-main */
+:host {
+  padding: 18px 20px 22px;
+}

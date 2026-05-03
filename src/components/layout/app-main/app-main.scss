@@ -3,16 +3,10 @@
 }
 
 .main {
-  padding: 18px 20px 22px;
+  padding: 0;
 }
 
 .main__content {
   width: min(1600px, 100%);
   margin: 0 auto;
-}
-
-@media (max-width: 720px) {
-  .main {
-    padding: 14px;
-  }
 }
