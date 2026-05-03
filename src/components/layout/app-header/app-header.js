@@ -64,6 +64,7 @@ class AppHeader extends BaseElement {
 
   render() {
     const calc = getSystemCalculation(this.state.consumers, this.state.systemSettings);
+    const hasConsumers = this.state.consumers.length > 0;
 
     return `
       <header class="header">
@@ -77,6 +78,7 @@ class AppHeader extends BaseElement {
           </div>
         </div>
 
+        ${hasConsumers ? `
         <div class="header__meta">
           <div class="header__stat">
             <span>Потужність приладів</span>
@@ -87,6 +89,7 @@ class AppHeader extends BaseElement {
             <strong>${formatEnergyWh(calc.dailyConsumptionWh)}</strong>
           </div>
         </div>
+        ` : ''}
       </header>
 
       ${this.renderAboutModal()}

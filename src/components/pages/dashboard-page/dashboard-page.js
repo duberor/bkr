@@ -1,7 +1,6 @@
 import { BaseElement } from '../../base/base-element.js';
 import '../../ui/ui-card/ui-card.js';
 import '../../ui/ui-disclosure/ui-disclosure.js';
-import '../../features/planner-shell/planner-shell.js';
 import '../../features/scenario-presets/scenario-presets.js';
 import {
   Chart,
@@ -138,7 +137,7 @@ class DashboardPage extends BaseElement {
     `;
   }
 
-  renderTopbar() {
+  renderTopbar(hasConsumers = false) {
     const steps = [
       { hash: '#/dashboard', label: 'Огляд',   n: 1 },
       { hash: '#/consumers', label: 'Прилади', n: 2 },
@@ -154,8 +153,8 @@ class DashboardPage extends BaseElement {
             </a>`).join('')}
         </nav>
         <div class="page-topbar__end">
-          <button class="page-btn" data-project-export>Зберегти</button>
-          <button class="page-btn" data-project-import>Завантажити</button>
+          ${hasConsumers ? `<button class="page-btn" data-project-export title="Зберегти проєкт як файл .json на ПК">Експорт .json</button>` : ''}
+          <button class="page-btn" data-project-import title="Завантажити раніше збережений файл .json">Імпорт .json</button>
           <input class="dashboard__project-file" type="file" accept="application/json,.json" data-project-file />
         </div>
       </div>`;
@@ -168,7 +167,7 @@ class DashboardPage extends BaseElement {
 
     return `
       <div class="page-wrap">
-        ${this.renderTopbar()}
+        ${this.renderTopbar(hasConsumers)}
         <div class="page-body">
           ${hasConsumers ? '' : `
             <ui-card padding="md">
@@ -193,13 +192,15 @@ class DashboardPage extends BaseElement {
             </div>
           ` : ''}
 
-          ${this.renderStatCards(calc)}
+          ${hasConsumers ? this.renderStatCards(calc) : ''}
 
+          ${hasConsumers ? `
           <div class="dashboard__charts">
             <ui-card padding="md"><div class="chart-card"><div class="chart-card__head"><h2>На що йде енергія</h2></div><div class="chart-card__canvas-wrap"><canvas data-chart="category"></canvas></div></div></ui-card>
             <ui-card padding="md"><div class="chart-card"><div class="chart-card__head"><h2>Потужність окремих приладів</h2></div><div class="chart-card__canvas-wrap"><canvas data-chart="consumers"></canvas></div></div></ui-card>
             <ui-card padding="md" class="chart-card--wide"><div class="chart-card"><div class="chart-card__head"><h2>Навантаження протягом доби</h2></div>${this.renderProfileInfo(profileData)}<div class="chart-card__canvas-wrap chart-card__canvas-wrap--wide"><canvas data-chart="profile"></canvas></div></div></ui-card>
           </div>
+          ` : ''}
 
           ${this.renderProjectTools()}
         </div>

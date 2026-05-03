@@ -79,7 +79,10 @@ class SystemPage extends BaseElement {
       ? `${(inverterW / 1000).toFixed(inverterW % 1000 === 0 ? 0 : 1)} кВт`
       : `${inverterW} Вт`;
     const autoMain   = formatAutonomy(calc.estimatedAutonomyHours);
-    const autoCrit   = formatAutonomy(calc.criticalAutonomyHours);
+
+    // BUG-24: не показуємо "критичні: 0 год" якщо немає критичних приладів
+    const hasCritical = (this.state.consumers || []).some((c) => c.priority === 'high');
+    const autoCrit = hasCritical ? formatAutonomy(calc.criticalAutonomyHours) : null;
 
     const hasWarn = calc.startupCoverageRatio < 1 || calc.inverterHeadroomPercent < 0.15;
     const warnCount = [
@@ -87,14 +90,17 @@ class SystemPage extends BaseElement {
       calc.inverterHeadroomPercent < 0.15,
     ].filter(Boolean).length;
 
+    // BUG-04: не показуємо "— акум. по 0 Аг" якщо дані недоступні
+    const batStr = batAh > 0
+      ? `${batCount} акум. по ${batAh} Аг`
+      : formatBattery(calc.recommendedBatteryCapacityAh);
+
     return `
       <div class="sp-hero">
         <div class="sp-hero__main">
-          Інвертор ${inverterStr} + ${batCount} акум. по ${batAh} Аг = ${autoMain}
+          Інвертор ${inverterStr} + ${batStr} = ${autoMain}
         </div>
-        <div class="sp-hero__sub">
-          Тільки критичні прилади: ${autoCrit}
-        </div>
+        ${autoCrit ? `<div class="sp-hero__sub">Тільки критичні прилади: ${autoCrit}</div>` : ''}
         <div class="sp-hero__badges">
           <span class="sp-badge sp-badge--${hasWarn ? 'warn' : 'ok'}">
             ${hasWarn ? `⚠ ${warnCount} попередження` : '✓ Параметри в нормі'}
