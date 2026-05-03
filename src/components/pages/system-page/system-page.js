@@ -69,14 +69,20 @@ class SystemPage extends BaseElement {
         <a href="#/consumers">додайте прилади</a>.
       </div>`;
 
-    const best = calc.recommendedBatteryConfigs?.[0];
-    const batCount   = best?.totalBatteries || '?';
-    const batAh      = best ? Math.round((best.bankCapacityAh || 0) / (best.totalBatteries || 1)) : 0;
-    const inverterKw = (calc.recommendedInverterPower / 1000).toFixed(0);
+    const best       = calc.recommendedBatteryConfigs?.[0];
+    const batCount   = best?.totalBatteries ?? '—';
+    const batAh      = best?.totalBatteries
+      ? Math.round((best.bankCapacityAh || 0) / best.totalBatteries)
+      : Math.round(calc.recommendedBatteryCapacityAh || 0);
+    const inverterW  = calc.recommendedInverterPower || 0;
+    const inverterStr = inverterW >= 1000
+      ? `${(inverterW / 1000).toFixed(inverterW % 1000 === 0 ? 0 : 1)} кВт`
+      : `${inverterW} Вт`;
     const autoMain   = formatAutonomy(calc.estimatedAutonomyHours);
     const autoCrit   = formatAutonomy(calc.criticalAutonomyHours);
 
-    const warnCount  = [
+    const hasWarn = calc.startupCoverageRatio < 1 || calc.inverterHeadroomPercent < 0.15;
+    const warnCount = [
       calc.startupCoverageRatio < 1,
       calc.inverterHeadroomPercent < 0.15,
     ].filter(Boolean).length;
@@ -84,17 +90,16 @@ class SystemPage extends BaseElement {
     return `
       <div class="sp-hero">
         <div class="sp-hero__main">
-          Інвертор ${inverterKw} кВт + ${batCount} акумулятори по ${batAh} Аг = ${autoMain}
+          Інвертор ${inverterStr} + ${batCount} акум. по ${batAh} Аг = ${autoMain}
         </div>
         <div class="sp-hero__sub">
-          Тільки критичні (котел + насос): ${autoCrit}
+          Тільки критичні прилади: ${autoCrit}
         </div>
         <div class="sp-hero__badges">
-          <span class="sp-badge sp-badge--ok">Потужність ОК</span>
-          ${warnCount > 0
-            ? `<span class="sp-badge sp-badge--warn">${warnCount} попередження</span>`
-            : ''}
-          <a href="#/report" class="sp-badge sp-badge--link">Схема ↗</a>
+          <span class="sp-badge sp-badge--${hasWarn ? 'warn' : 'ok'}">
+            ${hasWarn ? `⚠ ${warnCount} попередження` : '✓ Параметри в нормі'}
+          </span>
+          <a href="#/report" class="sp-badge sp-badge--link">Звіт →</a>
         </div>
       </div>
     `;
