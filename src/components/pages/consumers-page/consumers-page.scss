@@ -299,3 +299,41 @@
   .cp-layout { grid-template-columns: 1fr; }
   .cp-sidebar { position: static; border-right: none; border-bottom: 1px solid rgba($white, 0.08); max-height: none; }
 }
+
+/* BUG-07: filter reset button */
+.cp-sb-reset {
+  float: right;
+  font-size: 10px;
+  background: transparent;
+  border: none;
+  color: $info30;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  &:hover { opacity: 0.7; }
+}
+
+/* cp-step — shared with page-step but scoped */
+.cp-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba($white, 0.08);
+  background: rgba($white, 0.03);
+  color: rgba($white, 0.45);
+  text-decoration: none;
+  font-size: 12px;
+  transition: all 0.15s;
+  &:hover { color: rgba($white, 0.8); border-color: rgba($white, 0.14); }
+  &.is-active { border-color: rgba($info20, 0.45); background: rgba($info20, 0.14); color: $info30; }
+}
+
+.cp-step__num {
+  width: 17px; height: 17px; border-radius: 50%;
+  border: 1px solid currentColor;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; flex-shrink: 0;
+}
+.cp-step.is-active .cp-step__num { background: $info20; border-color: $info20; color: $white; }

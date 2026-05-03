@@ -146,16 +146,102 @@ class ConsumersPage extends BaseElement {
     `;
   }
 
+  renderSteps() {
+    const steps = [
+      { hash: '#/dashboard', label: 'Огляд',   n: 1 },
+      { hash: '#/consumers', label: 'Прилади', n: 2 },
+      { hash: '#/system',    label: 'Система', n: 3 },
+      { hash: '#/report',    label: 'Звіт',    n: 4 },
+    ];
+    return steps.map(({ hash, label, n }) => `
+      <a class="cp-step ${location.hash === hash ? 'is-active' : ''}" href="${hash}">
+        <span class="cp-step__num">${n}</span><span>${label}</span>
+      </a>`).join('');
+  }
+
+  renderSidebar() {
+    const consumers  = this.state.consumers;
+    const allCount   = consumers.length;
+    const isFiltered = this.filter !== 'all' || this.catFilter !== null;
+
+    // Категорії з підрахунком (тільки ті що є в поточних приладах)
+    const catRows = CONSUMER_CATEGORIES
+      .filter((c) => consumers.some((i) => i.category === c.value))
+      .map((c) => {
+        const cnt = consumers.filter((i) => i.category === c.value).length;
+        const isActive = this.catFilter === c.value;
+        return `<div class="cp-sb-item ${isActive ? 'is-active' : ''}" data-cat-filter="${c.value}">
+          ${escapeHtml(c.label)} <span class="cp-sb-count">${cnt}</span>
+        </div>`;
+      }).join('');
+
+    // Зони
+    const zoneRows = this.state.zones.map((z) => {
+      const cnt = consumers.filter((i) => i.zoneId === z.id).length;
+      return `<div class="cp-sb-item cp-sb-item--zone">
+        <span>${escapeHtml(z.name)}</span>
+        <span class="cp-sb-count">${cnt}</span>
+        <div class="cp-sb-zone-btns">
+          <button class="cp-sb-icon-btn" data-zone-edit="${z.id}" title="Редагувати">✏</button>
+          <button class="cp-sb-icon-btn cp-sb-icon-btn--del" data-zone-remove="${z.id}" title="Видалити">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Пресети
+    const presetRows = SCENARIO_PRESETS.map((p) =>
+      `<div class="cp-sb-item" data-preset-id="${p.id}">${escapeHtml(p.title)}</div>`
+    ).join('');
+
+    return `
+      <aside class="cp-sidebar">
+        <div class="cp-sb-section">
+          Фільтр
+          ${isFiltered ? `<button class="cp-sb-reset" data-reset-filters>× Скинути</button>` : ''}
+        </div>
+        <div class="cp-sb-item ${this.filter === 'all' && !this.catFilter ? 'is-active' : ''}" data-filter="all">
+          Усі прилади <span class="cp-sb-count">${allCount}</span>
+        </div>
+        <div class="cp-sb-item ${this.filter === 'high' ? 'is-active' : ''}" data-filter="high">
+          Критичні <span class="cp-sb-count">${consumers.filter(c=>c.priority==='high').length}</span>
+        </div>
+        <div class="cp-sb-item ${this.filter === 'medium' ? 'is-active' : ''}" data-filter="medium">
+          Бажані <span class="cp-sb-count">${consumers.filter(c=>c.priority==='medium').length}</span>
+        </div>
+        <div class="cp-sb-item ${this.filter === 'low' ? 'is-active' : ''}" data-filter="low">
+          Необов'язкові <span class="cp-sb-count">${consumers.filter(c=>c.priority==='low').length}</span>
+        </div>
+        ${catRows}
+        <button class="cp-sb-add" data-open-zone-modal>+ Нова зона</button>
+
+        <div class="cp-sb-divider"></div>
+        <div class="cp-sb-section">Пресети</div>
+        ${presetRows}
+        <button class="cp-sb-add" data-save-preset>+ Зберегти свій</button>
+
+        <div class="cp-sb-divider"></div>
+        <div class="cp-sb-section">Зони</div>
+        ${zoneRows || '<div class="cp-sb-empty">Зон ще немає</div>'}
+        <button class="cp-sb-add" data-open-zone-modal>+ Додати зону</button>
+      </aside>
+    `;
+  }
+
   renderSurgeAlert() {
-    const highSurge = this.state.consumers.find(
-      (c) => c.surgePower && c.surgePower > c.power * 3,
+    // Показуємо всіх з пусковим струмом — незалежно від співвідношення
+    const surgeConsumers = this.state.consumers.filter(
+      (c) => c.surgePower && Number(c.surgePower) > 0,
     );
-    if (!highSurge) return '';
+    if (!surgeConsumers.length) return '';
+
+    const items = surgeConsumers
+      .map((c) => `${escapeHtml(c.name)}: ${c.power} Вт → ${c.surgePower} Вт пуск`)
+      .join('; ');
+
     return `
       <div class="cp-alert cp-alert--warn">
         <span>⚠</span>
-        <span>${escapeHtml(highSurge.name)}: номінал ${highSurge.power} Вт, пусковий струм ${highSurge.surgePower} Вт.
-        Переконайтесь що інвертор витримає пуск.</span>
+        <span>Пусковий струм: ${items}. Переконайтесь що інвертор витримає пуск.</span>
       </div>
     `;
   }
@@ -311,8 +397,16 @@ class ConsumersPage extends BaseElement {
     this.shadowRoot.querySelectorAll('[data-cat-filter]').forEach((btn) => {
       btn.addEventListener('click', () => {
         this.catFilter = btn.dataset.catFilter || null;
+        this.filter = 'all'; // скидаємо пріоритетний фільтр при виборі категорії
         this.update();
       });
+    });
+
+    // Скинути всі фільтри
+    this.shadowRoot.querySelector('[data-reset-filters]')?.addEventListener('click', () => {
+      this.filter = 'all';
+      this.catFilter = null;
+      this.update();
     });
 
     // Open zone modal
@@ -472,6 +566,7 @@ class ConsumersPage extends BaseElement {
 
   handleFilter = (event) => {
     this.filter = event.currentTarget.dataset.filter;
+    this.catFilter = null; // скидаємо категорійний фільтр при виборі пріоритету
     this.setFeedback(
       this.hasFilteredConsumers ? '' : 'Для вибраної важливості приладів поки немає.',
       'info',
