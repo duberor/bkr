@@ -188,13 +188,31 @@ export function normalizeConsumer(raw) {
   };
 }
 
-export function getTotalPower(consumers = []) {
+/**
+ * Формула 2.1 — Сумарна розрахункова потужність навантаження
+ * P_Σ = Ko · Σ(Pi · ni) [Вт]
+ *
+ * Ko — коефіцієнт одночасності (для побутових систем Ko = 1.0)
+ * Pi — номінальна потужність i-го споживача, Вт
+ * ni — кількість одиниць i-го споживача
+ *
+ * @param {Array} consumers — масив споживачів
+ * @param {number} simultaneityFactor — коефіцієнт одночасності Ko (0.6–1.0, default 1.0)
+ */
+export function getTotalPower(consumers = [], simultaneityFactor = 1.0) {
   return consumers.reduce(
     (sum, item) => sum + Number(item.power || 0) * Number(item.quantity || 0),
     0,
-  );
+  ) * simultaneityFactor;
 }
 
+/**
+ * Формула 2.5а — Пускова потужність системи
+ * P_пуск = P_розр + max_i{(Pi_пуск − Pi) · ni} [Вт]
+ *
+ * При одночасній роботі всіх приладів найгірший сценарій —
+ * запуск одного індуктивного навантаження з найбільшою дельтою пуску.
+ */
 export function getTotalSurgePower(consumers = []) {
   const designLoadPower = getDesignLoadPower(consumers);
   const additionalStartupDelta = consumers.reduce((max, item) => {
@@ -207,6 +225,12 @@ export function getTotalSurgePower(consumers = []) {
   return Number((designLoadPower + additionalStartupDelta).toFixed(2));
 }
 
+/**
+ * Формула 2.2 — Добове енергоспоживання
+ * W_доб = Σ(Pi · ni · ti) [Вт·год]
+ *
+ * Pi — потужність, ni — кількість, ti — годин роботи на добу
+ */
 export function getDailyConsumptionWh(consumers = []) {
   return Number(
     consumers
@@ -248,6 +272,16 @@ export function getDesignLoadPower(consumers = [], settings = {}) {
   return getPeakScheduledLoadPower(consumers);
 }
 
+/**
+ * Формула 2.5 — Розрахункова потужність інвертора
+ * P_інв = max(P_розр · K_з_інв, P_пуск) [Вт]
+ *
+ * P_розр — пікове навантаження за добовим профілем (формула 2.1а)
+ * K_з_інв — коефіцієнт запасу потужності інвертора (1.2–1.3)
+ * P_пуск — пускова потужність (формула 2.5а)
+ *
+ * Результат округлюється до стандартного ряду інверторів.
+ */
 export function getRecommendedInverterPower(consumers = [], reserveRatio = 1.2) {
   if (!consumers.length) return 0;
 
@@ -258,20 +292,50 @@ export function getRecommendedInverterPower(consumers = [], reserveRatio = 1.2) 
   return inverterOptions.find((value) => value >= target) || Math.ceil(target / 500) * 500;
 }
 
+/**
+ * Формула 2.3 — Необхідна енергія від акумуляторного банку
+ * W_АКБ = (W_доб · τ) / (24 · η_інв) · K_з [Вт·год]
+ *
+ * W_доб — добове споживання, τ — час автономності (год),
+ * η_інв — ККД інвертора (0.85–0.95), K_з — коефіцієнт запасу (1.1–1.25)
+ *
+ * Джерело: IEEE Std 485-2020, Oregon State ESE 471 Battery Sizing
+ */
+export function getRequiredBatteryEnergyWh(consumers = [], settings = {}) {
+  const normalized = normalizeSystemSettings(settings);
+  const dailyConsumptionWh = getDailyConsumptionWh(consumers);
+  const requiredEnergyWh = dailyConsumptionWh * (normalized.targetAutonomyHours / 24);
+  return (requiredEnergyWh / normalized.inverterEfficiency) * normalized.batteryReserveRatio;
+}
+
+/**
+ * Формула 2.4 — Мінімальна ємність акумуляторного банку
+ * C_АКБ = W_АКБ / (U_сист · DOD) [А·год]
+ *
+ * W_АКБ — з формули 2.3 (вже враховує η_інв),
+ * U_сист — напруга системи (В), DOD — глибина розряду
+ *
+ * DOD: AGM=0.50, GEL=0.55, LiFePO4=0.80
+ * Джерело: IEEE Std 485-2020
+ */
 export function getRecommendedBatteryCapacityAh(consumers = [], settings = {}) {
   if (!consumers.length) return 0;
 
   const normalized = normalizeSystemSettings(settings);
-  const requiredEnergyWh = getDailyConsumptionWh(consumers) * (normalized.targetAutonomyHours / 24);
-  const designEnergyWh = requiredEnergyWh * normalized.batteryReserveRatio;
+  const batteryEnergyWh = getRequiredBatteryEnergyWh(consumers, normalized);
   const dod = getDepthOfDischargeByBatteryType(normalized.batteryType);
 
-  if (!normalized.batteryVoltage || !normalized.inverterEfficiency || !dod) return 0;
-  return Math.ceil(
-    designEnergyWh / (normalized.batteryVoltage * normalized.inverterEfficiency * dod),
-  );
+  if (!normalized.batteryVoltage || !dod) return 0;
+  return Math.ceil(batteryEnergyWh / (normalized.batteryVoltage * dod));
 }
 
+/**
+ * Формула 2.6 — Корисна енергія акумуляторного банку
+ * W_корисна = C_АКБ · U_сист · DOD · η_інв [Вт·год]
+ *
+ * Це та частина запасеної енергії, яку реально отримають прилади
+ * після втрат на перетворення (η) і обмеження глибини розряду (DOD).
+ */
 export function getUsableStoredEnergyWh(totalStoredWh, settings = {}) {
   const normalized = normalizeSystemSettings(settings);
   const dod = getDepthOfDischargeByBatteryType(normalized.batteryType);
@@ -284,17 +348,34 @@ export function getUsableEnergyWhFromBatteryAh(capacityAh, settings = {}) {
   return getUsableStoredEnergyWh(totalStoredWh, normalized);
 }
 
+/**
+ * Автономність при постійному навантаженні (гірший випадок)
+ * τ_конт = W_корисна / P_розр [год]
+ */
 export function getEstimatedAutonomyHours(usableEnergyWh = 0, loadPower = 0) {
   if (!usableEnergyWh || !loadPower) return 0;
   return Number((usableEnergyWh / Math.max(loadPower, 1)).toFixed(2));
 }
 
+/**
+ * Формула 2.7 — Автономність за добовим профілем
+ * τ_авт = W_корисна / (W_доб / 24) = 24 · W_корисна / W_доб [год]
+ *
+ * Використовує середню потужність (W_доб/24) замість пікової —
+ * дає реалістичнішу оцінку для нерівномірного навантаження.
+ */
 export function getAutonomyHoursByDailyConsumption(usableEnergyWh = 0, dailyConsumptionWh = 0) {
   if (!usableEnergyWh || !dailyConsumptionWh) return 0;
   const averageLoadPower = Number(dailyConsumptionWh || 0) / 24;
   return getEstimatedAutonomyHours(usableEnergyWh, averageLoadPower);
 }
 
+/**
+ * Формула 2.9 — Рекомендований струм заряду АКБ
+ * I_зар = C_н · K_зар [А]
+ *
+ * K_зар: AGM=0.12, GEL=0.10, LiFePO4=0.20
+ */
 export function getRecommendedChargeCurrentA(capacityAh = 0, batteryType = 'lifepo4') {
   if (!capacityAh) return 0;
   const rate = getChargeRateByBatteryType(batteryType);
@@ -345,6 +426,15 @@ export function getHourlyLoadProfile(consumers = []) {
   return hours.map((entry) => ({ ...entry, value: Number(entry.value.toFixed(2)) }));
 }
 
+/**
+ * Формула 2.1а — Пікове навантаження за добовим профілем
+ * P_розр = max(h=0..23) Σ(Pi · ni · w_i,h) [Вт]
+ *
+ * w_i,h — вагова функція профілю використання i-го споживача для години h.
+ * Профілі: always (24/7), day, evening, night, office.
+ *
+ * Точніша за формулу 2.1 — враховує що не всі прилади працюють одночасно.
+ */
 export function getPeakScheduledLoadPower(consumers = []) {
   const hourlyLoads = Array.from({ length: 24 }, () => 0);
 
@@ -510,6 +600,15 @@ export function getTopDrivers(consumers = [], settings = {}) {
   return drivers.slice(0, 4);
 }
 
+/**
+ * Формула 2.8 — Конфігурація акумуляторного банку
+ * n_посл = ⌈U_сист / U_мод⌉ — послідовні модулі (набирають напругу)
+ * n_пар  = ⌈C_АКБ / C_мод⌉ — паралельні модулі (набирають ємність)
+ * N_бат  = n_посл · n_пар   — загальна кількість акумуляторів
+ *
+ * Конфігурації ранжуються за fitScore = |C_мод·n_пар − C_АКБ|
+ * (чим менший — тим ближче до розрахункової ємності).
+ */
 export function getBatteryConfigurationOptions(consumers = [], settings = {}) {
   const normalized = normalizeSystemSettings(settings);
   const requiredAh = getRecommendedBatteryCapacityAh(consumers, normalized);
