@@ -576,8 +576,59 @@
   }
 
   .report-sheet__sv-label,
-  .report-sheet__sv-auto {
+  .report-sheet__sv-auto,
+  .report-sheet__sv-bank,
+  .report-sheet__sv-note,
+  .report-sheet__sv-reason {
     color: #555 !important;
+  }
+
+  .report-sheet__sv-spec {
+    color: #111 !important;
+  }
+
+  .report-sheet__sv-strategy {
+    color: #2563eb !important;
+  }
+
+  .report-sheet__summary-text,
+  .report-sheet__text-muted {
+    color: #333 !important;
+  }
+
+  .report-sheet__sv-card.is-rec {
+    background: #f1faf3 !important;
+    border-color: #b9e3c4 !important;
+  }
+
+  .report-sheet__sv-rec {
+    background: #e3f5e8 !important;
+    color: #1f7a3a !important;
+    border-color: #b9e3c4 !important;
+  }
+
+  .report-sheet__tag--key {
+    color: #1f7a3a !important;
+    background: #e3f5e8 !important;
+    border-color: #b9e3c4 !important;
+  }
+
+  .report-sheet__tag--info {
+    color: #333 !important;
+    background: #f0f0f0 !important;
+    border-color: #ddd !important;
+  }
+
+  .report-sheet__sv-tag--on {
+    color: #1f7a3a !important;
+    background: #e8f5ec !important;
+    border-color: #b9e3c4 !important;
+  }
+
+  .report-sheet__sv-tag--off {
+    color: #b04040 !important;
+    background: #fbeaea !important;
+    border-color: #e9bdbd !important;
   }
 
   .report-sheet__head {
