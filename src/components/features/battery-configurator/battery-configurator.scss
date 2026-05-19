@@ -1,0 +1,229 @@
+:host {
+  display: block;
+}
+.battery-configurator {
+  display: grid;
+  gap: 14px;
+}
+.battery-configurator__head {
+  display: grid;
+  gap: 4px;
+}
+.battery-configurator__eyebrow {
+  color: $info30;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+}
+.battery-configurator__lead {
+  color: rgba($white, 0.6);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.battery-configurator__summary--secondary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.battery-configurator__summary--secondary div {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba($white, 0.08);
+  background: rgba($white, 0.03);
+}
+.battery-configurator__summary--secondary span {
+  font-size: 11px;
+  color: rgba($white, 0.55);
+}
+.battery-configurator__summary--secondary strong {
+  font-size: 14px;
+}
+
+.battery-configurator__options-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.battery-option {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba($white, 0.08);
+  background: rgba($white, 0.04);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.battery-option:hover {
+  border-color: rgba($white, 0.22);
+  transform: translateY(-1px);
+}
+.battery-option.is-primary {
+  border-color: rgba($success20, 0.45);
+  background: rgba($success20, 0.07);
+}
+.battery-option.is-selected {
+  border-color: rgba($info20, 0.6);
+  box-shadow: inset 0 0 0 1px rgba($info20, 0.4);
+}
+
+.battery-option__top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-height: 22px;
+}
+.battery-option__tier,
+.battery-option__rec,
+.battery-option__selected {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.battery-option__tier--budget {
+  background: rgba($white, 0.06);
+  color: rgba($white, 0.7);
+  border: 1px solid rgba($white, 0.1);
+}
+.battery-option__tier--mid {
+  background: rgba($success20, 0.14);
+  color: $success20;
+  border: 1px solid rgba($success20, 0.35);
+}
+.battery-option__tier--premium {
+  background: rgba($warn30, 0.14);
+  color: $warn30;
+  border: 1px solid rgba($warn30, 0.35);
+}
+.battery-option__rec {
+  background: rgba($info20, 0.14);
+  color: $info30;
+  border: 1px solid rgba($info20, 0.35);
+}
+.battery-option__selected {
+  margin-left: auto;
+  background: rgba($info20, 0.2);
+  color: $info30;
+  border: 1px solid rgba($info20, 0.5);
+}
+
+.battery-option__hero {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: center;
+}
+.battery-option__count {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba($black, 0.25);
+  text-align: center;
+  min-width: 80px;
+}
+.battery-option__count strong {
+  display: block;
+  font-size: 28px;
+  line-height: 1;
+}
+.battery-option__count span {
+  font-size: 11px;
+  color: rgba($white, 0.6);
+  letter-spacing: 0.02em;
+}
+.battery-option__runtime {
+  display: grid;
+  gap: 2px;
+}
+.battery-option__runtime strong {
+  font-size: 20px;
+  line-height: 1.1;
+}
+.battery-option__runtime span {
+  font-size: 12px;
+  color: rgba($white, 0.6);
+  line-height: 1.35;
+}
+
+.battery-option__bullets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.battery-option__bullets li {
+  padding-left: 18px;
+  position: relative;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba($white, 0.78);
+}
+.battery-option__bullets li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: $success20;
+  font-size: 11px;
+}
+
+.battery-option__details {
+  margin-top: 2px;
+  font-size: 12px;
+  color: rgba($white, 0.65);
+}
+.battery-option__details summary {
+  cursor: pointer;
+  color: rgba($white, 0.5);
+  list-style: none;
+  padding: 6px 0;
+  &::-webkit-details-marker { display: none; }
+  &::after { content: ' ▾'; font-size: 10px; }
+}
+.battery-option__details[open] summary::after { content: ' ▴'; }
+.battery-option__details dl {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  margin: 6px 0 0;
+}
+.battery-option__details dt {
+  color: rgba($white, 0.55);
+}
+.battery-option__details dd {
+  margin: 0;
+  color: $white;
+  text-align: right;
+}
+
+.battery-configurator__empty {
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px dashed rgba($white, 0.14);
+  background: rgba($white, 0.03);
+  color: rgba($white, 0.72);
+  text-align: center;
+  line-height: 1.5;
+}
+
+@media (max-width: 1200px) {
+  .battery-configurator__summary--secondary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .battery-configurator__options-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .battery-configurator__summary--secondary { grid-template-columns: 1fr; }
+  .battery-configurator__options-row { grid-template-columns: 1fr; }
+}

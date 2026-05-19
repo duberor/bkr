@@ -1,0 +1,108 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  min-width: 0;
+}
+
+.field__label {
+  @include regular();
+  display: flex;
+  align-items: flex-end;
+  min-height: 2.8em;
+  color: rgba($white, 0.72);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.field__control {
+  @include regular();
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid rgba($white, 0.12);
+  border-radius: 16px;
+  background: rgba($white, 0.05);
+  color: $white;
+  outline: 0;
+  box-sizing: border-box;
+  font-size: 15px;
+  line-height: 1.2;
+
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+textarea.field__control {
+  min-height: 96px;
+  padding: 14px 16px;
+  resize: vertical;
+}
+
+.field__control::placeholder {
+  color: rgba($white, 0.35);
+}
+
+.field__control:focus {
+  border-color: rgba($info20, 0.58);
+  background: rgba($white, 0.07);
+  box-shadow: 0 0 0 3px rgba($info20, 0.14);
+}
+
+.field__control:disabled,
+.field__control[disabled] {
+  background: rgba($white, 0.02);
+  border-color: rgba($white, 0.06);
+  color: rgba($white, 0.4);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+:host([compact]) .field { gap: 4px; }
+:host([compact]) .field__label {
+  min-height: 0;
+  font-size: 12px;
+  color: rgba($white, 0.65);
+  font-weight: 500;
+}
+:host([compact]) .field__control {
+  min-height: 36px;
+  font-size: 13px;
+  padding: 0 12px;
+  border-radius: 12px;
+}
+:host([compact]) .field__message {
+  font-size: 11px;
+}
+
+.field__control:disabled::placeholder,
+.field__control[disabled]::placeholder {
+  color: rgba($white, 0.2);
+}
+
+.field__message {
+  font-size: 12px;
+  color: rgba($white, 0.58);
+}
+
+.field__message--error {
+  color: #ff9a9a;
+}
+
+.field__control.is-error {
+  border-color: rgba(255, 122, 122, 0.72);
+  box-shadow: 0 0 0 3px rgba(255, 122, 122, 0.12);
+}
+
+@media (max-width: 720px) {
+  .field__label {
+    min-height: auto;
+  }
+}

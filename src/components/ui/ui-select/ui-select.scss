@@ -1,0 +1,196 @@
+:host {
+  display: block;
+  min-width: 0;
+  position: relative;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  min-width: 0;
+}
+
+.field__select-wrap {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.field--open {
+  position: relative;
+  z-index: 140;
+}
+
+.field__label {
+  display: flex;
+  align-items: flex-end;
+  min-height: 2.8em;
+  font-size: 14px;
+  color: rgba($white, 0.72);
+  line-height: 1.35;
+}
+
+.field__select-wrap {
+  position: relative;
+}
+
+.field__control {
+  appearance: none;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 44px 0 16px;
+  border-radius: 16px;
+  border: 1px solid rgba($white, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: $white;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.2;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+:host([compact]) .field { gap: 4px; }
+:host([compact]) .field__label {
+  min-height: 0;
+  font-size: 12px;
+  color: rgba($white, 0.65);
+  font-weight: 500;
+}
+:host([compact]) .field__control {
+  min-height: 36px;
+  font-size: 13px;
+  padding: 0 36px 0 12px;
+  border-radius: 12px;
+}
+:host([compact]) .field__value { font-size: 13px; }
+:host([compact]) .field__arrow { right: 12px; }
+:host([compact]) .field__message { font-size: 11px; }
+
+.field__control:hover {
+  border-color: rgba($white, 0.2);
+}
+
+.field__control:focus-visible,
+.field__select-wrap.is-open .field__control {
+  outline: none;
+  border-color: rgba($info20, 0.58);
+  box-shadow: 0 0 0 3px rgba($info20, 0.14);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.field__control:disabled,
+.field.is-disabled .field__control {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field__value {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.field__value.is-placeholder {
+  color: rgba($white, 0.48);
+}
+
+.field__dropdown {
+  position: absolute;
+  z-index: 160;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  min-width: 100%;
+  max-height: 280px;
+  overflow: auto;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid rgba($white, 0.12);
+  background: #171d2a;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
+}
+
+.field__option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: $white;
+  font: inherit;
+  text-align: left;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.field__option:hover,
+.field__option.is-selected {
+  background: rgba($white, 0.08);
+}
+
+.field__check {
+  color: $info20;
+  font-weight: 700;
+}
+
+.field__empty {
+  padding: 12px;
+  color: rgba($white, 0.6);
+  font-size: 14px;
+}
+
+.field__arrow {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba($white, 0.72);
+  border-bottom: 2px solid rgba($white, 0.72);
+  transform: translateY(-65%) rotate(45deg);
+  pointer-events: none;
+  transition: transform 0.18s ease;
+}
+
+.field__select-wrap.is-open .field__arrow {
+  transform: translateY(-35%) rotate(-135deg);
+}
+
+.field__option.is-active {
+  background: rgba($info20, 0.14);
+}
+
+.field__message {
+  font-size: 12px;
+  color: rgba($white, 0.58);
+}
+
+.field__message--error {
+  color: #ff9a9a;
+}
+
+.field__control.is-error {
+  border-color: rgba(255, 122, 122, 0.72);
+  box-shadow: 0 0 0 3px rgba(255, 122, 122, 0.12);
+}
+
+@media (max-width: 720px) {
+  .field__label {
+    min-height: auto;
+  }
+}

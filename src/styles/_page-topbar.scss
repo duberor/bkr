@@ -1,0 +1,122 @@
+/* Shared topbar + steps — використовується на всіх 4 сторінках */
+
+.page-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.page-body {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba($white, 0.08);
+  background: rgba(10, 16, 27, 0.72);
+  backdrop-filter: blur(18px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex-wrap: wrap;
+}
+
+.page-steps {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.page-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba($white, 0.08);
+  background: rgba($white, 0.03);
+  color: rgba($white, 0.45);
+  text-decoration: none;
+  font-size: 12px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+
+  &:hover {
+    color: rgba($white, 0.8);
+    border-color: rgba($white, 0.14);
+  }
+
+  &.is-active {
+    border-color: rgba($info20, 0.45);
+    background: rgba($info20, 0.14);
+    color: $info30;
+  }
+}
+
+.page-step__n {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.page-step.is-active .page-step__n {
+  background: $info20;
+  border-color: $info20;
+  color: $white;
+}
+
+.page-topbar__end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgba($white, 0.12);
+  background: rgba($white, 0.04);
+  color: rgba($white, 0.8);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: rgba($white, 0.08);
+    border-color: rgba($white, 0.2);
+  }
+}
+
+@media (max-width: 640px) {
+  .page-topbar {
+    gap: 8px;
+  }
+
+  .page-step span:last-child {
+    display: none;
+  }
+
+  .page-body {
+    padding: 14px;
+  }
+}
